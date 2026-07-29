@@ -433,7 +433,7 @@ function exVerzendJaarRoosterXlsx(curYear = 2026) {
   if (!ss)
     exMaakJaarRoosterXlsx(curYear);
 
-  var emailTo = crGetInstelling("Mailinglist JaarRooster");
+  var emailTo = crLeesConfiguratie("Mailinglist JaarRooster");
   if (!emailTo) {
     Logger.log("Instelling Mailinglist JaarRooster niet gevonden:" + emailTo);
     SpreadsheetApp.getUi().alert("Instelling Mailinglist JaarRooster niet gevonden");

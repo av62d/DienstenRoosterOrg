@@ -59,6 +59,7 @@ function mnOnOpen() {
   ss.addMenu("Beheer", [
     { name: "Controleer spreadsheet", functionName: "bhControleerSpreadsheet" },
     { name: "Initialiseer ontbrekende structuur", functionName: "bhInitialiseerSpreadsheet" },
+    { name: "Migreer Instellingen naar Configuratie", functionName: "bhMigreerConfiguratie" },
     { name: "Controleer projectconfiguratie", functionName: "bhControleerProjectConfiguratie" }
   ]);
 }

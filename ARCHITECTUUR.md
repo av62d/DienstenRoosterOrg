@@ -16,6 +16,16 @@ tweeletterprefix van de module waarin zij staat.
 | `BH_Beheer.js` | `bh` | Controle en niet-destructieve initialisatie |
 | `TS_Test.js` | `ts` | Handmatig uitvoerbare testfuncties |
 
+## Configuratie
+
+Alle instelbare waarden staan in het werkblad `Configuratie`, met de sleutel in
+kolom A en de waarde in kolom B. Productiecode leest deze waarden uitsluitend via
+`crLeesConfiguratie`.
+
+Mailtemplates worden opgeslagen als Google Document-ID, niet als bestandsnaam.
+Daardoor is de koppeling niet afhankelijk van unieke of onveranderde namen in
+Google Drive.
+
 ## Uitzondering
 
 `onOpen` heeft bewust geen prefix. Google Apps Script herkent een eenvoudige
@@ -30,3 +40,5 @@ doorschakeling naar `mnOnOpen`.
   benoemde bereiken. Bestaande inhoud en opmaak blijven intact.
 - `bhControleerProjectConfiguratie`: rapporteert geïnstalleerde triggers en
   online projectconfiguratie.
+- `bhMigreerConfiguratie`: hernoemt `Instellingen` naar `Configuratie` en zet
+  bestaande templatebestandsnamen om naar document-ID's.

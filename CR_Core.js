@@ -16,19 +16,28 @@ function crCreateOrClearSheet(argSheetName) {
 }
 
 
-function crGetInstelling(argMessage) {
-  var allSettings = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Instellingen").getRange('A:B').getValues();
+function crLeesConfiguratie(sleutel, standaardWaarde) {
+  var configuratieblad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Configuratie");
+  if (!configuratieblad) {
+    throw new Error("Werkblad 'Configuratie' ontbreekt. Voer eerst bhMigreerConfiguratie uit.");
+  }
 
-  var retValue = '';
-  for (var i in allSettings)
-    if (allSettings[i][0] == argMessage) {
-      retValue = allSettings[i][1];
-      break;
+  var laatsteRij = configuratieblad.getLastRow();
+  if (laatsteRij === 0) {
+    return standaardWaarde === undefined ? "" : standaardWaarde;
+  }
+
+  var configuratie = configuratieblad.getRange(1, 1, laatsteRij, 2).getValues();
+  for (var rij = 0; rij < configuratie.length; rij++) {
+    if (String(configuratie[rij][0]).trim() === sleutel) {
+      return configuratie[rij][1];
     }
+  }
 
-  Logger.log("Search: " + argMessage + " Found: " + i + "val=" + retValue + "=");
-
-  return retValue;
+  if (standaardWaarde !== undefined) {
+    return standaardWaarde;
+  }
+  throw new Error("Configuratiesleutel ontbreekt: " + sleutel);
 }
 
 

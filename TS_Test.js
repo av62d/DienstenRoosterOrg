@@ -96,7 +96,7 @@ function tsTestSendRoster() {
   // The user can also close the dialog by clicking the close button in its title
   // bar.
 
-  cmRealSendRoster(crGetInstelling("Test Mailinglist Sheet"), num_weeks, num_months);
+  cmRealSendRoster(crLeesConfiguratie("Test Mailinglist Sheet"), num_weeks, num_months);
 
 }
 
@@ -120,17 +120,17 @@ function tsTestSendTemplate() {
 
 
 function tsTestZendMededelingen() {
-  cmRealZendMededelingen(crGetInstelling("Test Mailinglist Mededelingen"),false);
+  cmRealZendMededelingen(crLeesConfiguratie("Test Mailinglist Mededelingen"),false);
 }
 
 
 function tsTestSendMJMededelingen() {
-    cmSendMJMededelingenToEmail(crGetInstelling("MJ Maillist test"));
+    cmSendMJMededelingenToEmail(crLeesConfiguratie("MJ Maillist test"));
 }
 
 
 function tsTestVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenToEmail(crGetInstelling("Test Liemers Activiteiten Maillist"));
+  cmVerzendLiemersActiviteitenToEmail(crLeesConfiguratie("Test Liemers Activiteiten Maillist"));
 }
 
 
@@ -146,7 +146,7 @@ function tsTestConv() {
 
 
 function tsTestVerzendLectorRooster() {
-  cmRealVerzendLectorRooster(crGetInstelling("Lector TestMailinglist Sheet"));
+  cmRealVerzendLectorRooster(crLeesConfiguratie("Lector TestMailinglist Sheet"));
 }
 
 

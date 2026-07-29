@@ -4,7 +4,7 @@
  */
 
 function kaEventsToCalendar() {
-  var calName = crGetInstelling("Kalender Kerkdiensten");
+  var calName = crLeesConfiguratie("Kalender Kerkdiensten");
 
   var nowDate = new Date();
   nowDate.setHours(0);
@@ -49,8 +49,8 @@ function kaReadCal(report_sheet)
 {
   var calendars = new Array();
   var allEntries = new Array();
-  calendars.push (crGetInstelling("Kalender Kerkdiensten"));
-  calendars.push (crGetInstelling("Kalender Activiteiten"));
+  calendars.push (crLeesConfiguratie("Kalender Kerkdiensten"));
+  calendars.push (crLeesConfiguratie("Kalender Activiteiten"));
 
   
   var num_weeks_in_report = 2; 

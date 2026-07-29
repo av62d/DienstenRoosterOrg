@@ -88,7 +88,7 @@ function bhSpreadsheetSpecificatie() {
       "Lijst Ontvangst",
       "Lijst Klokkenluiders",
       "Lijst KerkTV",
-      "Instellingen",
+      "Configuratie",
       "LectorMaillijst",
       "Maillijst",
       "Adressen",
@@ -112,6 +112,91 @@ function bhSpreadsheetSpecificatie() {
       { naam: "LijstExtra", werkblad: "Lijst Ambtsdragers", bereik: "E4:E22" }
     ]
   };
+}
+
+/**
+ * Hernoemt het bestaande instellingenblad en zet templatebestandsnamen eenmalig
+ * om naar stabiele Google Document-ID's.
+ */
+function bhMigreerConfiguratie(toonMelding) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var oudBlad = ss.getSheetByName("Instellingen");
+  var configuratieblad = ss.getSheetByName("Configuratie");
+
+  if (oudBlad && configuratieblad && oudBlad.getSheetId() !== configuratieblad.getSheetId()) {
+    throw new Error("Zowel 'Instellingen' als 'Configuratie' bestaat. Voeg deze eerst handmatig samen.");
+  }
+  if (!configuratieblad && oudBlad) {
+    oudBlad.setName("Configuratie");
+    configuratieblad = oudBlad;
+  }
+  if (!configuratieblad) {
+    configuratieblad = ss.insertSheet("Configuratie");
+  }
+
+  var sleutelMigraties = [
+    { oud: "KerkTV MailTemplate Doc", nieuw: "KerkTV MailTemplate Doc ID" },
+    { oud: "Mededelingen Template", nieuw: "Mededelingen Template ID" },
+    { oud: "MJ Mededeling Template Doc", nieuw: "MJ Mededeling Template Doc ID" },
+    { oud: "Liemers Activiteiten Template Doc", nieuw: "Liemers Activiteiten Template Doc ID" }
+  ];
+  var laatsteRij = configuratieblad.getLastRow();
+  var gegevens = laatsteRij ? configuratieblad.getRange(1, 1, laatsteRij, 2).getValues() : [];
+  var wijzigingen = [];
+
+  sleutelMigraties.forEach(function (migratie) {
+    for (var rij = 0; rij < gegevens.length; rij++) {
+      var sleutel = String(gegevens[rij][0]).trim();
+      if (sleutel === migratie.oud || sleutel === migratie.nieuw) {
+        var oudeWaarde = String(gegevens[rij][1] || "").trim();
+        var documentId = bhBepaalDocumentId(oudeWaarde);
+        configuratieblad.getRange(rij + 1, 1, 1, 2)
+          .setValues([[migratie.nieuw, documentId]]);
+        wijzigingen.push({
+          rij: rij + 1,
+          sleutel: migratie.nieuw,
+          documentId: documentId
+        });
+        return;
+      }
+    }
+  });
+
+  var resultaat = {
+    werkblad: configuratieblad.getName(),
+    templateMigraties: wijzigingen
+  };
+  console.log(JSON.stringify(resultaat, null, 2));
+  if (toonMelding !== false) {
+    SpreadsheetApp.getUi().alert(
+      "Configuratiemigratie voltooid. Template-ID's bijgewerkt: " + wijzigingen.length + "."
+    );
+  }
+  return resultaat;
+}
+
+/** Accepteert een bestaand ID, een document-URL of een oude bestandsnaam. */
+function bhBepaalDocumentId(waarde) {
+  if (!waarde) {
+    throw new Error("Een mailtemplate heeft geen document-ID of bestandsnaam.");
+  }
+
+  var urlTreffer = waarde.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  var kandidaat = urlTreffer ? urlTreffer[1] : waarde;
+  try {
+    DriveApp.getFileById(kandidaat).getName();
+    return kandidaat;
+  } catch (fout) {
+    var bestanden = DriveApp.getFilesByName(waarde);
+    if (!bestanden.hasNext()) {
+      throw new Error("Mailtemplate niet gevonden: " + waarde);
+    }
+    var documentId = bestanden.next().getId();
+    if (bestanden.hasNext()) {
+      throw new Error("Meerdere mailtemplates met dezelfde naam gevonden: " + waarde);
+    }
+    return documentId;
+  }
 }
 
 /** Alleen-lezen controle van werkbladen, benoemde bereiken en tijdzones. */
@@ -171,6 +256,9 @@ function bhControleerSpreadsheet() {
  */
 function bhInitialiseerSpreadsheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss.getSheetByName("Instellingen") && !ss.getSheetByName("Configuratie")) {
+    bhMigreerConfiguratie(false);
+  }
   var specificatie = bhSpreadsheetSpecificatie();
   var aangemaakteWerkbladen = [];
   var aangemaakteBereiken = [];
