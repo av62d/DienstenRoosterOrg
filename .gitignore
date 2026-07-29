@@ -1,0 +1,10 @@
+# Lokale reservekopieën
+.codex-backups/
+
+# Lokale authenticatie en tijdelijke bestanden
+.clasprc.json
+node_modules/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

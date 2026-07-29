@@ -1,0 +1,7 @@
+# Lokale reservekopieën en configuratie mogen niet naar Apps Script.
+.codex-backups/**
+.git/**
+node_modules/**
+.clasp.json
+.projectrc
+.claspignore
