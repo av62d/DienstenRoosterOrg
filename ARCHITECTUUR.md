@@ -18,9 +18,9 @@ tweeletterprefix van de module waarin zij staat.
 
 ## Configuratie
 
-Alle instelbare waarden staan in het werkblad `Configuratie`, met de sleutel in
-kolom A en de waarde in kolom B. Productiecode leest deze waarden uitsluitend via
-`crLeesConfiguratie`.
+Alle instelbare waarden staan in het werkblad `Configuratie`, geordend als
+`Categorie`, `Instelling`, `Waarde` en `Toelichting`. Productiecode leest deze
+waarden uitsluitend via `crLeesConfiguratie`.
 
 Mailtemplates worden opgeslagen als Google Document-ID, niet als bestandsnaam.
 Daardoor is de koppeling niet afhankelijk van unieke of onveranderde namen in
@@ -42,3 +42,5 @@ doorschakeling naar `mnBijOpenen`.
   online projectconfiguratie.
 - `bhMigreerConfiguratie`: hernoemt `Instellingen` naar `Configuratie` en zet
   bestaande templatebestandsnamen om naar document-ID's.
+- `bhSchoonConfiguratieOp`: behoudt alleen werkelijk gebruikte instellingen,
+  migreert oude sleutelnamen en bouwt de vaste, logisch gegroepeerde tabel op.

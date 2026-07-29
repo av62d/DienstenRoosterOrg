@@ -4,7 +4,7 @@
  */
 
 function kaZetGebeurtenissenInAgenda() {
-  var calName = crLeesConfiguratie("Kalender Kerkdiensten");
+  var calName = crLeesConfiguratie("Agenda - Kerkdiensten");
 
   var nowDate = new Date();
   nowDate.setHours(0);
@@ -49,8 +49,8 @@ function kaLeesAgenda(report_sheet)
 {
   var calendars = new Array();
   var allEntries = new Array();
-  calendars.push (crLeesConfiguratie("Kalender Kerkdiensten"));
-  calendars.push (crLeesConfiguratie("Kalender Activiteiten"));
+  calendars.push (crLeesConfiguratie("Agenda - Kerkdiensten"));
+  calendars.push (crLeesConfiguratie("Agenda - Activiteiten"));
 
 
   var num_weeks_in_report = 2;

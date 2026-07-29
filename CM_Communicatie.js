@@ -36,11 +36,11 @@ function cmVerzendRoosterbericht() {
 
 
 function cmVerzendRooster() {
-  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Rooster Mailinglist Sheet"), 4, 3); // 2 weeks and 3 months
+  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Rooster"), 4, 3); // 2 weeks and 3 months
 }
 
 
-function cmVerzendRoosterNaarLijst(emailListSheet = crLeesConfiguratie("Test Mailinglist Sheet"), num_weeks_in_report = 6, num_months_in_report = 6) {
+function cmVerzendRoosterNaarLijst(emailListSheet = crLeesConfiguratie("Mailinglijstwerkblad - Test"), num_weeks_in_report = 6, num_months_in_report = 6) {
 
   //var num_weeks_in_report = 4;
   //var num_months_in_report = 6;
@@ -48,7 +48,7 @@ function cmVerzendRoosterNaarLijst(emailListSheet = crLeesConfiguratie("Test Mai
   var rptTitle = "Rooster " + num_months_in_report + " maanden";
   var rptSheetName = "Rooster-" + num_months_in_report + "-maanden";
 
-  var msg = crLeesConfiguratie("Rooster Mededeling");
+  var msg = crLeesConfiguratie("Berichttekst - Rooster");
 
   var curDate = crZetOpBeginVanDag(new Date());
 
@@ -252,16 +252,16 @@ function cmVerzendDienstenlijst() {
 
 
 function cmVerzendTemplate() {
-  cmVerzendTemplateNaarLijst(crLeesConfiguratie("KerkTV Mailinglist Sheet"));
+  cmVerzendTemplateNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - KerkTV"));
 }
 
 
-function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Test Mailinglist Sheet")) {
+function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mailinglijstwerkblad - Test")) {
   //function cmVerzendTemplateNaarLijst(emailListSheetName) {
   Logger.log(emailListSheetName);
-  var calName = crLeesConfiguratie("Kalender KerkTV");
-  var mededeling = crLeesConfiguratie("KerkTV Mededeling ");
-  var templateDocumentId = crLeesConfiguratie("KerkTV MailTemplate Doc ID");
+  var calName = crLeesConfiguratie("Agenda - KerkTV");
+  var mededeling = crLeesConfiguratie("Berichttekst - KerkTV");
+  var templateDocumentId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
 
   Logger.log(templateDocumentId);
   var nowDate = new Date();
@@ -414,12 +414,12 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Tes
 
 
 function cmVerzendMededelingen() {
-  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglist Mededelingen"), false);
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), false);
 }
 
 
 function cmVerzendMededelingenVolgendeWeek() {
-  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglist Mededelingen"), true);
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), true);
 }
 
 
@@ -430,9 +430,9 @@ function cmVerzendMededelingenNaarAdres(emailTo = null, VolgendeWeek = false) {
 
   Logger.log(emailTo + "volgende week = " + VolgendeWeek);
 
-  var calName = crLeesConfiguratie("Kalender KerkTV");
-  var mededeling = crLeesConfiguratie("KerkTV Mededeling ");
-  var templateDocumentId = crLeesConfiguratie("Mededelingen Template ID");
+  var calName = crLeesConfiguratie("Agenda - KerkTV");
+  var mededeling = crLeesConfiguratie("Berichttekst - KerkTV");
+  var templateDocumentId = crLeesConfiguratie("Template-ID - Mededelingen");
 
   var var_voorganger = "INVULLEN";
   var var_organist = "Rolf Zandbergen";
@@ -575,12 +575,12 @@ function cmMaakRoosterbericht() {
 
 
 function cmNieuwTestVerzendMededelingen() {
-  cmNieuwVerzendMededelingenNaarAdres(crLeesConfiguratie("Test Mailinglist Mededelingen"));
+  cmNieuwVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen test"));
 }
 
 
 function cmNieuwVerzendMededelingen() {
-  cmNieuwVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglist Mededelingen"));
+  cmNieuwVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"));
 }
 
 
@@ -589,9 +589,9 @@ function cmNieuwVerzendMededelingenNaarAdres(emailTo) {
     return;
   }
   Logger.log(emailTo);
-  var calName = crLeesConfiguratie("Kalender KerkTV");
-  var mededeling = crLeesConfiguratie("KerkTV Mededeling ");
-  var templateDocumentId = crLeesConfiguratie("Mededelingen Template ID");
+  var calName = crLeesConfiguratie("Agenda - KerkTV");
+  var mededeling = crLeesConfiguratie("Berichttekst - KerkTV");
+  var templateDocumentId = crLeesConfiguratie("Template-ID - Mededelingen");
 
   var var_voorganger = "INVULLEN";
   var var_organist = "Rolf Zandbergen";
@@ -696,7 +696,7 @@ var tag_nl = "<br />";
 
 
 function cmVerzendMjMededelingen() {
-    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("MJ Maillist"));
+    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - MJ"));
 }
 
 
@@ -740,9 +740,9 @@ function cmFormatteerEersteGebeurtenisVolledig(events) {
 
 function cmVerzendMjMededelingenNaarAdres(emailTo) {
 
-  var calKerkdiensten = crLeesConfiguratie("Kalender KerkTV");
-  var calActiviteiten = crLeesConfiguratie("Kalender Activiteiten");
-  var templateDocumentId = crLeesConfiguratie("MJ Mededeling Template Doc ID");
+  var calKerkdiensten = crLeesConfiguratie("Agenda - KerkTV");
+  var calActiviteiten = crLeesConfiguratie("Agenda - Activiteiten");
+  var templateDocumentId = crLeesConfiguratie("Template-ID - MJ-mededelingen");
 
   Logger.log(templateDocumentId);
   Logger.log(emailTo);
@@ -795,7 +795,7 @@ var tag_nl = "<br />";
 
 
 function cmVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Liemers Activiteiten Maillist"));
+  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Mailinglijst - Liemersactiviteiten"));
 }
 
 
@@ -842,8 +842,8 @@ function cmFormatteerLiemersGebeurtenissen(events) {
 
 function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
 
-  var calActiviteiten = crLeesConfiguratie("Kalender Liemers Activiteiten");
-  var templateDocumentId = crLeesConfiguratie("Liemers Activiteiten Template Doc ID");
+  var calActiviteiten = crLeesConfiguratie("Agenda - Liemersactiviteiten");
+  var templateDocumentId = crLeesConfiguratie("Template-ID - Liemersactiviteiten");
 
   Logger.log(templateDocumentId);
   Logger.log(emailTo);
@@ -904,7 +904,7 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
 }
 
 
-function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglist lijst kerkdiensten")) {
+function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglijst - Kerkdiensten")) {
 
 
   var num_weeks_in_report = 12;
@@ -1071,11 +1071,11 @@ function cmVerzendLectorBericht() {
 
 
 function cmVerzendLectorrooster() {
-  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Lector Mailinglist Sheet"));
+  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Lectoren"));
 }
 
 
-function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Lector TestMailinglist Sheet")) {
+function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test")) {
 
   var num_weeks_in_report = 52;
 

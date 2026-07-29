@@ -96,7 +96,7 @@ function tsTestVerzendRooster() {
   // The user can also close the dialog by clicking the close button in its title
   // bar.
 
-  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Test Mailinglist Sheet"), num_weeks, num_months);
+  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Test"), num_weeks, num_months);
 
 }
 
@@ -120,17 +120,17 @@ function tsTestVerzendTemplate() {
 
 
 function tsTestVerzendMededelingen() {
-  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Test Mailinglist Mededelingen"),false);
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen test"),false);
 }
 
 
 function tsTestVerzendMjMededelingen() {
-    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("MJ Maillist tsTestDatumFormattering"));
+    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - MJ test"));
 }
 
 
 function tsTestVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Test Liemers Activiteiten Maillist"));
+  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Mailinglijst - Liemersactiviteiten test"));
 }
 
 
@@ -146,7 +146,7 @@ function tsTestConversie() {
 
 
 function tsTestVerzendLectorrooster() {
-  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Lector TestMailinglist Sheet"));
+  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test"));
 }
 
 

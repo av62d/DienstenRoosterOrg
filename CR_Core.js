@@ -27,8 +27,13 @@ function crLeesConfiguratie(sleutel, standaardWaarde) {
     return standaardWaarde === undefined ? "" : standaardWaarde;
   }
 
-  var configuratie = configuratieblad.getRange(1, 1, laatsteRij, 2).getValues();
+  var configuratie = configuratieblad.getRange(1, 1, laatsteRij, 3).getValues();
   for (var rij = 0; rij < configuratie.length; rij++) {
+    // Nieuwe indeling: B = instelling, C = waarde.
+    if (String(configuratie[rij][1]).trim() === sleutel) {
+      return configuratie[rij][2];
+    }
+    // Tijdelijke achterwaartse compatibiliteit met de oude A:B-indeling.
     if (String(configuratie[rij][0]).trim() === sleutel) {
       return configuratie[rij][1];
     }
