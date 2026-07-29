@@ -3,22 +3,22 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function ytSendLastVideos() {
+function ytVerzendLaatsteVideos() {
   var nr_videos = 16;
-  var email = "<h4>Vorige " + nr_videos + " diensten</h4>" + ytYouTubeCreateUploadList(nr_videos);
+  var email = "<h4>Vorige " + nr_videos + " diensten</h4>" + ytMaakUploadLijst(nr_videos);
   MailApp.sendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", email);
   var x = 2;
 }
 
 
-function ytYouTubeCreateUploadList(n = 4) {
-  var uploadData = ytYouTubeRetrieveMyUploads();
+function ytMaakUploadLijst(n = 4) {
+  var uploadData = ytHaalMijnUploadsOp();
 
-  function ytTag(tg, str) {
+  function ytMaakHtmlElement(tg, str) {
     return "<" + tg + ">" + str + "</" + tg + ">";
   }
 
-  function ytTagLink(link, text) {
+  function ytMaakHtmlLink(link, text) {
     return '<a href="' + link + '">' + text + '</a>';
   }
   var msg = "<ul>";
@@ -29,7 +29,7 @@ function ytYouTubeCreateUploadList(n = 4) {
     var publishedAt = s.publishedAt;
 
     if (s.position < n) {
-      msg += ytTag("li", ytTagLink("https://youtube.com/watch?v=" + videoId, title)) + "\n";
+      msg += ytMaakHtmlElement("li", ytMaakHtmlLink("https://youtube.com/watch?v=" + videoId, title)) + "\n";
     }
   }
   msg += "</ul>";
@@ -37,7 +37,7 @@ function ytYouTubeCreateUploadList(n = 4) {
 }
 
 
-function ytYouTubeRetrieveMyUploads(rptSheet) {
+function ytHaalMijnUploadsOp(rptSheet) {
 
   var uploadData = new Array();
   var results = YouTube.Channels.list('contentDetails', { id: 'UClt2GbA6n0zhT7E-uq7O4EA' });
@@ -46,16 +46,16 @@ function ytYouTubeRetrieveMyUploads(rptSheet) {
 
 
 
-  ytLoad(rptSheet, 'contentDetails', results);
-  // ytLoad(rptSheet, 'contentDetails2' , results2 ); 
+  ytLaad(rptSheet, 'contentDetails', results);
+  // ytLaad(rptSheet, 'contentDetails2' , results2 );
 
 
 
-  function ytLoad(rptSheet, details, results) {
+  function ytLaad(rptSheet, details, results) {
     if (rptSheet) rptSheet.appendRow([details, results]);
     for (var i in results.items) {
       var item = results.items[i];
-      if (rptSheet) rptSheet.appendRow(['ytYouTubeRetrieveMyUploads', item]);
+      if (rptSheet) rptSheet.appendRow(['ytHaalMijnUploadsOp', item]);
       // Get the playlist ID, which is nested in contentDetails, as described in the
       // Channel resource: https://developers.google.com/youtube/v3/docs/channels
 
@@ -89,11 +89,11 @@ function ytYouTubeRetrieveMyUploads(rptSheet) {
 }
 
 
-// function YouTubeCreateUploadsSheet(rptSheet = CreateOrClearSheet('Videos')) {
+// function ytMaakUploadWerkblad(rptSheet = CreateOrClearSheet('Videos')) {
 
 
-function ytYouTubeCreateUploadsSheet(rptSheet) {
-  var uploadData = ytYouTubeRetrieveMyUploads();
+function ytMaakUploadWerkblad(rptSheet) {
+  var uploadData = ytHaalMijnUploadsOp();
   // Logger.log("Kind === "+ uploadData + "===");
   for (var i in uploadData) {
     var s = uploadData[i];
@@ -140,7 +140,7 @@ function ytYouTubeCreateUploadsSheet(rptSheet) {
  */
 
 
-function ytCreateYouTubeStream(title, date, time) {
+function ytMaakYouTubeUitzending(title, date, time) {
 
   // Timezone of the script project
   const tz = Session.getScriptTimeZone();
@@ -190,7 +190,7 @@ function ytCreateYouTubeStream(title, date, time) {
 }
 
 
-function ytCreateLiveStream(title) {
+function ytMaakLivestream(title) {
 
   const url =
       "https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn,status";
@@ -221,7 +221,7 @@ function ytCreateLiveStream(title) {
 }
 
 
-function ytBindBroadcast(broadcastId, streamId) {
+function ytKoppelUitzending(broadcastId, streamId) {
 
   const url =
       "https://www.googleapis.com/youtube/v3/liveBroadcasts/bind" +
@@ -248,7 +248,7 @@ function ytBindBroadcast(broadcastId, streamId) {
  */
 
 
-function ytUpdateVideo() {
+function ytWerkVideoBij() {
   // 1. Fetch all the channels owned by active user
   var myChannels = YouTube.Channels.list('contentDetails', {mine: true});
   // 2. Iterate through the channels and get the uploads playlist ID
@@ -265,7 +265,7 @@ function ytUpdateVideo() {
     var video = playlistResponse.items[0];
     var originalDescription = video.snippet.description;
     var updatedDescription = originalDescription + ' Description updated via Google Apps Script';
-    
+
     Logger.log('[%d] Title: %s -- %s',
                playlistResponse.items.length,
                video.snippet.title,

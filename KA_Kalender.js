@@ -3,20 +3,20 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function kaEventsToCalendar() {
+function kaZetGebeurtenissenInAgenda() {
   var calName = crLeesConfiguratie("Kalender Kerkdiensten");
 
   var nowDate = new Date();
   nowDate.setHours(0);
   nowDate.setMinutes(0);
-  var endDate = crGetYearEndDate();
+  var endDate = crBepaalEindeVanJaar();
   endDate.setFullYear(endDate.getFullYear() + 2); // end of next year
 
   var cal = CalendarApp.getCalendarsByName(calName)[0];
   var ui = SpreadsheetApp.getUi();
 
   var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelectData(nowDate, endDate);
+    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(nowDate, endDate);
 
   if (cal) {
     var events = cal.getEvents(nowDate, endDate);
@@ -45,41 +45,41 @@ function kaEventsToCalendar() {
 }
 
 
-function kaReadCal(report_sheet)
+function kaLeesAgenda(report_sheet)
 {
   var calendars = new Array();
   var allEntries = new Array();
   calendars.push (crLeesConfiguratie("Kalender Kerkdiensten"));
   calendars.push (crLeesConfiguratie("Kalender Activiteiten"));
 
-  
-  var num_weeks_in_report = 2; 
-  
-  var curWeekNum = crGetWeekNum();
+
+  var num_weeks_in_report = 2;
+
+  var curWeekNum = crBepaalWeeknummer();
   // The begindate is : the begin day of this week + 1 week and 1 day (i.e. Monday of next week)
-  var beginDate = crAddDaysToDate (crAddWeeksToDate(crGetWeekBeginDate(), 1), 1) ;
-  var beginWeekNum = crGetWeekNum(beginDate);
-  var endDate = crGetWeekEndDate(crAddWeeksToDate(beginDate, num_weeks_in_report));
-  
-  if (report_sheet) report_sheet.appendRow([ "Week " + beginWeekNum + " t/m  " + (beginWeekNum + num_weeks_in_report - 1) ] ); 
-  
+  var beginDate = crTelDagenBijDatumOp (crTelWekenBijDatumOp(crBepaalBeginVanWeek(), 1), 1) ;
+  var beginWeekNum = crBepaalWeeknummer(beginDate);
+  var endDate = crBepaalEindeVanWeek(crTelWekenBijDatumOp(beginDate, num_weeks_in_report));
+
+  if (report_sheet) report_sheet.appendRow([ "Week " + beginWeekNum + " t/m  " + (beginWeekNum + num_weeks_in_report - 1) ] );
+
   for (i in calendars) {
     var calName = calendars[i];
-    
+
     var cal = CalendarApp.getCalendarsByName(calName)[0];
     var n = 0;
-    if (cal) { 
+    if (cal) {
       var events = cal.getEvents(beginDate, endDate);
-      
+
       for (var i in events) {
         var entry = [ calName + " nr. " + i
-                     , crFormatDateDutchNieuw(events[i].getStartTime(), "EEEE d MMMM HH:mm") +" uur,\n" + events[i].getTitle().replace(', ', ",\n")
+                     , crFormatteerDatumNederlandsNieuw(events[i].getStartTime(), "EEEE d MMMM HH:mm") +" uur,\n" + events[i].getTitle().replace(', ', ",\n")
         // , events[i].getEndTime()
         // , events[i].getId()
         // , events[i].getDescription()
         ] ;
         allEntries.push (entry);
-        if (report_sheet) report_sheet.appendRow(entry ); 
+        if (report_sheet) report_sheet.appendRow(entry );
       }
     }
   }

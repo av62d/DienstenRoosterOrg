@@ -3,7 +3,7 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function tsTestTranslateDate() {
+function tsTestVertaalDatum() {
   var date = new Date('2026-03-26');
 
 
@@ -11,81 +11,81 @@ function tsTestTranslateDate() {
 
   for (i in date_type_list) {
     Logger.log(date_type_list[i]);
-    Logger.log(crTranslateDate(date, 'nl', date_type_list[i]));
+    Logger.log(crVertaalDatum(date, 'nl', date_type_list[i]));
   }
 }
 
 
-function tsTestFormatting() {
+function tsTestOpmaak() {
   var curDate = new Date();
 
-  crMyDebug("Today : " + curDate);
+  crLogFoutopsporing("Today : " + curDate);
 
-  crMyDebug("Weeknum : " + crGetWeekNum(curDate));
+  crLogFoutopsporing("Weeknum : " + crBepaalWeeknummer(curDate));
 
 
-  crMyDebug("week 1 : " + crGetWeekNumBeginDate(1));
-  crMyDebug("week 24 : " + crGetWeekNumBeginDate(24));
-  crMyDebug("week 52: " + crGetWeekNumBeginDate(52));
-  crMyDebug("week 62: " + crGetWeekNumBeginDate(62));
+  crLogFoutopsporing("week 1 : " + crBepaalBegindatumVanWeeknummer(1));
+  crLogFoutopsporing("week 24 : " + crBepaalBegindatumVanWeeknummer(24));
+  crLogFoutopsporing("week 52: " + crBepaalBegindatumVanWeeknummer(52));
+  crLogFoutopsporing("week 62: " + crBepaalBegindatumVanWeeknummer(62));
 
-  // crMyDebug ( "Begin week " + crGetWeekBeginDate(curDate));
-  // crMyDebug ( "End week " + crGetWeekEndDate(curDate));
-  // crMyDebug ( "End week + " + addWeeks + " :  " +  crAddWeeksToDate(crGetWeekEndDate(), addWeeks));
+  // crLogFoutopsporing ( "Begin week " + crBepaalBeginVanWeek(curDate));
+  // crLogFoutopsporing ( "End week " + crBepaalEindeVanWeek(curDate));
+  // crLogFoutopsporing ( "End week + " + addWeeks + " :  " +  crTelWekenBijDatumOp(crBepaalEindeVanWeek(), addWeeks));
 
-  // crMyDebug ( "End week " + curWeekNum + " : " + crGetWeekEndDate());
-  // crMyDebug ( "End week " + ( curWeekNum + addWeeks ) + " :  " +  crAddWeeksToDate(crGetWeekEndDate(curDate), addWeeks));
+  // crLogFoutopsporing ( "End week " + curWeekNum + " : " + crBepaalEindeVanWeek());
+  // crLogFoutopsporing ( "End week " + ( curWeekNum + addWeeks ) + " :  " +  crTelWekenBijDatumOp(crBepaalEindeVanWeek(curDate), addWeeks));
 
-  crMyDebug("Begin month " + crFormatDateDutch(crGetMonthBeginDate()));
-  crMyDebug("Begin month " + crFormatDateDutch(crGetMonthBeginDate(), "MMMM"));
-  crMyDebug("End month " + crGetMonthEndDate());
-  crMyDebug("6 month from now" + crAddMonthsToDate(curDate, 6));
-  crMyDebug("End 6 month " + crGetMonthEndDate(crAddMonthsToDate(curDate, 6)));
-  var ns = crGetNextSundayDate(curDate);
-  crMyDebug("NextSundayDate " + ns);
-  crMyDebug("NextSundayDate " + crGetNextSundayDate(ns));
+  crLogFoutopsporing("Begin month " + crFormatteerDatumNederlands(crBepaalBeginVanMaand()));
+  crLogFoutopsporing("Begin month " + crFormatteerDatumNederlands(crBepaalBeginVanMaand(), "MMMM"));
+  crLogFoutopsporing("End month " + crBepaalEindeVanMaand());
+  crLogFoutopsporing("6 month from now" + crTelMaandenBijDatumOp(curDate, 6));
+  crLogFoutopsporing("End 6 month " + crBepaalEindeVanMaand(crTelMaandenBijDatumOp(curDate, 6)));
+  var ns = crBepaalVolgendeZondag(curDate);
+  crLogFoutopsporing("NextSundayDate " + ns);
+  crLogFoutopsporing("NextSundayDate " + crBepaalVolgendeZondag(ns));
 
 }
 
 
-function tsTstMaakRooster(curYear = 2026) {
-  rptStartDate = crSetMonthBeginDate(6, curYear);
+function tsTestMaakRooster(curYear = 2026) {
+  rptStartDate = crMaakBegindatumVanMaand(6, curYear);
   var sheetPos = "3e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatDateDutchNieuw(rptStartDate, "MMMM yyyy");
-  rsMaakRoosterSheet(sheetName, sheetTitle, rptStartDate, sheetLen);
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatumNederlandsNieuw(rptStartDate, "MMMM yyyy");
+  rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 }
 
 
-function tsTst() {
+function tsTestHtmlRooster() {
   // x = ["hdrA", "hdrB", "hdrC"];
-  // rsSetTableCols(x);
-  // msg = rsAddTableRow("th", x);
-  // msg += rsAddTableRowSingleCol("th", "test");
+  // rsStelTabelkolommenIn(x);
+  // msg = rsVoegTabelrijToe("th", x);
+  // msg += rsVoegTabelrijMetEenKolomToe("th", "tsTestDatumFormattering");
 
   var num_weeks_in_report = 4;
   var num_months_in_report = 3;
 
   // zet rooster begin op vandaag.
-  var rptWeekStartDate = crSetBeginOfDay();
+  var rptWeekStartDate = crZetOpBeginVanDag();
 
-  var rptWeekEndDate = crGetWeekEndDate(crAddWeeksToDate(rptWeekStartDate, num_weeks_in_report));
-  var rptWeekStartNum = crGetWeekNum(rptWeekStartDate);
-  var rptWeekEndNum = crGetWeekNum(rptWeekEndDate);
+  var rptWeekEndDate = crBepaalEindeVanWeek(crTelWekenBijDatumOp(rptWeekStartDate, num_weeks_in_report));
+  var rptWeekStartNum = crBepaalWeeknummer(rptWeekStartDate);
+  var rptWeekEndNum = crBepaalWeeknummer(rptWeekEndDate);
 
-  var rptMonthEnd = crAddMonthsToDate(rptWeekStartDate, num_months_in_report, 6);
+  var rptMonthEnd = crTelMaandenBijDatumOp(rptWeekStartDate, num_months_in_report, 6);
   rptMonthEnd.setDate(0);
 
   //var htmlRooster = rsMaakHtmlRooster(rptWeekStartDate, num_months_in_report);
-  //var htmlWeekRaport = cmCreateHtmlWeekReport(rptWeekStartDate, rptWeekEndDate);
+  //var htmlWeekRaport = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
 
-  msg = rsMaakHtmlRooster(rptStartDate = crSetBeginOfDay(), 3);
+  msg = rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), 3);
 
   Logger.log(msg);
 }
 
 
-function tsTestSendRoster() {
+function tsTestVerzendRooster() {
 
   var ui = SpreadsheetApp.getUi();
 
@@ -96,45 +96,45 @@ function tsTestSendRoster() {
   // The user can also close the dialog by clicking the close button in its title
   // bar.
 
-  cmRealSendRoster(crLeesConfiguratie("Test Mailinglist Sheet"), num_weeks, num_months);
+  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Test Mailinglist Sheet"), num_weeks, num_months);
 
 }
 
 
-function tsTestCreateHtmlWeekReport() {
-  var curDate = crSetBeginOfDay(new Date());
+function tsTestMaakHtmlWeekrapport() {
+  var curDate = crZetOpBeginVanDag(new Date());
 
   // zet rooster begin op vandaag.
-  var rptWeekStartDate = crSetBeginOfDay();
+  var rptWeekStartDate = crZetOpBeginVanDag();
 
-  var rptWeekEndDate = crGetWeekEndDate(crAddWeeksToDate(rptWeekStartDate, 2));
+  var rptWeekEndDate = crBepaalEindeVanWeek(crTelWekenBijDatumOp(rptWeekStartDate, 2));
 
-  var msg = cmCreateHtmlWeekReport(rptWeekStartDate, rptWeekEndDate);
+  var msg = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
 
 }
 
 
-function tsTestSendTemplate() {
-  cmRealSendTemplate();
+function tsTestVerzendTemplate() {
+  cmVerzendTemplateNaarLijst();
 }
 
 
-function tsTestZendMededelingen() {
-  cmRealZendMededelingen(crLeesConfiguratie("Test Mailinglist Mededelingen"),false);
+function tsTestVerzendMededelingen() {
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Test Mailinglist Mededelingen"),false);
 }
 
 
-function tsTestSendMJMededelingen() {
-    cmSendMJMededelingenToEmail(crLeesConfiguratie("MJ Maillist test"));
+function tsTestVerzendMjMededelingen() {
+    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("MJ Maillist tsTestDatumFormattering"));
 }
 
 
 function tsTestVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenToEmail(crLeesConfiguratie("Test Liemers Activiteiten Maillist"));
+  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Test Liemers Activiteiten Maillist"));
 }
 
 
-function tsTestConv() {
+function tsTestConversie() {
   var text = "Sample value 123\nSample value 456\nSample value 789";
   console.log(text); // Original text
   console.log(conv.bold(text)); // Bold type
@@ -145,28 +145,28 @@ function tsTestConv() {
 }
 
 
-function tsTestVerzendLectorRooster() {
-  cmRealVerzendLectorRooster(crLeesConfiguratie("Lector TestMailinglist Sheet"));
+function tsTestVerzendLectorrooster() {
+  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Lector TestMailinglist Sheet"));
 }
 
 
-function tsTestCal() {
-  var arr = kaReadCal(crCreateOrClearSheet('MJ')) ;
+function tsTestAgenda() {
+  var arr = kaLeesAgenda(crMaakOfLeegWerkblad('MJ')) ;
   var x = 1;
 }
 
 
-function tsTestCreateStream() {
+function tsTestMaakUitzending() {
 
-  const broadcast = ytCreateYouTubeStream(
+  const broadcast = ytMaakYouTubeUitzending(
       "Sunday Worship Service",
       "2026-07-12",
       "10:00"
   );
 
-  const stream = ytCreateLiveStream("Kerkdienst");
+  const stream = ytMaakLivestream("Kerkdienst");
 
-  ytBindBroadcast(
+  ytKoppelUitzending(
       broadcast.id,
       stream.id
   );
@@ -176,22 +176,22 @@ function tsTestCreateStream() {
 }
 
 
-function tsPing(){
+function tsTestBereikbaarheid(){
   var my_url = "https://www.pkn-didam.nl";
   var response = UrlFetchApp.fetch(my_url);
   Logger.log(response.getContentText());
 }
 
 
-function tsTestRetrieve() {
-  
+function tsTestOphalen() {
+
   var uploadData = new Array();
   var myChannels =YouTube.Channels.list('contentDetails', {forUsername: 'PKNDidam'});
 
   // var response = YouTube.Videos.list('contentDetails',{forUsername: 'PKNDidam'});
   // printResults(response);
-  
-  
+
+
   // 2. Iterate through the channels and get the uploads playlist ID
   for (var i = 0; i < myChannels.items.length; i++) {
     var item = myChannels.items[i];
@@ -224,15 +224,15 @@ function tsTestRetrieve() {
 }
 
 
-function tsTstColorSheet() {
+function tsTestKleurwerkblad() {
 
   var src = SpreadsheetApp.getActive().getSheetByName("NaamKleuren");
   var dst = SpreadsheetApp.getActive().getSheetByName("Rooster-3-maanden");
-  opApplyColorsByContainedValue(src, dst, 4,11);
+  opPasKleurenToeOpWaarde(src, dst, 4,11);
 
 }
 
 
-function tsTstGenColors() {
-  opGenerateDistinctColorsVertical(30, "Colors");
+function tsTestGenereerKleuren() {
+  opGenereerOnderscheidendeKleurenVerticaal(30, "Colors");
 }

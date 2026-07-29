@@ -21,7 +21,7 @@
  */
 
 
-function opApplyColorsByContainedValue(sourceSheet, destinationSheet, start_col=0,end_col=0) {
+function opPasKleurenToeOpWaarde(sourceSheet, destinationSheet, start_col=0,end_col=0) {
 
   // ----- Read source data -----
 
@@ -125,7 +125,7 @@ function opApplyColorsByContainedValue(sourceSheet, destinationSheet, start_col=
  */
 
 
-function opGenerateDistinctColorsVertical(count, sheetName) {
+function opGenereerOnderscheidendeKleurenVerticaal(count, sheetName) {
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(sheetName);
@@ -149,13 +149,13 @@ function opGenerateDistinctColorsVertical(count, sheetName) {
     const hue = (i * 360 / count);
 
     // Strong saturation and balanced lightness
-    const hexColor = opHslToHex(hue, 80, 50);
+    const hexColor = opConverteerHslNaarHex(hue, 80, 50);
 
     values.push([hexColor]);
     backgrounds.push([hexColor]);
 
-    // Automatic readable text color 
-    fontColors.push([opGetContrastTextColor(hexColor, hue)]);
+    // Automatic readable text color
+    fontColors.push([opBepaalContrasterendeTekstkleur(hexColor, hue)]);
   }
 
   // Vertical range
@@ -187,7 +187,7 @@ function opGenerateDistinctColorsVertical(count, sheetName) {
  */
 
 
-function opHslToHex(hue, s, l) {
+function opConverteerHslNaarHex(hue, s, l) {
 
   s /= 100;
   l /= 100;
@@ -216,11 +216,11 @@ function opHslToHex(hue, s, l) {
   g = Math.round((g + m) * 255);
   b = Math.round((b + m) * 255);
 
-  return opRgbToHex(r, g, b);
+  return opConverteerRgbNaarHex(r, g, b);
 }
 
 
-function opRgbToHex(r, g, b) {
+function opConverteerRgbNaarHex(r, g, b) {
   return "#" +
     r.toString(16).padStart(2, "0") +
     g.toString(16).padStart(2, "0") +
@@ -236,7 +236,7 @@ function opRgbToHex(r, g, b) {
  */
 
 
-function opGetContrastTextColor(hexColor, hue) {
+function opBepaalContrasterendeTekstkleur(hexColor, hue) {
 
   const r = parseInt(hexColor.substr(1, 2), 16);
   const g = parseInt(hexColor.substr(3, 2), 16);
@@ -247,26 +247,26 @@ function opGetContrastTextColor(hexColor, hue) {
 
   return brightness > 128 ? "#000000" : "#FFFFFF";
 
-  // return opRgbToHex(255 - r, 255 - g, 255 - b); // based on rgb
-  // If your hue is between 60° and 180°, your colour is green, if it's between 180° and 300°, it's blue, else it's red. 
+  // return opConverteerRgbNaarHex(255 - r, 255 - g, 255 - b); // based on rgb
+  // If your hue is between 60° and 180°, your colour is green, if it's between 180° and 300°, it's blue, else it's red.
 
   if (hue < 60) {
-    return opRgbToHex(0, 255, 0);
+    return opConverteerRgbNaarHex(0, 255, 0);
   } else if (hue < 180) {
-    return opRgbToHex(0, 0, 255);
+    return opConverteerRgbNaarHex(0, 0, 255);
   } else if (hue < 300) {
-    return opRgbToHex(255, 0, 0);
-  } else return opRgbToHex(0, 255,0);
-   
+    return opConverteerRgbNaarHex(255, 0, 0);
+  } else return opConverteerRgbNaarHex(0, 255,0);
+
 
   // Or the opposite of the hue
-  // return opHslToHex((360 - hue, 80, 50));
+  // return opConverteerHslNaarHex((360 - hue, 80, 50));
 }
 
 
-function opSetBackgroundColors() {
+function opStelAchtergrondkleurenIn() {
   var type_pos = 0;
-  var p_type = type_pos++; //  4-E Type 
+  var p_type = type_pos++; //  4-E Type
 
   var srcSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Voorpagina');
 
@@ -296,7 +296,7 @@ function opSetBackgroundColors() {
     else    if (rowType == "T")
       color = '#ff00ff';
     else
-      color = opGetColorType(rowType, "#ffffff");
+      color = opBepaalKleurtype(rowType, "#ffffff");
 
     rowRange.setBackground(color);
   }
@@ -308,7 +308,7 @@ function opSetBackgroundColors() {
 }
 
 
-function opGetColorType(type, color)
+function opBepaalKleurtype(type, color)
 {
   switch (type) {
     case "T" : color = '#ff00ff'; break;

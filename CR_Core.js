@@ -3,7 +3,7 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function crCreateOrClearSheet(argSheetName) {
+function crMaakOfLeegWerkblad(argSheetName) {
   // argSheetName = 'Sheet 1';
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var retSheet = ss.getSheetByName(argSheetName);
@@ -41,7 +41,7 @@ function crLeesConfiguratie(sleutel, standaardWaarde) {
 }
 
 
-function crGetSheetContent(argSheetName, argA1Position) {
+function crLeesWerkbladInhoud(argSheetName, argA1Position) {
   // argSheetName = 'TestMaillijst', argA1Position = "A:A"
   var retData;
   if (argSheetName) {
@@ -55,12 +55,12 @@ function crGetSheetContent(argSheetName, argA1Position) {
 }
 
 
-function crGetSheetByName(argSheetName) {
+function crHaalWerkbladOp(argSheetName) {
   return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(argSheetName);
 }
 
 
-// function test() {
+// function tsTestDatumFormattering() {
 //   x = FormatDateDutch(null, "sort");
 // }
 
@@ -97,7 +97,7 @@ function crGetSheetByName(argSheetName) {
  */
 
 
-function crFormatDateDutchNieuw(date, format) {
+function crFormatteerDatumNederlandsNieuw(date, format) {
   const locale = "nl-NL";
   const parts = {
     yyyy: String(date.getFullYear()),
@@ -155,7 +155,7 @@ function crFormatDateDutchNieuw(date, format) {
  */
 
 
-function crTranslateDate(dateInput, locale, formatStyle) {
+function crVertaalDatum(dateInput, locale, formatStyle) {
   var date = new Date(dateInput);
 
   var options = {};
@@ -184,7 +184,7 @@ function crTranslateDate(dateInput, locale, formatStyle) {
 /* END NEW */
 
 
-function crFormatDateDutch(argDate, varFormat) {
+function crFormatteerDatumNederlands(argDate, varFormat) {
   const options = { month: 'long' };
   if (!argDate) argDate = new Date();
   var month = argDate.toLocaleDateString('nl-NL', options);
@@ -192,7 +192,7 @@ function crFormatDateDutch(argDate, varFormat) {
   var formatStr = varFormat;
   switch (varFormat) {
     case "sort": formatStr = "yy-MM-dd"; break; // "22-05-01"
-    case "DMJ": formatStr = "EEEE d MMMM yyyy"; break; // "DMJ"); // zondag 7 januari 2020 
+    case "DMJ": formatStr = "EEEE d MMMM yyyy"; break; // "DMJ"); // zondag 7 januari 2020
     case "DMT": formatStr = "EEEE d MMMM HH:mm 'uur'"; break; // "DMT"); // "zondag 7 januari 10:00u"
     case "DM": formatStr = "EEEE d MMMM"; break; // "DMT"); // "zondag 7 januari"
     case "dm": formatStr = "EEE d MMM"; break; // "DMT"); // "zo 7 jan"
@@ -203,9 +203,9 @@ function crFormatDateDutch(argDate, varFormat) {
     case "DMa": break;
 
     case "M": break;
-    case "MJ": formatStr = "MMMM yyyy"; break; // report name year month, e.g. december 2022 
+    case "MJ": formatStr = "MMMM yyyy"; break; // report name year month, e.g. december 2022
     case "J": formatStr = "yyyy"; break; // report name year e.g.  2022
-    case "sMJ": formatStr = "yy-MM"; break; // sheet name year-month, e.g. 22-12 
+    case "sMJ": formatStr = "yy-MM"; break; // sheet name year-month, e.g. 22-12
     case "w": break;
     case "wj": break;
     case "MMMM":
@@ -220,7 +220,7 @@ function crFormatDateDutch(argDate, varFormat) {
 }
 
 
-function crIfAddStr(pfx, str) {
+function crVoegTekstToeIndienGevuld(pfx, str) {
   if (str)
     return pfx + str;
   else
@@ -228,7 +228,7 @@ function crIfAddStr(pfx, str) {
 }
 
 
-function crAddStr(data, start, count) {
+function crVoegTekstToe(data, start, count) {
   var msg = "";
   var del = "\n";
   var mydel = "";
@@ -241,7 +241,7 @@ function crAddStr(data, start, count) {
     }
   }
 
-  // replace new lines with delimiters 
+  // replace new lines with delimiters
   var no_nl_msg = msg.replace("\n", del);
 
   if (no_nl_msg.length > 0)
@@ -251,9 +251,9 @@ function crAddStr(data, start, count) {
 }
 
 
-function crGetDateOfWeekNum(wantWeekDay, wantWeekNumber) {
+function crBepaalDatumVanWeeknummer(wantWeekDay, wantWeekNumber) {
   var refDate = new Date();
-  var nowWeekYear = crGetWeekNum(refDate);
+  var nowWeekYear = crBepaalWeeknummer(refDate);
   var nowWeekDay = refDate.getDay();
   var nowDateNum = refDate.getDate();
 
@@ -267,13 +267,13 @@ function crGetDateOfWeekNum(wantWeekDay, wantWeekNumber) {
 }
 
 
-function crMyDebug(arg) {
+function crLogFoutopsporing(arg) {
   Logger.log(arg);
   var x = 1;
 }
 
 
-function crGetMonthBeginDate(argDate) {
+function crBepaalBeginVanMaand(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
   retDate.setDate(1); // set to first of this month
@@ -285,7 +285,7 @@ function crGetMonthBeginDate(argDate) {
 }
 
 
-function crSetBeginOfDay(argDate) {
+function crZetOpBeginVanDag(argDate) {
   if (!argDate) argDate = new Date();
   argDate.setHours(0);
   argDate.setMinutes(0);
@@ -295,7 +295,7 @@ function crSetBeginOfDay(argDate) {
 }
 
 
-function crSetMonthBeginDate(month, curYear = 2026) {
+function crMaakBegindatumVanMaand(month, curYear = 2026) {
   var retDate = new Date();
   retDate.setYear(curYear);
   retDate.setMonth(month);  // Set end of year
@@ -308,7 +308,7 @@ function crSetMonthBeginDate(month, curYear = 2026) {
 }
 
 
-function crGetMonthEndDate(argDate) {
+function crBepaalEindeVanMaand(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
   retDate.setMonth(retDate.getMonth() + 1);  // Set Next month
@@ -321,7 +321,7 @@ function crGetMonthEndDate(argDate) {
 }
 
 
-function crGetYearBeginDate(curYear = 2026) {
+function crBepaalBeginVanJaar(curYear = 2026) {
   var retDate = new Date();
   retDate.setYear(curYear);
   retDate.setMonth(0);  // Set end of year
@@ -334,7 +334,7 @@ function crGetYearBeginDate(curYear = 2026) {
 }
 
 
-function crGetYearEndDate() {
+function crBepaalEindeVanJaar() {
   var retDate = new Date();
   retDate.setMonth(12);  // Set end of year
   retDate.setDate(0);// Date == 0 will move to last day of previous month
@@ -346,23 +346,23 @@ function crGetYearEndDate() {
 }
 
 
-function crGetWeekNum(argDate) {
+function crBepaalWeeknummer(argDate) {
   if (!argDate) argDate = new Date();
   return Number(Utilities.formatDate(argDate, "CET", "w"));
 }
 
 
-// function getWeekNumBeginDate(argWeekNum = 1)
+// function crBepaalBegindatumVanWeeknummer(argWeekNum = 1)
 
 
-function crGetWeekNumBeginDate(argWeekNum) {
+function crBepaalBegindatumVanWeeknummer(argWeekNum) {
   var curDate = new Date();
-  var curWeekNum = crGetWeekNum(curDate);
-  return crGetWeekBeginDate(crAddWeeksToDate(curDate, argWeekNum - curWeekNum));
+  var curWeekNum = crBepaalWeeknummer(curDate);
+  return crBepaalBeginVanWeek(crTelWekenBijDatumOp(curDate, argWeekNum - curWeekNum));
 }
 
 
-function crGetWeekBeginDate(argDate) {
+function crBepaalBeginVanWeek(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
   retDate.setDate(retDate.getDate() - retDate.getDay());
@@ -374,9 +374,9 @@ function crGetWeekBeginDate(argDate) {
 }
 
 
-function crGetWeekEndDate(argDate) {
+function crBepaalEindeVanWeek(argDate) {
   if (!argDate) argDate = new Date();
-  var retDate = new crGetWeekBeginDate(argDate); // get begindate of this week
+  var retDate = new crBepaalBeginVanWeek(argDate); // get begindate of this week
   retDate.setDate(retDate.getDate() + 6); // add six days
   retDate.setHours(23);
   retDate.setMinutes(59);
@@ -386,7 +386,7 @@ function crGetWeekEndDate(argDate) {
 }
 
 
-function crAddDaysToDate(argDate, daysOffset) {
+function crTelDagenBijDatumOp(argDate, daysOffset) {
   if (!argDate) argDate = new Date();
   if (!daysOffset) daysOffset = 0;
   var retDate = new Date(argDate);
@@ -395,7 +395,7 @@ function crAddDaysToDate(argDate, daysOffset) {
 }
 
 
-function crAddWeeksToDate(argDate, weeksOffset) {
+function crTelWekenBijDatumOp(argDate, weeksOffset) {
   if (!argDate) argDate = new Date();
   if (!weeksOffset) daysOffset = 0;
   var retDate = new Date(argDate);
@@ -404,7 +404,7 @@ function crAddWeeksToDate(argDate, weeksOffset) {
 }
 
 
-function crAddMonthsToDate(argDate, monthsOffset, maxMonth = 12) {
+function crTelMaandenBijDatumOp(argDate, monthsOffset, maxMonth = 12) {
   if (!argDate) argDate = new Date();
   if (!monthsOffset) monthsOffset = 0;
   var retDate = new Date(argDate);
@@ -414,15 +414,15 @@ function crAddMonthsToDate(argDate, monthsOffset, maxMonth = 12) {
     retDate.setFullYear(retDate.getFullYear() + 1);
   }
   if (monthToSet > maxMonth) {
-    retDate.setMonth(maxMonth - 1);   // crGetMonthEndDate will add one to month
-    retDate = crGetMonthEndDate(retDate);
+    retDate.setMonth(maxMonth - 1);   // crBepaalEindeVanMaand will add one to month
+    retDate = crBepaalEindeVanMaand(retDate);
   } else
     retDate.setMonth(monthToSet);
   return retDate;
 }
 
 
-function crGetNextSundayDate(argDate) {
+function crBepaalVolgendeZondag(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
   retDate.setDate(retDate.getDate() + 7 - retDate.getDay());
@@ -434,7 +434,7 @@ function crGetNextSundayDate(argDate) {
 }
 
 
-function crSetTimeBeginDay(retDate) {
+function crZetTijdOpBeginVanDag(retDate) {
   if (retDate) {
     retDate.setHours(0);
     retDate.setMinutes(0);
@@ -445,7 +445,7 @@ function crSetTimeBeginDay(retDate) {
 }
 
 
-function crSetTimeEndDay(retDate) {
+function crZetTijdOpEindeVanDag(retDate) {
   if (retDate) {
     retDate.setHours(23);
     retDate.setMinutes(59);

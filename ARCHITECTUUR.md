@@ -30,7 +30,7 @@ Google Drive.
 
 `onOpen` heeft bewust geen prefix. Google Apps Script herkent een eenvoudige
 open-trigger uitsluitend onder deze exacte naam. De functie bevat alleen een
-doorschakeling naar `mnOnOpen`.
+doorschakeling naar `mnBijOpenen`.
 
 ## Beheerfuncties
 

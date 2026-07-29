@@ -5,53 +5,53 @@
 
 // Google Apps Script vereist exact de naam onOpen voor deze eenvoudige trigger.
 function onOpen(e) {
-  return mnOnOpen(e);
+  return mnBijOpenen(e);
 }
 
 
-function mnOnOpen() {
+function mnBijOpenen() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var menuEntries = [
-    { name: "Events van spreadsheet naar kalender", functionName: "kaEventsToCalendar" },
+    { name: "Events van spreadsheet naar kalender", functionName: "kaZetGebeurtenissenInAgenda" },
 
-    { name: 'TEST Verzend rooster naar TestMaillijst', functionName: 'tsTestSendRoster' },
-    { name: 'Verzend rooster naar Maillijst', functionName: 'cmSendRoster' },
+    { name: 'TEST Verzend rooster naar TestMaillijst', functionName: 'tsTestVerzendRooster' },
+    { name: 'Verzend rooster naar Maillijst', functionName: 'cmVerzendRooster' },
 
-    { name: 'Zet achtergrondkleuren', functionName: 'opSetBackgroundColors' },
+    { name: 'Zet achtergrondkleuren', functionName: 'opStelAchtergrondkleurenIn' },
 
-    { name: 'Verzend KerkTV Liturgie van template', functionName: 'cmSendTemplate' },
+    { name: 'Verzend KerkTV Liturgie van template', functionName: 'cmVerzendTemplate' },
 
-    { name: 'TEST Verzend KerkTV Liturgie van template', functionName: 'tsTestSendTemplate' },
+    { name: 'TEST Verzend KerkTV Liturgie van template', functionName: 'tsTestVerzendTemplate' },
 
-    // { name: 'Mail lijst met laatste videos', functionName: 'ytSendLastVideos' },
-
-
-    { name: 'TEST Verzend MJ Mededelingen', functionName: 'tsTestSendMJMededelingen' },
-    { name: 'Verzend MJ Mededelingen', functionName: 'cmSendMJMededelingen' },
-
-    // { name: 'TEST Verzend Kerk Mededelingen', functionName: 'tsTestZendMededelingen' },
-    { name: 'Verzend Kerk Mededelingen', functionName: 'cmZendMededelingen' },
-    { name: 'Verzend Kerk Mededelingen (volgende week)', functionName: 'cmZendMededelingenVolgendeWeek' },
-
-    { name: 'Verzend lijst met kerkdiensten (YouTube,kerkdienstgemist.nl)', functionName: 'cmSendLijstKerkdiensten' },
-
-    { name: 'Verwijder alle roosters', functionName: 'rsDeleteAllRoosters' },
-
-    { name: 'Genereer half jaar rooster vanaf januari', functionName: 'rsMaakHalfJaarRooster1' },
-
-    { name: 'Genereer half jaar rooster vanaf juli', functionName: 'rsMaakHalfJaarRooster2' },
+    // { name: 'Mail lijst met laatste videos', functionName: 'ytVerzendLaatsteVideos' },
 
 
-    { name: 'Verzend jaar rooster', functionName: 'rsVerzendJaarRooster' },
-    { name: 'Genereer jaar rooster Xlsx', functionName: 'exMaakJaarRoosterXlsx' },
-    { name: 'Verzend jaar rooster Xlsx', functionName: 'exVerzendJaarRoosterXlsx' },
+    { name: 'TEST Verzend MJ Mededelingen', functionName: 'tsTestVerzendMjMededelingen' },
+    { name: 'Verzend MJ Mededelingen', functionName: 'cmVerzendMjMededelingen' },
+
+    // { name: 'TEST Verzend Kerk Mededelingen', functionName: 'tsTestVerzendMededelingen' },
+    { name: 'Verzend Kerk Mededelingen', functionName: 'cmVerzendMededelingen' },
+    { name: 'Verzend Kerk Mededelingen (volgende week)', functionName: 'cmVerzendMededelingenVolgendeWeek' },
+
+    { name: 'Verzend lijst met kerkdiensten (YouTube,kerkdienstgemist.nl)', functionName: 'cmVerzendLijstKerkdiensten' },
+
+    { name: 'Verwijder alle roosters', functionName: 'rsVerwijderAlleRoosters' },
+
+    { name: 'Genereer half jaar rooster vanaf januari', functionName: 'rsMaakHalfjaarrooster1' },
+
+    { name: 'Genereer half jaar rooster vanaf juli', functionName: 'rsMaakHalfjaarrooster2' },
+
+
+    { name: 'Verzend jaar rooster', functionName: 'rsVerzendJaarrooster' },
+    { name: 'Genereer jaar rooster Xlsx', functionName: 'exMaakJaarroosterXlsx' },
+    { name: 'Verzend jaar rooster Xlsx', functionName: 'exVerzendJaarroosterXlsx' },
 
 
     { name: 'TEST Verzend Liemers Activiteiten', functionName: 'tsTestVerzendLiemersActiviteiten' },
     { name: 'Verzend Liemers Activiteiten', functionName: 'cmVerzendLiemersActiviteiten' },
 
-    { name: 'TEST Verzend Lectorrooster', functionName: 'tsTestVerzendLectorRooster' },
-    { name: 'Verzend Lectorrooster', functionName: 'cmVerzendLectorRooster' },
+    { name: 'TEST Verzend Lectorrooster', functionName: 'tsTestVerzendLectorrooster' },
+    { name: 'Verzend Lectorrooster', functionName: 'cmVerzendLectorrooster' },
 
   ];
 
