@@ -72,156 +72,85 @@ function crHaalWerkbladOp(argSheetName) {
 
 
 /*** NEWEST */
+/** Cache voor hergebruikte Nederlandstalige datumformatters. */
+var crDatumFormatterCache = {};
+
 /**
- * Formats a date using a locale and a custom format string.
- *
- * Date tokens:
- * yyyy  - 4-digit year
- * yy    - 2-digit year
- * MMMM  - full month name
- * MMM   - abbreviated month name
- * MM    - 2-digit month
- * M     - month
- * dd    - 2-digit day
- * d     - day
- * EEEE  - full weekday name
- * EEE   - abbreviated weekday name
- *
- * Time tokens (24-hour):
- * HH    - 2-digit hour (00-23)
- * H     - hour (0-23)
- * mm    - 2-digit minute
- * m     - minute
- * ss    - 2-digit second
- * s     - second
- *
- * @param {Date} date
- * @param {string} locale e.g. "nl-NL", "en-GB", "de-DE"
- * @param {string} format e.g. "EEEE d MMMM yyyy HH:mm:ss"
- * @return {string}
+ * Centrale datumformatter voor alle rapporten, e-mails en werkbladnamen.
+ * Ondersteunt zowel betekenisvolle korte patronen als expliciete datumtokens.
  */
+function crFormatteerDatum(datum, patroon, landinstelling) {
+  var waarde = datum === undefined || datum === null ? new Date() : new Date(datum);
+  if (isNaN(waarde.getTime())) {
+    throw new Error("Ongeldige datum voor formattering: " + datum);
+  }
 
+  var land = landinstelling || "nl-NL";
+  var tijdzone = Session.getScriptTimeZone() || "Europe/Amsterdam";
+  var gekozenPatroon = patroon || "DMT";
+  var aliassen = {
+    sort: "yy-MM-dd",
+    DMJ: "EEEE d MMMM yyyy",
+    DMT: "EEEE d MMMM HH:mm 'uur'",
+    DM: "EEEE d MMMM",
+    dm: "EEE d MMM",
+    DMTa: "EEE d MMM HH:mm 'uur'",
+    DMa: "EEE d MMM",
+    T: "HH:mm",
+    M: "MMMM",
+    MJ: "MMMM yyyy",
+    J: "yyyy",
+    sMJ: "yy-MM"
+  };
+  gekozenPatroon = aliassen[gekozenPatroon] || gekozenPatroon;
 
-function crFormatteerDatumNederlandsNieuw(date, format) {
-  const locale = "nl-NL";
-  const parts = {
-    yyyy: String(date.getFullYear()),
-    yy: String(date.getFullYear()).slice(-2),
+  var stijlen = {
+    full: { weekday: "long", year: "numeric", month: "long", day: "numeric" },
+    long: { year: "numeric", month: "long", day: "numeric" },
+    medium: { year: "numeric", month: "short", day: "numeric" },
+    short: { year: "2-digit", month: "2-digit", day: "2-digit" }
+  };
+  if (stijlen[gekozenPatroon]) {
+    return new Intl.DateTimeFormat(land, Object.assign({ timeZone: tijdzone }, stijlen[gekozenPatroon]))
+      .format(waarde);
+  }
 
-    MMMM: new Intl.DateTimeFormat(locale, {
-      month: 'long'
-    }).format(date),
-
-    MMM: new Intl.DateTimeFormat(locale, {
-      month: 'short'
-    }).format(date),
-
-    MM: String(date.getMonth() + 1).padStart(2, '0'),
-    M: String(date.getMonth() + 1),
-
-    dd: String(date.getDate()).padStart(2, '0'),
-    d: String(date.getDate()),
-
-    EEEE: new Intl.DateTimeFormat(locale, {
-      weekday: 'long'
-    }).format(date),
-
-    EEE: new Intl.DateTimeFormat(locale, {
-      weekday: 'short'
-    }).format(date),
-
-    HH: String(date.getHours()).padStart(2, '0'),
-    H: String(date.getHours()),
-
-    mm: String(date.getMinutes()).padStart(2, '0'),
-    m: String(date.getMinutes()),
-
-    ss: String(date.getSeconds()).padStart(2, '0'),
-    s: String(date.getSeconds())
+  var cacheSleutel = land + "|" + tijdzone;
+  if (!crDatumFormatterCache[cacheSleutel]) {
+    crDatumFormatterCache[cacheSleutel] = {
+      maandLang: new Intl.DateTimeFormat(land, { month: "long", timeZone: tijdzone }),
+      maandKort: new Intl.DateTimeFormat(land, { month: "short", timeZone: tijdzone }),
+      weekdagLang: new Intl.DateTimeFormat(land, { weekday: "long", timeZone: tijdzone }),
+      weekdagKort: new Intl.DateTimeFormat(land, { weekday: "short", timeZone: tijdzone })
+    };
+  }
+  var formatter = crDatumFormatterCache[cacheSleutel];
+  var onderdelen = {
+    yyyy: Utilities.formatDate(waarde, tijdzone, "yyyy"),
+    yy: Utilities.formatDate(waarde, tijdzone, "yy"),
+    MMMM: formatter.maandLang.format(waarde),
+    MMM: formatter.maandKort.format(waarde).replace(/\.$/, ""),
+    MM: Utilities.formatDate(waarde, tijdzone, "MM"),
+    M: String(Number(Utilities.formatDate(waarde, tijdzone, "M"))),
+    dd: Utilities.formatDate(waarde, tijdzone, "dd"),
+    d: String(Number(Utilities.formatDate(waarde, tijdzone, "d"))),
+    EEEE: formatter.weekdagLang.format(waarde),
+    EEE: formatter.weekdagKort.format(waarde).replace(/\.$/, ""),
+    EE: formatter.weekdagKort.format(waarde).replace(/\.$/, ""),
+    HH: Utilities.formatDate(waarde, tijdzone, "HH"),
+    H: String(Number(Utilities.formatDate(waarde, tijdzone, "H"))),
+    mm: Utilities.formatDate(waarde, tijdzone, "mm"),
+    m: String(Number(Utilities.formatDate(waarde, tijdzone, "m"))),
+    ss: Utilities.formatDate(waarde, tijdzone, "ss"),
+    s: String(Number(Utilities.formatDate(waarde, tijdzone, "s")))
   };
 
-  return format.replace(
-    /yyyy|yy|MMMM|MMM|MM|M|dd|d|EEEE|EEE|HH|H|mm|m|ss|s/g,
-    token => parts[token]
+  return gekozenPatroon.replace(
+    /'[^']*'|yyyy|MMMM|EEEE|MMM|EEE|EE|yy|MM|dd|HH|mm|ss|M|d|H|m|s/g,
+    function (token) {
+      return token.charAt(0) === "'" ? token.slice(1, -1) : onderdelen[token];
+    }
   );
-}
-
-
-/*** END OF NEWEST */
-/**** NEW  */
-
-
-/**
- * Translate a date into a localized string
- * @param {Date} dateInput - The input date (Date object or string)
- * @param {string} locale - Target locale (e.g. 'nl', 'de', 'en', 'fr')
- * @param {string} formatStyle - 'full', 'long', 'medium', 'short'
- * @return {string}
- */
-
-
-function crVertaalDatum(dateInput, locale, formatStyle) {
-  var date = new Date(dateInput);
-
-  var options = {};
-
-  switch (formatStyle) {
-    case 'full':
-      options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      break;
-    case 'long':
-      options = { year: 'numeric', month: 'long', day: 'numeric' };
-      break;
-    case 'medium':
-      options = { year: 'numeric', month: 'short', day: 'numeric' };
-      break;
-    case 'short':
-      options = { year: '2-digit', month: '2-digit', day: '2-digit' };
-      break;
-    default:
-      options = { year: 'numeric', month: 'long', day: 'numeric' };
-  }
-
-  return date.toLocaleDateString(locale, options);
-}
-
-
-/* END NEW */
-
-
-function crFormatteerDatumNederlands(argDate, varFormat) {
-  const options = { month: 'long' };
-  if (!argDate) argDate = new Date();
-  var month = argDate.toLocaleDateString('nl-NL', options);
-  if (!varFormat) varFormat = "DMT";
-  var formatStr = varFormat;
-  switch (varFormat) {
-    case "sort": formatStr = "yy-MM-dd"; break; // "22-05-01"
-    case "DMJ": formatStr = "EEEE d MMMM yyyy"; break; // "DMJ"); // zondag 7 januari 2020
-    case "DMT": formatStr = "EEEE d MMMM HH:mm 'uur'"; break; // "DMT"); // "zondag 7 januari 10:00u"
-    case "DM": formatStr = "EEEE d MMMM"; break; // "DMT"); // "zondag 7 januari"
-    case "dm": formatStr = "EEE d MMM"; break; // "DMT"); // "zo 7 jan"
-    // case "DMTa":  break;
-    case "DMTa": formatStr = "EEE d MMM HH:mm 'uur'"; break; // "DMT"); // "zo 7 jan 10:00u"
-    case "T": break;
-
-    case "DMa": break;
-
-    case "M": break;
-    case "MJ": formatStr = "MMMM yyyy"; break; // report name year month, e.g. december 2022
-    case "J": formatStr = "yyyy"; break; // report name year e.g.  2022
-    case "sMJ": formatStr = "yy-MM"; break; // sheet name year-month, e.g. 22-12
-    case "w": break;
-    case "wj": break;
-    case "MMMM":
-      return month;
-      break;
-    default: ;
-  }
-  var retDateFmt = Utilities.formatDate(argDate, "CET", formatStr);
-  var retVal = LanguageApp.translate(retDateFmt, 'en', 'nl').toLowerCase();
-  var x = 1;
-  return retVal;
 }
 
 

@@ -10,56 +10,46 @@ function onOpen(e) {
 
 
 function mnBijOpenen() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var menuEntries = [
-    { name: "Events van spreadsheet naar kalender", functionName: "kaZetGebeurtenissenInAgenda" },
+  var ui = SpreadsheetApp.getUi();
+  var hoofdmenu = ui.createMenu("Dienstenrooster");
 
-    { name: 'TEST Verzend rooster naar TestMaillijst', functionName: 'tsTestVerzendRooster' },
-    { name: 'Verzend rooster naar Maillijst', functionName: 'cmVerzendRooster' },
+  hoofdmenu.addSubMenu(ui.createMenu("Roosters")
+    .addItem("Maak halfjaarrooster januari–juni", "rsMaakHalfjaarrooster1")
+    .addItem("Maak halfjaarrooster juli–december", "rsMaakHalfjaarrooster2")
+    .addItem("Maak jaarrooster als XLSX", "exMaakJaarroosterXlsx")
+    .addSeparator()
+    .addItem("Verwijder gegenereerde roosters", "rsVerwijderAlleRoosters"));
 
-    { name: 'Zet achtergrondkleuren', functionName: 'opStelAchtergrondkleurenIn' },
+  hoofdmenu.addSubMenu(ui.createMenu("Verzenden")
+    .addItem("Rooster", "cmVerzendRooster")
+    .addItem("Jaarrooster", "rsVerzendJaarrooster")
+    .addItem("Jaarrooster als XLSX", "exVerzendJaarroosterXlsx")
+    .addSeparator()
+    .addItem("KerkTV-liturgie", "cmVerzendTemplate")
+    .addItem("Kerkmededelingen", "cmVerzendMededelingen")
+    .addItem("Kerkmededelingen volgende week", "cmVerzendMededelingenVolgendeWeek")
+    .addItem("MJ-mededelingen", "cmVerzendMjMededelingen")
+    .addItem("Liemersactiviteiten", "cmVerzendLiemersActiviteiten")
+    .addItem("Lectorrooster", "cmVerzendLectorrooster")
+    .addItem("Lijst met kerkdiensten", "cmVerzendLijstKerkdiensten"));
 
-    { name: 'Verzend KerkTV Liturgie van template', functionName: 'cmVerzendTemplate' },
+  hoofdmenu.addSubMenu(ui.createMenu("Agenda en opmaak")
+    .addItem("Zet diensten in Google Agenda", "kaZetGebeurtenissenInAgenda")
+    .addItem("Werk achtergrondkleuren bij", "opStelAchtergrondkleurenIn"));
 
-    { name: 'TEST Verzend KerkTV Liturgie van template', functionName: 'tsTestVerzendTemplate' },
+  hoofdmenu.addSubMenu(ui.createMenu("Beheer")
+    .addItem("Controleer spreadsheet", "bhControleerSpreadsheet")
+    .addItem("Initialiseer ontbrekende structuur", "bhInitialiseerSpreadsheet")
+    .addItem("Schoon Configuratie op", "bhSchoonConfiguratieOp")
+    .addItem("Controleer projectconfiguratie", "bhControleerProjectConfiguratie"));
 
-    // { name: 'Mail lijst met laatste videos', functionName: 'ytVerzendLaatsteVideos' },
+  hoofdmenu.addSubMenu(ui.createMenu("Testen")
+    .addItem("Verzend rooster", "tsTestVerzendRooster")
+    .addItem("Verzend KerkTV-liturgie", "tsTestVerzendTemplate")
+    .addItem("Verzend kerkmededelingen", "tsTestVerzendMededelingen")
+    .addItem("Verzend MJ-mededelingen", "tsTestVerzendMjMededelingen")
+    .addItem("Verzend Liemersactiviteiten", "tsTestVerzendLiemersActiviteiten")
+    .addItem("Verzend lectorrooster", "tsTestVerzendLectorrooster"));
 
-
-    { name: 'TEST Verzend MJ Mededelingen', functionName: 'tsTestVerzendMjMededelingen' },
-    { name: 'Verzend MJ Mededelingen', functionName: 'cmVerzendMjMededelingen' },
-
-    // { name: 'TEST Verzend Kerk Mededelingen', functionName: 'tsTestVerzendMededelingen' },
-    { name: 'Verzend Kerk Mededelingen', functionName: 'cmVerzendMededelingen' },
-    { name: 'Verzend Kerk Mededelingen (volgende week)', functionName: 'cmVerzendMededelingenVolgendeWeek' },
-
-    { name: 'Verzend lijst met kerkdiensten (YouTube,kerkdienstgemist.nl)', functionName: 'cmVerzendLijstKerkdiensten' },
-
-    { name: 'Verwijder alle roosters', functionName: 'rsVerwijderAlleRoosters' },
-
-    { name: 'Genereer half jaar rooster vanaf januari', functionName: 'rsMaakHalfjaarrooster1' },
-
-    { name: 'Genereer half jaar rooster vanaf juli', functionName: 'rsMaakHalfjaarrooster2' },
-
-
-    { name: 'Verzend jaar rooster', functionName: 'rsVerzendJaarrooster' },
-    { name: 'Genereer jaar rooster Xlsx', functionName: 'exMaakJaarroosterXlsx' },
-    { name: 'Verzend jaar rooster Xlsx', functionName: 'exVerzendJaarroosterXlsx' },
-
-
-    { name: 'TEST Verzend Liemers Activiteiten', functionName: 'tsTestVerzendLiemersActiviteiten' },
-    { name: 'Verzend Liemers Activiteiten', functionName: 'cmVerzendLiemersActiviteiten' },
-
-    { name: 'TEST Verzend Lectorrooster', functionName: 'tsTestVerzendLectorrooster' },
-    { name: 'Verzend Lectorrooster', functionName: 'cmVerzendLectorrooster' },
-
-  ];
-
-  ss.addMenu("Kalender", menuEntries);
-  ss.addMenu("Beheer", [
-    { name: "Controleer spreadsheet", functionName: "bhControleerSpreadsheet" },
-    { name: "Initialiseer ontbrekende structuur", functionName: "bhInitialiseerSpreadsheet" },
-    { name: "Schoon Configuratie op", functionName: "bhSchoonConfiguratieOp" },
-    { name: "Controleer projectconfiguratie", functionName: "bhControleerProjectConfiguratie" }
-  ]);
+  hoofdmenu.addToUi();
 }

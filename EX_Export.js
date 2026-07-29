@@ -3,116 +3,56 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function exConverteerWerkbladNaarXlsx(sheetName) {
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  sheetName = sheetName || 'Jaarrooster';
-  var sheet = ss.getSheetByName(sheetName);
-
-  // Base URL
-  var url = "https://docs.google.com/spreadsheets/d/SS_ID/export?".replace("SS_ID", ss.getId());
-
-  /* Specify PDF export parameters
-  From: https://code.google.com/p/google-apps-script-issues/issues/detail?id=3579
-  */
-
-  var url_ext = 'exportFormat=xlsx&format=xlsx'        // export as pdf / csv / xls / xlsx
-    + '&size=A4'                       // paper size legal / letter / A4
-    + '&portrait=false'                    // orientation, false for landscape
-    + '&fitw=true&source=labnol'           // fit to page width, false for actual size
-    + '&sheetnames=false&printtitle=false' // hide optional headers and footers
-    + '&pagenumbers=false&gridlines=false' // hide page numbers and gridlines
-    + '&fzr=false'                         // do not repeat row headers (frozen rows) on each page
-    + '&gid=';                             // the sheet's Id
-
-  var token = ScriptApp.getOAuthToken();
-
-  // Convert individual worksheets to PDF
-  var response = UrlFetchApp.fetch(url + url_ext + sheet.getSheetId(), {
-    headers: {
-      'Authorization': 'Bearer ' + token
-    }
-  });
-
-   // taken from pdf convert
-
-  var xlsx_name = sheet.getName() + '.xlsx';
-
-  var files = DriveApp.getFilesByName(xlsx_name);
-  while (files.hasNext()) {
-    const file = files.next();
-    Logger.log(file.getName());
-    file.setTrashed(true);
-  }
-
-
-  var xlsx_blob = response.getBlob().setName(xlsx_name);
-  const exportedFile = DriveApp.createFile(xlsx_blob);
-  exportedFile.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
-  var url = exportedFile.getDownloadUrl();
-  return (url);
-
-  // until here
-
-  //convert the response to a blob and store in our array
-  return response.getBlob().setName(sheet.getName() + '.xlsx');
+function exConverteerWerkbladNaarXlsx(werkbladnaam) {
+  return exExporteerWerkblad(werkbladnaam, "xlsx");
 }
 
 
-function exConverteerWerkbladNaarPdf(sheetName) {
+function exConverteerWerkbladNaarPdf(werkbladnaam) {
+  return exExporteerWerkblad(werkbladnaam, "pdf");
+}
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  sheetName = sheetName || 'Jaarrooster';
-  var sheet = ss.getSheetByName(sheetName);
-
-  // Base URL
-  var url = "https://docs.google.com/spreadsheets/d/SS_ID/export?".replace("SS_ID", ss.getId());
-
-  /* Specify PDF export parameters
-  From: https://code.google.com/p/google-apps-script-issues/issues/detail?id=3579
-  */
-
-  var url_ext = 'exportFormat=pdf&format=pdf'        // export as pdf / csv / xls / xlsx
-    + '&size=A4'                       // paper size legal / letter / A4
-    + '&portrait=false'                    // orientation, false for landscape
-    + '&fitw=true&source=labnol'           // fit to page width, false for actual size
-    + '&sheetnames=false&printtitle=false' // hide optional headers and footers
-    + '&pagenumbers=false&gridlines=false' // hide page numbers and gridlines
-    + '&fzr=false'                         // do not repeat row headers (frozen rows) on each page
-    + '&gid=';                             // the sheet's Id
-
-  var token = ScriptApp.getOAuthToken();
-
-  // Convert individual worksheets to PDF
-
-  var response = UrlFetchApp.fetch(url + url_ext + sheet.getSheetId(), {
-    headers: {
-      'Authorization': 'Bearer ' + token
-    }
-  });
-
-  var pdf_name = sheet.getName() + '.pdf';
-
-  var files = DriveApp.getFilesByName(pdf_name);
-  while (files.hasNext()) {
-    const file = files.next();
-    Logger.log(file.getName());
-    file.setTrashed(true);
+/** Exporteert één werkblad en vervangt een eerder exportbestand met dezelfde naam. */
+function exExporteerWerkblad(werkbladnaam, formaat) {
+  var toegestaan = new Set(["xlsx", "pdf"]);
+  if (!toegestaan.has(formaat)) {
+    throw new Error("Niet-ondersteund exportformaat: " + formaat);
   }
 
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var werkblad = spreadsheet.getSheetByName(werkbladnaam || "Jaarrooster");
+  if (!werkblad) {
+    throw new Error("Werkblad voor export ontbreekt: " + werkbladnaam);
+  }
 
-  var pdf_blob = response.getBlob().setName(pdf_name);
-  const exportedFile = DriveApp.createFile(pdf_blob);
-  exportedFile.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
-  var url = exportedFile.getDownloadUrl();
-  return (url);
+  var parameters = [
+    "exportFormat=" + formaat,
+    "format=" + formaat,
+    "size=A4",
+    "portrait=false",
+    "fitw=true",
+    "sheetnames=false",
+    "printtitle=false",
+    "pagenumbers=false",
+    "gridlines=false",
+    "fzr=false",
+    "gid=" + werkblad.getSheetId()
+  ].join("&");
+  var url = "https://docs.google.com/spreadsheets/d/" + spreadsheet.getId() + "/export?" + parameters;
+  var respons = UrlFetchApp.fetch(url, {
+    headers: { Authorization: "Bearer " + ScriptApp.getOAuthToken() }
+  });
 
-  //convert the response to a blob and store in our array
-  // return response.getBlob().setName(sheet.getName() + '.pdf');
+  var bestandsnaam = werkblad.getName() + "." + formaat;
+  var bestaandeBestanden = DriveApp.getFilesByName(bestandsnaam);
+  while (bestaandeBestanden.hasNext()) {
+    bestaandeBestanden.next().setTrashed(true);
+  }
 
-
+  var exportbestand = DriveApp.createFile(respons.getBlob().setName(bestandsnaam));
+  exportbestand.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
+  return exportbestand.getDownloadUrl();
 }
 
 
@@ -266,7 +206,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
   lrow.setHorizontalAlignment("center");
   report_sheet.setRowHeight(1, 60);
 
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatumNederlands(nowDate, "DMT")])
+  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
   lrow = exMaakLaatsteRijOp(fg_title, bg_title, 9);
   lrow.mergeAcross();
   lrow.setHorizontalAlignment("center");        // gecentreerd */
@@ -287,7 +227,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
 
     bgColor = altColor;
 
-    var monthName = crFormatteerDatumNederlands(a_rowDate[i], "MMMM");
+    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
 
     if (monthName !== rptMonth) {   // Als niet gelijk aan vorige maand, dan beginnen we aan een nieuwe maand
 
@@ -329,10 +269,10 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
     }
 
     var rowArray = [
-      // crFormatteerDatumNederlands(a_rowDate[i], "EE d MMMM")
+      // crFormatteerDatum(a_rowDate[i], "EE d MMMM")
       a_rowDate[i]
-      , crFormatteerDatumNederlands(a_rowDate[i], "EE d MMMM")
-      , crFormatteerDatumNederlands(a_rowDate[i], "HH:mm")
+      , crFormatteerDatum(a_rowDate[i], "EE d MMMM")
+      , crFormatteerDatum(a_rowDate[i], "HH:mm")
       , a_voorganger[i]
       , a_bijz[i].replace(/,\s*/g, nl)
       , a_collecte[i]

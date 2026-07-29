@@ -73,7 +73,7 @@ function kaLeesAgenda(report_sheet)
 
       for (var i in events) {
         var entry = [ calName + " nr. " + i
-                     , crFormatteerDatumNederlandsNieuw(events[i].getStartTime(), "EEEE d MMMM HH:mm") +" uur,\n" + events[i].getTitle().replace(', ', ",\n")
+                     , crFormatteerDatum(events[i].getStartTime(), "EEEE d MMMM HH:mm") +" uur,\n" + events[i].getTitle().replace(', ', ",\n")
         // , events[i].getEndTime()
         // , events[i].getId()
         // , events[i].getDescription()

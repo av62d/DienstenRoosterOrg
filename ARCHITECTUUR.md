@@ -32,6 +32,18 @@ Google Drive.
 open-trigger uitsluitend onder deze exacte naam. De functie bevat alleen een
 doorschakeling naar `mnBijOpenen`.
 
+## Menu
+
+`mnBijOpenen` bouwt één hoofdmenu `Dienstenrooster` met de onderdelen
+`Roosters`, `Verzenden`, `Agenda en opmaak`, `Beheer` en `Testen`.
+
+## Datumformattering
+
+Alle datumuitvoer loopt via `crFormatteerDatum`. De functie ondersteunt zowel
+korte betekenisvolle patronen (`DMT`, `DM`, `MJ`, `sort`) als expliciete tokens
+zoals `EEEE d MMMM yyyy HH:mm`. Maand- en weekdagformatters worden per
+landinstelling en tijdzone hergebruikt.
+
 ## Beheerfuncties
 
 - `bhControleerSpreadsheet`: controleert de vaste werkbladen, benoemde bereiken
