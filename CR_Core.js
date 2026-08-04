@@ -15,6 +15,45 @@ function crMaakOfLeegWerkblad(argSheetName) {
   return retSheet;
 }
 
+/**
+ * Normaliseert een kolomkop voor robuuste vergelijking. De daadwerkelijke
+ * kolomvolgorde blijft vrij; productiecode gebruikt uitsluitend kopnamen.
+ */
+function crNormaliseerKolomnaam(naam) {
+  return String(naam === null || naam === undefined ? "" : naam)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+}
+
+/** Geeft een object met nulgebaseerde kolomindexen, keyed op kolomnaam. */
+function crMaakKolomindex(werkblad) {
+  if (!werkblad || werkblad.getLastColumn() === 0) {
+    throw new Error("Kan geen kolommen bepalen: het werkblad ontbreekt of is leeg.");
+  }
+
+  var koppen = werkblad.getRange(1, 1, 1, werkblad.getLastColumn()).getValues()[0];
+  var kolommen = {};
+  koppen.forEach(function (kop, index) {
+    var sleutel = crNormaliseerKolomnaam(kop);
+    if (!sleutel) return;
+    if (kolommen[sleutel] !== undefined) {
+      throw new Error("Dubbele kolomkop op werkblad '" + werkblad.getName() + "': " + kop);
+    }
+    kolommen[sleutel] = index;
+  });
+  return kolommen;
+}
+
+/** Zoekt een nulgebaseerde kolomindex op naam en meldt ontbrekende koppen. */
+function crZoekKolom(kolommen, naam, verplicht) {
+  var index = kolommen[crNormaliseerKolomnaam(naam)];
+  if (index === undefined && verplicht !== false) {
+    throw new Error("Verplichte kolom ontbreekt: " + naam);
+  }
+  return index;
+}
+
 
 function crLeesConfiguratie(sleutel, standaardWaarde) {
   var configuratieblad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Configuratie");

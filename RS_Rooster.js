@@ -25,40 +25,57 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
   argEndDate.setHours(23);
   argEndDate.setMinutes(59);
 
-  var data = new Array();
-
-  /* Kolomindeling op Voorpagina  */
-
-  //                               Kolom
-  var a_type = new Array(); var p_type = 0;                             // A  Type
-  var a_rowDate = new Array(); var p_datum = 1;                         // B	Datum
-  var a_voorganger = new Array(); var p_voorganger = 2;                 // C  Voorganger
-  var a_bijz = new Array(); var p_bijzonderheden = 3;                   // D  Bijzonderheden
-  var a_collecte = new Array(); var p_collecte = 4;                     // E  Collecte
-  var a_lector = new Array(); var p_lector = 5;                         // F  Lector
-  var a_ambtsdragers = new Array(); var p_ambtsdragers = 6;             // G  Ouderling
-  var p_extra = 7;                                                      // H  Extra
-  var a_koster = new Array(); var p_koster = 8;                         // I  Koster
-  var a_koffie = new Array(); var p_koffie = 9;                         // J  Koffie
-  var a_ontvangst = new Array(); var p_ontvangst = 10;                  // K Comm. van ontvangst
-  var a_klokkenluider = new Array(); var p_klokkenluider = 11;          // L  Klokkenluider
-  var a_kerktv = new Array(); var p_kerktv = 12;                        // M  KerkTV
-  var a_kleur = new Array(); var p_kleur = 13;                          // N  Kleur
-  var a_ha = new Array(); var p_ha = 14;                                // O  HA
-  var a_havorm = new Array(); var p_havorm = 15;                        // P  HAvorm
-  var a_naamzondag = new Array(); var p_naamzondag = 16;                // Q Naam van Zondag
-  var a_collectecategorie = new Array(); var p_collectecategorie = 17;  // R  Collecte (Categorie)
-  var a_uitgangscollecte = new Array(); var p_uitgangscollecte = 18;    // S  Uitgangscollecte
-  var a_lectorOrg = new Array(); var p_lectorOrg = 19;                  // T  LectorOrg
-  var a_lectorWissel = new Array(); var p_lectorWissel = 20;            // U  LectorWissel
-  var a_kwartaal = new Array(); var p_kwartaal = 21;                    // V  Kwartaal
-  var a_koffieDienst = new Array(); var p_koffieDienst = 22;            // W  KoffieDienst
-  var a_didamDienst = new Array(); var p_didamDienst = 23;              // X  DidamDienst
+  var a_type = [];
+  var a_rowDate = [];
+  var a_voorganger = [];
+  var a_bijz = [];
+  var a_collecte = [];
+  var a_lector = [];
+  var a_ambtsdragers = [];
+  var a_koster = [];
+  var a_koffie = [];
+  var a_ontvangst = [];
+  var a_klokkenluider = [];
+  var a_kerktv = [];
+  var a_kleur = [];
+  var a_ha = [];
+  var a_havorm = [];
+  var a_naamzondag = [];
+  var a_collectecategorie = [];
+  var a_uitgangscollecte = [];
+  var a_lectorOrg = [];
+  var a_lectorWissel = [];
+  var a_kwartaal = [];
+  var a_koffieDienst = [];
+  var a_didamDienst = [];
 
   var a_titel = new Array();
 
   var actSheet = SpreadsheetApp.getActiveSpreadsheet();
   var srcSheet = actSheet.getSheetByName('Voorpagina');
+  if (!srcSheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var kolommen = crMaakKolomindex(srcSheet);
+  var p_datum = crZoekKolom(kolommen, "Datum");
+  var p_voorganger = crZoekKolom(kolommen, "Voorganger");
+  var p_bijzonderheden = crZoekKolom(kolommen, "Bijzonderheden");
+  var p_collecte = crZoekKolom(kolommen, "Collecte");
+  var p_lector = crZoekKolom(kolommen, "Lector");
+  var p_ambtsdragers = crZoekKolom(kolommen, "Ouderling");
+  var p_extra = crZoekKolom(kolommen, "Extra");
+  var p_koster = crZoekKolom(kolommen, "Koster");
+  var p_koffie = crZoekKolom(kolommen, "Koffie");
+  var p_ontvangst = crZoekKolom(kolommen, "Ontvangst");
+  var p_klokkenluider = crZoekKolom(kolommen, "Klokkenluider");
+  var p_kerktv = crZoekKolom(kolommen, "KerkTV");
+  var p_kleur = crZoekKolom(kolommen, "Kleur");
+  var p_ha = crZoekKolom(kolommen, "HA");
+  var p_havorm = crZoekKolom(kolommen, "HAvorm");
+  var p_naamzondag = crZoekKolom(kolommen, "ZondagNaam");
+  var p_collectecategorie = crZoekKolom(kolommen, "CollecteCategorie");
+  var p_uitgangscollecte = crZoekKolom(kolommen, "Uitgangscollecte");
+  var p_kwartaal = crZoekKolom(kolommen, "Kwartaal");
+  var p_koffieDienst = crZoekKolom(kolommen, "KoffieDienst");
+  var p_didamDienst = crZoekKolom(kolommen, "DidamDienst");
 
   actSheet.setSpreadsheetLocale("nl.nl");
 
@@ -76,11 +93,8 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
 
   var dataIdx = -1;
   for (var i in rawData) {
-    var rowType = rawData[i][0];
-    if (rowType === "T")
-      continue;
-
-    var rowDate = new Date(rawData[i][1]);
+    var rowDate = new Date(rawData[i][p_datum]);
+    if (isNaN(rowDate.getTime())) continue;
 
     if ((rowDate < argStartDate) || (rowDate > argEndDate))
       continue;
@@ -88,7 +102,7 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     var c_dat = rawData[i];
     dataIdx++;
     a_rowDate.push(rowDate);
-    a_type.push(rawData[i][p_type]);
+    a_type.push("");
     var titelVolledig = c_dat[p_voorganger];
     if (c_dat[p_bijzonderheden]) titelVolledig += ", " + c_dat[p_bijzonderheden];
 
@@ -109,12 +123,12 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     a_kleur.push(c_dat[p_kleur]);
     a_kerktv.push(c_dat[p_kerktv]);
     a_collecte.push(c_dat[p_collecte]);
-    a_koffie.push(c_dat[p_koffie].replace("\n", ", "));
-    a_ontvangst.push(c_dat[p_ontvangst].replace("\n", ", "));
+    a_koffie.push(String(c_dat[p_koffie] || "").replace(/\n/g, ", "));
+    a_ontvangst.push(String(c_dat[p_ontvangst] || "").replace(/\n/g, ", "));
     a_ha.push(c_dat[p_ha]);
     a_lector.push(c_dat[p_lector]);
-    var ambtsdragers = c_dat[p_ambtsdragers];
-    if (c_dat[p_extra]) ambtsdragers += ", " + c_dat[p_extra];
+    var ambtsdragers = c_dat[p_ambtsdragers] || "";
+    if (c_dat[p_extra]) ambtsdragers += (ambtsdragers ? ", " : "") + c_dat[p_extra];
     a_ambtsdragers.push(ambtsdragers);
     a_klokkenluider.push(c_dat[p_klokkenluider]);
 
@@ -124,10 +138,9 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     a_naamzondag.push(c_dat[p_naamzondag]);
     a_collectecategorie.push(c_dat[p_collectecategorie]);
     a_uitgangscollecte.push(c_dat[p_uitgangscollecte]);
-    // toegevoegd 17-2-2026
-    a_lectorOrg.push(c_dat[p_lectorOrg]);
-    // toegevoegd 1-6-2026
-    a_lectorWissel.push(c_dat[p_lectorWissel]);
+    // Behoud de bestaande uitvoerstructuur voor afnemende rapportfuncties.
+    a_lectorOrg.push(c_dat[p_lector]);
+    a_lectorWissel.push(false);
     a_kwartaal.push(c_dat[p_kwartaal]);
     a_koffieDienst.push(c_dat[p_koffieDienst]);
     a_didamDienst.push(c_dat[p_didamDienst]);

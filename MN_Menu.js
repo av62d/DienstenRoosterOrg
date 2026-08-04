@@ -40,6 +40,8 @@ function mnBijOpenen() {
   hoofdmenu.addSubMenu(ui.createMenu("Beheer")
     .addItem("Controleer spreadsheet", "bhControleerSpreadsheet")
     .addItem("Initialiseer ontbrekende structuur", "bhInitialiseerSpreadsheet")
+    .addItem("Migreer Voorpagina (eenmalig)", "bhMigreerVoorpagina")
+    .addSeparator()
     .addItem("Schoon Configuratie op", "bhSchoonConfiguratieOp")
     .addItem("Controleer projectconfiguratie", "bhControleerProjectConfiguratie"));
 

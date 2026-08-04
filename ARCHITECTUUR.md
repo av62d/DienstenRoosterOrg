@@ -44,6 +44,17 @@ korte betekenisvolle patronen (`DMT`, `DM`, `MJ`, `sort`) als expliciete tokens
 zoals `EEEE d MMMM yyyy HH:mm`. Maand- en weekdagformatters worden per
 landinstelling en tijdzone hergebruikt.
 
+## Kolommen op Voorpagina
+
+Productiecode zoekt kolommen uitsluitend op basis van de kopnaam in rij 1 via
+`crMaakKolomindex` en `crZoekKolom`. De fysieke volgorde van de kolommen is
+daarom niet meer bepalend voor het uitlezen van roostergegevens.
+
+`bhMigreerVoorpagina` is een tijdelijke, eenmalige beheerfunctie. Zij maakt
+eerst een backupwerkblad, zet de 25 behouden kolommen in de afgesproken
+volgorde, hernoemt oude koppen, maakt de drie selectievakkolommen aan en bouwt
+de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
+
 ## Beheerfuncties
 
 - `bhControleerSpreadsheet`: controleert de vaste werkbladen, benoemde bereiken
@@ -56,3 +67,5 @@ landinstelling en tijdzone hergebruikt.
   bestaande templatebestandsnamen om naar document-ID's.
 - `bhSchoonConfiguratieOp`: behoudt alleen werkelijk gebruikte instellingen,
   migreert oude sleutelnamen en bouwt de vaste, logisch gegroepeerde tabel op.
+- `bhMigreerVoorpagina`: maakt een backup en migreert Voorpagina eenmalig naar
+  de nieuwe, naamgestuurde kolomstructuur.

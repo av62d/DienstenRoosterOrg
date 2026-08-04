@@ -98,20 +98,158 @@ function bhSpreadsheetSpecificatie() {
     benoemdeBereiken: [
       { naam: "LijstKosters", werkblad: "Lijst Kosters", bereik: "A3:A19" },
       { naam: "LijstAmbtsdragers", werkblad: "Lijst Ambtsdragers", bereik: "A3:A20" },
-      { naam: "VolledigRooster", werkblad: "Voorpagina", bereik: "A1:S1" },
       { naam: "LijstOntvangst", werkblad: "Lijst Ontvangst", bereik: "A3:A12" },
       { naam: "LijstDiakenen", werkblad: "Lijst Ambtsdragers", bereik: "D4:D9" },
-      { naam: "BenoemdBereik1", werkblad: "Voorpagina", bereik: "A:T" },
       { naam: "LijstKlokkenluiders", werkblad: "Lijst Klokkenluiders", bereik: "A3:A11" },
       { naam: "LijstKerkTV", werkblad: "Lijst KerkTV", bereik: "A3:A16" },
       { naam: "LijstVoorgangers", werkblad: "Lijst Voorgangers", bereik: "A3:A52" },
       { naam: "LijstLectoren", werkblad: "Lijst Lectoren", bereik: "A2:A10" },
-      { naam: "RoosterTypes", werkblad: "Voorpagina", bereik: "A1" },
       { naam: "LijstCollectes", werkblad: "Lijst Collectes", bereik: "A3:A67" },
       { naam: "LijstKoffiezetters", werkblad: "Lijst Koffiezetters", bereik: "A3:A12" },
       { naam: "LijstExtra", werkblad: "Lijst Ambtsdragers", bereik: "E4:E22" }
     ]
   };
+}
+
+/** Gewenste kolommen van Voorpagina, in de definitieve volgorde. */
+function bhVoorpaginaKolomspecificatie() {
+  return [
+    { naam: "Datum", aliases: ["Datum"] },
+    { naam: "Voorganger", aliases: ["Voorganger"] },
+    { naam: "Bijzonderheden", aliases: ["Bijzonderheden"] },
+    { naam: "Collecte", aliases: ["Collecte"] },
+    { naam: "Lector", aliases: ["Lector"] },
+    { naam: "Ouderling", aliases: ["Ouderling"] },
+    { naam: "Extra", aliases: ["Extra"] },
+    { naam: "Koster", aliases: ["Koster"] },
+    { naam: "Koffie", aliases: ["Koffie"] },
+    { naam: "Ontvangst", aliases: ["Ontvangst", "Comm. van ontvangst"] },
+    { naam: "Klokkenluider", aliases: ["Klokkenluider", "Klokken- luider"] },
+    { naam: "KerkTV", aliases: ["KerkTV"] },
+    { naam: "Kleur", aliases: ["Kleur"] },
+    { naam: "HA", aliases: ["HA"], selectievakje: true },
+    { naam: "HAvorm", aliases: ["HAvorm"] },
+    { naam: "ZondagNaam", aliases: ["ZondagNaam", "Naam van Zondag"] },
+    { naam: "CollecteCategorie", aliases: ["CollecteCategorie", "Collecte (Categorie)"] },
+    { naam: "Uitgangscollecte", aliases: ["Uitgangscollecte"] },
+    { naam: "Kwartaal", aliases: ["Kwartaal"], berekend: "kwartaal" },
+    { naam: "Maand", aliases: ["Maand"], berekend: "maand" },
+    { naam: "KoffieDienst", aliases: ["KoffieDienst", "Koffie Dienst"], selectievakje: true },
+    { naam: "DidamDienst", aliases: ["DidamDienst", "Didam Dienst"], selectievakje: true },
+    { naam: "YouTubeLink", aliases: ["YouTubeLink"] },
+    { naam: "YouTubeTitel", aliases: ["YouTubeTitel", "Titel"] },
+    { naam: "Broadcast-ID", aliases: ["Broadcast-ID"] }
+  ];
+}
+
+/**
+ * Eenmalige migratie van Voorpagina. Maakt eerst een volledige backupkopie en
+ * vervangt daarna de inhoud door uitsluitend de opgegeven kolommen.
+ */
+function bhMigreerVoorpagina() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var blad = ss.getSheetByName("Voorpagina");
+  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+
+  var specificatie = bhVoorpaginaKolomspecificatie();
+  var oudeKoppen = blad.getRange(1, 1, 1, blad.getLastColumn()).getValues()[0];
+  var oudeIndex = {};
+  oudeKoppen.forEach(function (kop, index) {
+    var sleutel = crNormaliseerKolomnaam(kop);
+    if (sleutel) oudeIndex[sleutel] = index;
+  });
+
+  var bronnen = specificatie.map(function (kolom) {
+    for (var i = 0; i < kolom.aliases.length; i++) {
+      var index = oudeIndex[crNormaliseerKolomnaam(kolom.aliases[i])];
+      if (index !== undefined) return index;
+    }
+    throw new Error("Migratie gestopt; bronkolom ontbreekt voor: " + kolom.naam);
+  });
+
+  var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
+    return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.naam);
+  });
+  if (alGereed) {
+    SpreadsheetApp.getUi().alert("Voorpagina heeft al de nieuwe kolomindeling.");
+    return { gewijzigd: false, reden: "al gemigreerd" };
+  }
+
+  var antwoord = SpreadsheetApp.getUi().alert(
+    "Voorpagina migreren",
+    "Er wordt eerst een backupwerkblad gemaakt. Daarna blijven alleen de 25 afgesproken kolommen over. Doorgaan?",
+    SpreadsheetApp.getUi().ButtonSet.YES_NO
+  );
+  if (antwoord !== SpreadsheetApp.getUi().Button.YES) return { gewijzigd: false, reden: "geannuleerd" };
+
+  var backupnaam = "Voorpagina backup " + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd-HHmmss");
+  var backup = blad.copyTo(ss).setName(backupnaam);
+  var aantalRijen = Math.max(backup.getMaxRows(), backup.getLastRow(), 2);
+  var gewenstAantal = specificatie.length;
+
+  if (blad.getMaxColumns() < gewenstAantal) {
+    blad.insertColumnsAfter(blad.getMaxColumns(), gewenstAantal - blad.getMaxColumns());
+  }
+  blad.clear();
+
+  specificatie.forEach(function (kolom, doelIndex) {
+    var bronIndex = bronnen[doelIndex];
+    backup.getRange(1, bronIndex + 1, aantalRijen, 1).copyTo(
+      blad.getRange(1, doelIndex + 1, aantalRijen, 1),
+      SpreadsheetApp.CopyPasteType.PASTE_NORMAL,
+      false
+    );
+    blad.setColumnWidth(doelIndex + 1, backup.getColumnWidth(bronIndex + 1));
+  });
+  blad.getRange(1, 1, 1, gewenstAantal).setValues([specificatie.map(function (kolom) { return kolom.naam; })]);
+
+  if (blad.getMaxColumns() > gewenstAantal) {
+    blad.deleteColumns(gewenstAantal + 1, blad.getMaxColumns() - gewenstAantal);
+  }
+
+  var laatsteRij = blad.getLastRow();
+  if (laatsteRij > 1) {
+    var nieuweKolommen = crMaakKolomindex(blad);
+    var datumKolom = crZoekKolom(nieuweKolommen, "Datum") + 1;
+    var collecteKolom = crZoekKolom(nieuweKolommen, "Collecte") + 1;
+    var collectecategorieKolom = crZoekKolom(nieuweKolommen, "CollecteCategorie") + 1;
+    var kwartaalKolom = crZoekKolom(nieuweKolommen, "Kwartaal") + 1;
+    var maandKolom = crZoekKolom(nieuweKolommen, "Maand") + 1;
+    blad.getRange(2, kwartaalKolom, laatsteRij - 1, 1).setFormulaR1C1(
+      '=IF(RC[' + (datumKolom - kwartaalKolom) + ']="","",ROUNDUP(MONTH(RC[' + (datumKolom - kwartaalKolom) + '])/3,0))'
+    );
+    blad.getRange(2, maandKolom, laatsteRij - 1, 1).setFormulaR1C1(
+      '=IF(RC[' + (datumKolom - maandKolom) + ']="","",MONTH(RC[' + (datumKolom - maandKolom) + ']))'
+    );
+    blad.getRange(2, collectecategorieKolom, laatsteRij - 1, 1).setFormulaR1C1(
+      '=IF(RC[' + (collecteKolom - collectecategorieKolom) + ']="","",IFERROR(VLOOKUP(RC[' +
+      (collecteKolom - collectecategorieKolom) + '],\'Lijst Collectes\'!C1:C2,2,FALSE),""))'
+    );
+
+    specificatie.filter(function (kolom) { return kolom.selectievakje; }).forEach(function (kolom) {
+      var kolomnummer = crZoekKolom(nieuweKolommen, kolom.naam) + 1;
+      var bereik = blad.getRange(2, kolomnummer, laatsteRij - 1, 1);
+      var waarden = bereik.getValues().map(function (rij) {
+        var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
+        return [rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "ha" || waarde === "true" || waarde === "1"];
+      });
+      bereik.insertCheckboxes();
+      bereik.setValues(waarden);
+    });
+  }
+
+  blad.setFrozenRows(backup.getFrozenRows());
+  blad.setFrozenColumns(Math.min(backup.getFrozenColumns(), gewenstAantal));
+  ss.setNamedRange("VolledigRooster", blad.getRange(1, 1, Math.max(blad.getLastRow(), 1), gewenstAantal));
+  ss.setNamedRange("BenoemdBereik1", blad.getRange(1, 1, blad.getMaxRows(), gewenstAantal));
+  if (ss.getNamedRanges().some(function (bereik) { return bereik.getName() === "RoosterTypes"; })) {
+    ss.removeNamedRange("RoosterTypes");
+  }
+
+  var resultaat = { gewijzigd: true, backup: backupnaam, kolommen: specificatie.map(function (kolom) { return kolom.naam; }) };
+  console.log(JSON.stringify(resultaat, null, 2));
+  SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupnaam);
+  return resultaat;
 }
 
 /** Enige bron voor de toegestane configuratieregels en hun presentatievolgorde. */

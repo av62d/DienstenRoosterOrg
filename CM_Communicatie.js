@@ -275,17 +275,10 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mai
   var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
     a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(nowDate, nextSundayDate);
 
-  var sel_date = 0;
-  for (i in a_type) {
-    switch (a_type[i]) {
-      case "B":
-      case "Z":
-      case "Z HA": break;
-      default: continue; break;
-    }
-    sel_date = i;
-    break;
+  if (!a_rowDate.length) {
+    throw new Error("Geen dienst gevonden in de geselecteerde periode.");
   }
+  var sel_date = 0;
 
   var startDate = new Date(a_rowDate[sel_date]);
   var lastDate = new Date(a_rowDate[sel_date]);

@@ -265,10 +265,11 @@ function opBepaalContrasterendeTekstkleur(hexColor, hue) {
 
 
 function opStelAchtergrondkleurenIn() {
-  var type_pos = 0;
-  var p_type = type_pos++; //  4-E Type
-
   var srcSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Voorpagina');
+  if (!srcSheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var kolommen = crMaakKolomindex(srcSheet);
+  var kolomHa = crZoekKolom(kolommen, "HA");
+  var kolomKleur = crZoekKolom(kolommen, "Kleur");
 
   var startRow = 2;
   var endRow = srcSheet.getLastRow();
@@ -280,23 +281,22 @@ function opStelAchtergrondkleurenIn() {
 
   var curRow = 1;
 
-  var rowHeaders = srcSheet.getRange(1, 1, 1, numCols).getValues()[0];
-
   for (curRow = startRow; curRow <= endRow; curRow++) {
     var rowRange = srcSheet.getRange(curRow, 1, 1, numCols);
     var rowValues = rowRange.getValues()[0];
-    var rowType = rowValues[0];
-    var rowHA = rowValues[14];
+    var rowHA = rowValues[kolomHa];
+    var liturgischeKleur = String(rowValues[kolomKleur] || "").toLowerCase();
     var color = rowRange.getBackgroundColor();
 
     color = '#ffffff';  // white
 
     if (rowHA != "")
       color = "#cfe2f3";
-    else    if (rowType == "T")
-      color = '#ff00ff';
-    else
-      color = opBepaalKleurtype(rowType, "#ffffff");
+    else if (liturgischeKleur === "wit") color = "#ffffff";
+    else if (liturgischeKleur === "groen") color = "#d9ead3";
+    else if (liturgischeKleur === "rood") color = "#f4cccc";
+    else if (liturgischeKleur === "paars") color = "#d9d2e9";
+    else if (liturgischeKleur === "roze") color = "#ead1dc";
 
     rowRange.setBackground(color);
   }
