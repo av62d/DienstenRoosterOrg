@@ -170,6 +170,10 @@ function bhMigreerVoorpagina() {
   var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
     return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.naam);
   });
+  var collecteblad = ss.getSheetByName("Lijst Collectes");
+  if (!collecteblad || collecteblad.getLastRow() < 3) {
+    throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
+  }
   var antwoord = SpreadsheetApp.getUi().alert(
     alGereed ? "Voorpagina herstellen" : "Voorpagina migreren",
     "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de 25 afgesproken kolommen " +
@@ -220,7 +224,8 @@ function bhMigreerVoorpagina() {
     );
     blad.getRange(2, collectecategorieKolom, laatsteRij - 1, 1).setFormulaR1C1(
       '=IF(RC[' + (collecteKolom - collectecategorieKolom) + ']="","",IFERROR(VLOOKUP(RC[' +
-      (collecteKolom - collectecategorieKolom) + '],\'Lijst Collectes\'!C1:C2,2,FALSE),""))'
+      (collecteKolom - collectecategorieKolom) + '],\'Lijst Collectes\'!R3C1:R' +
+      collecteblad.getLastRow() + 'C2,2,FALSE),""))'
     );
 
     specificatie.filter(function (kolom) { return kolom.selectievakje; }).forEach(function (kolom) {
