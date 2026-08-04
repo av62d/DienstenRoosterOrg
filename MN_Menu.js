@@ -47,6 +47,7 @@ function mnBijOpenen() {
     .addItem("Initialiseer ontbrekende structuur", "bhInitialiseerSpreadsheet")
     .addItem("Migreer Voorpagina (eenmalig)", "bhMigreerVoorpagina")
     .addItem("Herbereken Voorpagina-kolommen", "bhHerberekenVoorpagina")
+    .addItem("Herstel keuzes Voorpagina", "bhStelVoorpaginaValidatiesIn")
     .addSeparator()
     .addItem("Schoon Configuratie op", "bhSchoonConfiguratieOp")
     .addItem("Controleer projectconfiguratie", "bhControleerProjectConfiguratie"));

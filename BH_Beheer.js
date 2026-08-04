@@ -134,8 +134,8 @@ function bhVoorpaginaKolomspecificatie() {
     { naam: "Uitgangscollecte", aliases: ["Uitgangscollecte"] },
     { naam: "Kwartaal", aliases: ["Kwartaal"], berekend: "kwartaal" },
     { naam: "Maand", aliases: ["Maand"], berekend: "maand" },
-    { naam: "KoffieDienst", aliases: ["KoffieDienst", "Koffie Dienst"], selectievakje: true },
-    { naam: "DidamDienst", aliases: ["DidamDienst", "Didam Dienst"], selectievakje: true },
+    { naam: "KoffieDienst", aliases: ["KoffieDienst", "Koffie Dienst"], janeeKeuze: true },
+    { naam: "DidamDienst", aliases: ["DidamDienst", "Didam Dienst"], janeeKeuze: true },
     { naam: "YouTubeLink", aliases: ["YouTubeLink"] },
     { naam: "YouTubeTitel", aliases: ["YouTubeTitel", "Titel"] },
     { naam: "Broadcast-ID", aliases: ["Broadcast-ID"] }
@@ -209,16 +209,7 @@ function bhMigreerVoorpagina() {
     var nieuweKolommen = crMaakKolomindex(blad);
     bhHerberekenVoorpagina(false);
 
-    specificatie.filter(function (kolom) { return kolom.selectievakje; }).forEach(function (kolom) {
-      var kolomnummer = crZoekKolom(nieuweKolommen, kolom.naam) + 1;
-      var bereik = blad.getRange(2, kolomnummer, laatsteRij - 1, 1);
-      var waarden = bereik.getValues().map(function (rij) {
-        var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
-        return [rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "ha" || waarde === "true" || waarde === "1"];
-      });
-      bereik.insertCheckboxes();
-      bereik.setValues(waarden);
-    });
+    bhStelVoorpaginaValidatiesIn(false);
   }
 
   blad.setFrozenRows(backup.getFrozenRows());
@@ -232,6 +223,43 @@ function bhMigreerVoorpagina() {
   var resultaat = { gewijzigd: true, backup: backupnaam, kolommen: specificatie.map(function (kolom) { return kolom.naam; }) };
   console.log(JSON.stringify(resultaat, null, 2));
   SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupnaam);
+  return resultaat;
+}
+
+/** Stelt de afgesproken selectievakjes en ja/nee-keuzelijsten opnieuw in. */
+function bhStelVoorpaginaValidatiesIn(toonMelding) {
+  var blad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Voorpagina");
+  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var laatsteRij = blad.getLastRow();
+  if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
+
+  var kolommen = crMaakKolomindex(blad);
+  var haBereik = blad.getRange(2, crZoekKolom(kolommen, "HA") + 1, laatsteRij - 1, 1);
+  var haWaarden = haBereik.getValues().map(function (rij) {
+    var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
+    return [rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "ha" || waarde === "true" || waarde === "1"];
+  });
+  haBereik.clearDataValidations().insertCheckboxes().setValues(haWaarden);
+
+  var janeeRegel = SpreadsheetApp.newDataValidation()
+    .requireValueInList(["ja", "nee"], true)
+    .setAllowInvalid(false)
+    .build();
+  ["KoffieDienst", "DidamDienst"].forEach(function (kolomnaam) {
+    var bereik = blad.getRange(2, crZoekKolom(kolommen, kolomnaam) + 1, laatsteRij - 1, 1);
+    var waarden = bereik.getValues().map(function (rij) {
+      var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
+      if (rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "true" || waarde === "1") return ["ja"];
+      if (rij[0] === false || waarde === "nee" || waarde === "false" || waarde === "0") return ["nee"];
+      return [""];
+    });
+    bereik.clearDataValidations().setDataValidation(janeeRegel).setValues(waarden);
+  });
+
+  var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
+  if (toonMelding !== false) {
+    SpreadsheetApp.getUi().alert("HA is een selectievakje; KoffieDienst en DidamDienst zijn ja/nee-keuzes.");
+  }
   return resultaat;
 }
 

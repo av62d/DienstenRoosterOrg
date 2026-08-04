@@ -52,7 +52,8 @@ daarom niet meer bepalend voor het uitlezen van roostergegevens.
 
 `bhMigreerVoorpagina` is een tijdelijke, eenmalige beheerfunctie. Zij maakt
 eerst een backupwerkblad, zet de 25 behouden kolommen in de afgesproken
-volgorde, hernoemt oude koppen, maakt de drie selectievakkolommen aan en bouwt
+volgorde, hernoemt oude koppen, maakt `HA` als selectievakje en
+`KoffieDienst`/`DidamDienst` als ja/nee-keuzelijsten en bouwt
 de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
 
 ## Beheerfuncties
