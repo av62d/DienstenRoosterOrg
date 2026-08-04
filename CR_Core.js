@@ -27,12 +27,13 @@ function crNormaliseerKolomnaam(naam) {
 }
 
 /** Geeft een object met nulgebaseerde kolomindexen, keyed op kolomnaam. */
-function crMaakKolomindex(werkblad) {
+function crMaakKolomindex(werkblad, koprij) {
   if (!werkblad || werkblad.getLastColumn() === 0) {
     throw new Error("Kan geen kolommen bepalen: het werkblad ontbreekt of is leeg.");
   }
 
-  var koppen = werkblad.getRange(1, 1, 1, werkblad.getLastColumn()).getValues()[0];
+  koprij = koprij || 1;
+  var koppen = werkblad.getRange(koprij, 1, 1, werkblad.getLastColumn()).getValues()[0];
   var kolommen = {};
   koppen.forEach(function (kop, index) {
     var sleutel = crNormaliseerKolomnaam(kop);

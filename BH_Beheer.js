@@ -170,10 +170,6 @@ function bhMigreerVoorpagina() {
   var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
     return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.naam);
   });
-  var collecteblad = ss.getSheetByName("Lijst Collectes");
-  if (!collecteblad || collecteblad.getLastRow() < 3) {
-    throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
-  }
   var antwoord = SpreadsheetApp.getUi().alert(
     alGereed ? "Voorpagina herstellen" : "Voorpagina migreren",
     "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de 25 afgesproken kolommen " +
@@ -211,22 +207,7 @@ function bhMigreerVoorpagina() {
   var laatsteRij = blad.getLastRow();
   if (laatsteRij > 1) {
     var nieuweKolommen = crMaakKolomindex(blad);
-    var datumKolom = crZoekKolom(nieuweKolommen, "Datum") + 1;
-    var collecteKolom = crZoekKolom(nieuweKolommen, "Collecte") + 1;
-    var collectecategorieKolom = crZoekKolom(nieuweKolommen, "CollecteCategorie") + 1;
-    var kwartaalKolom = crZoekKolom(nieuweKolommen, "Kwartaal") + 1;
-    var maandKolom = crZoekKolom(nieuweKolommen, "Maand") + 1;
-    blad.getRange(2, kwartaalKolom, laatsteRij - 1, 1).setFormulaR1C1(
-      '=IF(RC[' + (datumKolom - kwartaalKolom) + ']="","",ROUNDUP(MONTH(RC[' + (datumKolom - kwartaalKolom) + '])/3,0))'
-    );
-    blad.getRange(2, maandKolom, laatsteRij - 1, 1).setFormulaR1C1(
-      '=IF(RC[' + (datumKolom - maandKolom) + ']="","",MONTH(RC[' + (datumKolom - maandKolom) + ']))'
-    );
-    blad.getRange(2, collectecategorieKolom, laatsteRij - 1, 1).setFormulaR1C1(
-      '=IF(RC[' + (collecteKolom - collectecategorieKolom) + ']="","",IFERROR(VLOOKUP(RC[' +
-      (collecteKolom - collectecategorieKolom) + '],\'Lijst Collectes\'!R3C1:R' +
-      collecteblad.getLastRow() + 'C2,2,FALSE),""))'
-    );
+    bhHerberekenVoorpagina(false);
 
     specificatie.filter(function (kolom) { return kolom.selectievakje; }).forEach(function (kolom) {
       var kolomnummer = crZoekKolom(nieuweKolommen, kolom.naam) + 1;
@@ -251,6 +232,59 @@ function bhMigreerVoorpagina() {
   var resultaat = { gewijzigd: true, backup: backupnaam, kolommen: specificatie.map(function (kolom) { return kolom.naam; }) };
   console.log(JSON.stringify(resultaat, null, 2));
   SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupnaam);
+  return resultaat;
+}
+
+/** Herbouwt uitsluitend de drie afgeleide kolommen op Voorpagina. */
+function bhHerberekenVoorpagina(toonMelding) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var blad = ss.getSheetByName("Voorpagina");
+  var collecteblad = ss.getSheetByName("Lijst Collectes");
+  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  if (!collecteblad || collecteblad.getLastRow() < 3) {
+    throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
+  }
+
+  var kolommen = crMaakKolomindex(blad);
+  var datumKolom = crZoekKolom(kolommen, "Datum") + 1;
+  var collecteKolom = crZoekKolom(kolommen, "Collecte") + 1;
+  var collectecategorieKolom = crZoekKolom(kolommen, "CollecteCategorie") + 1;
+  var kwartaalKolom = crZoekKolom(kolommen, "Kwartaal") + 1;
+  var maandKolom = crZoekKolom(kolommen, "Maand") + 1;
+
+  var collectekolommen = crMaakKolomindex(collecteblad, 2);
+  var doelKolom = crZoekKolom(collectekolommen, "Doel") + 1;
+  var categorieKolom = crZoekKolom(collectekolommen, "Categorie") + 1;
+  var aantalCollectes = collecteblad.getLastRow() - 2;
+  var doelBereik = "'" + collecteblad.getName().replace(/'/g, "''") + "'!" +
+    collecteblad.getRange(3, doelKolom, aantalCollectes, 1).getA1Notation();
+  var categorieBereik = "'" + collecteblad.getName().replace(/'/g, "''") + "'!" +
+    collecteblad.getRange(3, categorieKolom, aantalCollectes, 1).getA1Notation();
+
+  var laatsteRij = blad.getLastRow();
+  if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
+  var kwartaalformules = [];
+  var maandformules = [];
+  var categorieformules = [];
+  for (var rij = 2; rij <= laatsteRij; rij++) {
+    var datumCel = blad.getRange(rij, datumKolom).getA1Notation();
+    var collecteCel = blad.getRange(rij, collecteKolom).getA1Notation();
+    kwartaalformules.push(['=IF(' + datumCel + '="","",ROUNDUP(MONTH(' + datumCel + ')/3,0))']);
+    maandformules.push(['=IF(' + datumCel + '="","",MONTH(' + datumCel + '))']);
+    categorieformules.push(['=IF(' + collecteCel + '="","",IFERROR(INDEX(' + categorieBereik +
+      ',MATCH(' + collecteCel + ',' + doelBereik + ',0)),""))']);
+  }
+
+  blad.getRange(2, kwartaalKolom, kwartaalformules.length, 1).setFormulas(kwartaalformules);
+  blad.getRange(2, maandKolom, maandformules.length, 1).setFormulas(maandformules);
+  blad.getRange(2, collectecategorieKolom, categorieformules.length, 1).setFormulas(categorieformules);
+  SpreadsheetApp.flush();
+
+  var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
+  console.log(JSON.stringify(resultaat, null, 2));
+  if (toonMelding !== false) {
+    SpreadsheetApp.getUi().alert("Kwartaal, Maand en CollecteCategorie zijn opnieuw berekend.");
+  }
   return resultaat;
 }
 
