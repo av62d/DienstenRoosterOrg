@@ -170,14 +170,10 @@ function bhMigreerVoorpagina() {
   var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
     return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.naam);
   });
-  if (alGereed) {
-    SpreadsheetApp.getUi().alert("Voorpagina heeft al de nieuwe kolomindeling.");
-    return { gewijzigd: false, reden: "al gemigreerd" };
-  }
-
   var antwoord = SpreadsheetApp.getUi().alert(
-    "Voorpagina migreren",
-    "Er wordt eerst een backupwerkblad gemaakt. Daarna blijven alleen de 25 afgesproken kolommen over. Doorgaan?",
+    alGereed ? "Voorpagina herstellen" : "Voorpagina migreren",
+    "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de 25 afgesproken kolommen " +
+      (alGereed ? "opnieuw opgebouwd en gevalideerd." : "in de nieuwe volgorde opgebouwd.") + " Doorgaan?",
     SpreadsheetApp.getUi().ButtonSet.YES_NO
   );
   if (antwoord !== SpreadsheetApp.getUi().Button.YES) return { gewijzigd: false, reden: "geannuleerd" };
@@ -190,6 +186,7 @@ function bhMigreerVoorpagina() {
   if (blad.getMaxColumns() < gewenstAantal) {
     blad.insertColumnsAfter(blad.getMaxColumns(), gewenstAantal - blad.getMaxColumns());
   }
+  blad.getRange(1, 1, blad.getMaxRows(), blad.getMaxColumns()).clearDataValidations();
   blad.clear();
 
   specificatie.forEach(function (kolom, doelIndex) {
