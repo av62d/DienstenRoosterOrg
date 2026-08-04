@@ -256,28 +256,33 @@ function bhHerberekenVoorpagina(toonMelding) {
   var doelKolom = crZoekKolom(collectekolommen, "Doel") + 1;
   var categorieKolom = crZoekKolom(collectekolommen, "Categorie") + 1;
   var aantalCollectes = collecteblad.getLastRow() - 2;
-  var doelBereik = "'" + collecteblad.getName().replace(/'/g, "''") + "'!" +
-    collecteblad.getRange(3, doelKolom, aantalCollectes, 1).getA1Notation();
-  var categorieBereik = "'" + collecteblad.getName().replace(/'/g, "''") + "'!" +
-    collecteblad.getRange(3, categorieKolom, aantalCollectes, 1).getA1Notation();
+  var collectegegevens = collecteblad.getRange(3, 1, aantalCollectes, collecteblad.getLastColumn()).getValues();
+  var categoriePerDoel = {};
+  collectegegevens.forEach(function (rij) {
+    var doel = String(rij[doelKolom - 1] || "").trim();
+    if (doel) categoriePerDoel[doel] = rij[categorieKolom - 1] || "";
+  });
 
   var laatsteRij = blad.getLastRow();
   if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
-  var kwartaalformules = [];
-  var maandformules = [];
-  var categorieformules = [];
-  for (var rij = 2; rij <= laatsteRij; rij++) {
-    var datumCel = blad.getRange(rij, datumKolom).getA1Notation();
-    var collecteCel = blad.getRange(rij, collecteKolom).getA1Notation();
-    kwartaalformules.push(['=IF(' + datumCel + '="","",ROUNDUP(MONTH(' + datumCel + ')/3,0))']);
-    maandformules.push(['=IF(' + datumCel + '="","",MONTH(' + datumCel + '))']);
-    categorieformules.push(['=IF(' + collecteCel + '="","",IFERROR(INDEX(' + categorieBereik +
-      ',MATCH(' + collecteCel + ',' + doelBereik + ',0)),""))']);
-  }
+  var gegevens = blad.getRange(2, 1, laatsteRij - 1, blad.getLastColumn()).getValues();
+  var kwartalen = [];
+  var maanden = [];
+  var categorieen = [];
+  gegevens.forEach(function (rij) {
+    var datum = rij[datumKolom - 1];
+    var geldigeDatum = datum instanceof Date && !isNaN(datum.getTime());
+    var maand = geldigeDatum ? datum.getMonth() + 1 : "";
+    maanden.push([maand]);
+    kwartalen.push([maand ? Math.ceil(maand / 3) : ""]);
 
-  blad.getRange(2, kwartaalKolom, kwartaalformules.length, 1).setFormulas(kwartaalformules);
-  blad.getRange(2, maandKolom, maandformules.length, 1).setFormulas(maandformules);
-  blad.getRange(2, collectecategorieKolom, categorieformules.length, 1).setFormulas(categorieformules);
+    var collecte = String(rij[collecteKolom - 1] || "").trim();
+    categorieen.push([collecte && categoriePerDoel.hasOwnProperty(collecte) ? categoriePerDoel[collecte] : ""]);
+  });
+
+  blad.getRange(2, kwartaalKolom, kwartalen.length, 1).setValues(kwartalen);
+  blad.getRange(2, maandKolom, maanden.length, 1).setValues(maanden);
+  blad.getRange(2, collectecategorieKolom, categorieen.length, 1).setValues(categorieen);
   SpreadsheetApp.flush();
 
   var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
@@ -286,6 +291,23 @@ function bhHerberekenVoorpagina(toonMelding) {
     SpreadsheetApp.getUi().alert("Kwartaal, Maand en CollecteCategorie zijn opnieuw berekend.");
   }
   return resultaat;
+}
+
+/** Werkt afgeleide waarden bij na wijziging van Datum of Collecte. */
+function bhBijWijzigingVoorpagina(e) {
+  if (!e || !e.range) return;
+  var blad = e.range.getSheet();
+  if (blad.getName() !== "Voorpagina" || e.range.getRow() === 1) return;
+
+  var kolommen = crMaakKolomindex(blad);
+  var gewijzigdeEersteKolom = e.range.getColumn() - 1;
+  var gewijzigdeLaatsteKolom = gewijzigdeEersteKolom + e.range.getNumColumns() - 1;
+  var datumKolom = crZoekKolom(kolommen, "Datum");
+  var collecteKolom = crZoekKolom(kolommen, "Collecte");
+  if ((datumKolom < gewijzigdeEersteKolom || datumKolom > gewijzigdeLaatsteKolom) &&
+      (collecteKolom < gewijzigdeEersteKolom || collecteKolom > gewijzigdeLaatsteKolom)) return;
+
+  bhHerberekenVoorpagina(false);
 }
 
 /** Enige bron voor de toegestane configuratieregels en hun presentatievolgorde. */

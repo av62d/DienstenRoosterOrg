@@ -8,6 +8,11 @@ function onOpen(e) {
   return mnBijOpenen(e);
 }
 
+// Google Apps Script vereist exact de naam onEdit voor deze eenvoudige trigger.
+function onEdit(e) {
+  return bhBijWijzigingVoorpagina(e);
+}
+
 
 function mnBijOpenen() {
   var ui = SpreadsheetApp.getUi();
