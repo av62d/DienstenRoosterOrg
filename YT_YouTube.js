@@ -3,13 +3,6 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
-function ytVerzendLaatsteVideos() {
-  var nr_videos = 16;
-  var email = "<h4>Vorige " + nr_videos + " diensten</h4>" + ytMaakUploadLijst(nr_videos);
-  MailApp.sendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", email);
-  var x = 2;
-}
-
 
 function ytMaakUploadLijst(n = 4) {
   var uploadData = ytHaalMijnUploadsOp();
@@ -45,10 +38,8 @@ function ytHaalMijnUploadsOp(rptSheet) {
   var results2 = YouTube.Channels.list('contentDetails', { mine: 'true' });
 
 
-
   ytLaad(rptSheet, 'contentDetails', results);
   // ytLaad(rptSheet, 'contentDetails2' , results2 );
-
 
 
   function ytLaad(rptSheet, details, results) {
@@ -90,44 +81,6 @@ function ytHaalMijnUploadsOp(rptSheet) {
 
 
 // function ytMaakUploadWerkblad(rptSheet = CreateOrClearSheet('Videos')) {
-
-
-function ytMaakUploadWerkblad(rptSheet) {
-  var uploadData = ytHaalMijnUploadsOp();
-  // Logger.log("Kind === "+ uploadData + "===");
-  for (var i in uploadData) {
-    var s = uploadData[i];
-    if (1) rptSheet.appendRow([s]);
-
-    var x1 = s.getChannelId();
-    var x2 = s.getChannelTitle();
-    var x3 = s.getDescription();
-    var x4 = s.getPlaylistId();
-    var x5 = s.getPosition();
-    var d = new Date(s.getPublishedAt());
-
-
-    var x9 = s.getTitle();
-
-    if (1) {
-      rptSheet.appendRow([
-        s.getChannelId(),
-        s.getChannelTitle(),
-        s.getResourceId().getVideoId(),
-        s.getDescription(),
-        s.getPlaylistId(),
-        s.getPosition(),
-        s.getPublishedAt(),
-        s.getTitle(),
-        d
-      ]);
-
-    }
-  }
-
-  var x = 1;
-
-}
 
 
 /**
@@ -246,46 +199,3 @@ function ytKoppelUitzending(broadcastId, streamId) {
  * This sample finds the active user's uploads, then updates the most recent
  * upload's description by appending a string.
  */
-
-
-function ytWerkVideoBij() {
-  // 1. Fetch all the channels owned by active user
-  var myChannels = YouTube.Channels.list('contentDetails', {mine: true});
-  // 2. Iterate through the channels and get the uploads playlist ID
-  for (var i = 0; i < myChannels.items.length; i++) {
-    var item = myChannels.items[i];
-    var uploadsPlaylistId = item.contentDetails.relatedPlaylists.uploads;
-
-    var playlistResponse = YouTube.PlaylistItems.list('snippet', {
-      playlistId: uploadsPlaylistId,
-      maxResults: 1
-    });
-
-    // Get the videoID of the first video in the list
-    var video = playlistResponse.items[0];
-    var originalDescription = video.snippet.description;
-    var updatedDescription = originalDescription + ' Description updated via Google Apps Script';
-
-    Logger.log('[%d] Title: %s -- %s',
-               playlistResponse.items.length,
-               video.snippet.title,
-               video.snippet.description
-              );
-    video.snippet.description = updatedDescription;
-
-    var resource = {
-      snippet: {
-        title: video.snippet.title,
-        description: updatedDescription,
-        categoryId: '22'
-      },
-      id: video.snippet.resourceId.videoId
-    };
-    Logger.log('[%s] Title: %s -- %s',
-               video.snippet.resourceId.videoId,
-               resource.snippet.title,
-               resource.snippet.description
-              );
-    // YouTube.Videos.update(resource, 'id,snippet');
-  }
-}

@@ -7,34 +7,6 @@ var nl = "\n";
 var tab = "\t";
 
 
-function cmVerzendRoosterbericht() {
-
-  var klaar = false;
-
-  while (!klaar) {
-
-    const ui = SpreadsheetApp.getUi();
-    const antwoord = ui.prompt('Extra mededeling:');
-
-    var msg = antwoord.getResponseText();
-
-    const response = ui.alert(
-      msg,
-      ui.ButtonSet.YES_NO,
-    );
-
-    // Process the user's response.
-    if (response === ui.Button.YES) {
-      klaar = true;
-      Logger.log('The user clicked' + antwoord);
-    }
-
-  }
-
-  x = 1;
-}
-
-
 function cmVerzendRooster() {
   cmVerzendRoosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Rooster"), 4, 3); // 2 weeks and 3 months
 }
@@ -157,11 +129,6 @@ function cmVerzendEmail(emailTo_list, emailSubject, emailName, emailHtmlBody, em
 }
 
 
-function cmMaakUrlLink(url, tekst) {
-  return "<a href=\"" + url + "\">" + tekst + "</a>";
-}
-
-
 function cmMaakHtmlElement(tag, str) {
   return "<" + tag + ">" + str + "</" + tag + ">\n";
 }
@@ -187,7 +154,6 @@ function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
   var fullMsg = "";
 
   for (var i in a_type) {
-
 
 
     var msg = "";
@@ -244,13 +210,6 @@ function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
 }
 
 
-function cmVerzendDienstenlijst() {
-  var n = 4;
-  var email = "<h4>Vorige " + n + " diensten</h4>" + ytMaakUploadLijst(n);
-  MailApp.sendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", email);
-}
-
-
 function cmVerzendTemplate() {
   cmVerzendTemplateNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - KerkTV"));
 }
@@ -292,7 +251,6 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mai
   var templateDoc = DocumentApp.openById(templateDocumentId);
   var instanceDoc = DocumentApp.openById(instanceDocId);
   instanceDoc.setName(emailSubject);
-
 
 
   /// kanaal URL : https://www.youtube.com/user/langenaam/
@@ -498,18 +456,6 @@ function cmExporteerDocumentNaarDocx(documentId, bestandsnaam) {
 }
 
 
-function cmMaakRoosterbericht() {
-  var curDate = new Date();
-  var rptWeekStartDate = crTelWekenBijDatumOp(crBepaalBeginVanWeek(curDate), 1);
-  var rptWeekEndDate = crTelDagenBijDatumOp(rptWeekStartDate, 1);
-  // ambtsdragers
-
-  var msg = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
-
-  return msg;
-}
-
-
 // https://stackoverflow.com/questions/15636543/convert-google-doc-to-docx-using-google-script
 // https://gist.github.com/tanaikech/8d639542577a594f6104b7f6fb753064
 
@@ -692,7 +638,6 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
   var msgDetails = msg_array[1];
 
 
-
   var emailSubject = "Activiteiten in de Protestantse Gemeenten van " + txtPeriode;
   var templateDoc = DocumentApp.openById(templateDocumentId);
 
@@ -706,7 +651,6 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
     headers: { "Authorization": "Bearer " + ScriptApp.getOAuthToken() },
     muteHttpExceptions: true,
   };
-
 
 
   var emailHtmlRaw = UrlFetchApp.fetch(url, param).getContentText();
@@ -866,34 +810,6 @@ const conv = {
 // Please run this function.
 
 
-function cmVerzendLectorBericht() {
-
-  var klaar = false;
-
-  while (!klaar) {
-
-    const ui = SpreadsheetApp.getUi();
-    const antwoord = ui.prompt('Extra mededeling:');
-
-    var msg = antwoord.getResponseText();
-
-    const response = ui.alert(
-      msg,
-      ui.ButtonSet.YES_NO,
-    );
-
-    // Process the user's response.
-    if (response === ui.Button.YES) {
-      klaar = true;
-      Logger.log('The user clicked' + antwoord);
-    }
-
-  }
-
-  x = 1;
-}
-
-
 function cmVerzendLectorrooster() {
   cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Lectoren"));
 }
@@ -920,7 +836,6 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Ma
   // Alles voor de email is nu gereed
 
 
-
   /* var rptSheetName = "Lectorrooster"; var rptTitle = "Lectorrooster";
 
   cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName, rptTitle);
@@ -935,8 +850,6 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Ma
   }).getBlob();
 
   xlsx_file.setName(rptSheetName + ".xlsx"); */
-
-
 
 
   var emailHtmlBody = cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate);
@@ -1031,179 +944,4 @@ function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
   }
 
   return fullMsg;
-}
-
-
-function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "Lectorrooster", rptTitle = "Lectorrooster") {
-
-  if (!rptSheetName || !rptTitle || !rptWeekStartDate || !rptWeekEndDate)
-    return;
-
-  var sizeNameCol = 105;
-  var sizeSpecCol = 125;
-
-  var hdrRow = ["Tijd", "Voorganger", "Bijzonderheden", "Lector"];
-  var hdrRowSize = [80, sizeSpecCol, sizeSpecCol, sizeNameCol];
-  var rptNumCols = hdrRow.length;
-
-  var fg_title = "black"; var bg_title = "white";
-
-  var report_sheet = crMaakOfLeegWerkblad(rptSheetName);
-
-  function cmBereikLaatsteRij() {
-    var l = report_sheet.getLastRow();
-    if (l == 0) l += 1;
-    return report_sheet.getRange(l, 1, 1, rptNumCols);
-  }
-
-  function cmMaakLaatsteRijOp(fgColor, bgColor, fontSize) {
-    var lrow = cmBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setFontSize(fontSize);
-    lrow.setFontColor(fgColor);
-    lrow.setFontWeight('bold');
-    lrow.setVerticalAlignment("top");
-    lrow.setWrap(true);
-    return lrow;
-  }
-
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg] = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
-
-  var bgColor = BG_COL1;
-
-  var nowDate = new Date();
-  report_sheet.appendRow([rptTitle]);
-  var lrow = cmMaakLaatsteRijOp(fg_title, bg_title, 24);
-  lrow.setVerticalAlignment("middle");
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");
-  report_sheet.setRowHeight(1, 60);
-
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
-  lrow = cmMaakLaatsteRijOp(fg_title, bg_title, 9);
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");        // gecentreerd
-
-  var rptMonth = "";
-
-  var altColor = BG_COL1;
-
-  var nl = "\n";
-
-  for (var i in a_type) {
-    var t = a_type[i];
-
-    if (altColor == BG_COL1)
-      altColor = BG_COL2;
-    else
-      altColor = BG_COL1;
-
-    bgColor = altColor;
-
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
-    if (monthName !== rptMonth) {
-
-
-      report_sheet.appendRow([monthName]);
-      rptMonth = monthName;
-      lrow = cmMaakLaatsteRijOp(fg_title, bg_title, 18);    // Maand in 18 punt
-      lrow.mergeAcross();
-      lrow.setHorizontalAlignment("center");        // gecentreerd
-      lrow.setVerticalAlignment("middle");        // gecentreerd
-
-      report_sheet.setRowHeight(report_sheet.getLastRow(), 60);
-
-      report_sheet.appendRow(hdrRow);
-      lrow = cmMaakLaatsteRijOp(fg_title, bg_title, 10);
-
-
-    }
-
-
-
-    switch (t) {
-      case "M": bgColor = 'LemonChiffon'; break;
-      case "B HA": bgColor = 'AliceBlue'; break;
-      case "Z HA": bgColor = 'AliceBlue'; break;
-      case "AV": bgColor = 'MistyRose'; break;
-    }
-
-
-    if (a_ha[i] != "") {
-      bgColor = BG_HA;
-    }
-
-    var cur_lector = "";
-
-    if (a_lector[i].localeCompare(a_lectorOrg[i])) {
-      cur_lector += conv.strikethrough(a_lectorOrg[i]);
-      cur_lector += " - ";
-    }
-
-    cur_lector += a_lector[i];
-
-
-
-    var rowArray = [
-      crFormatteerDatum(a_rowDate[i], "EEE d MMMM") + nl
-      + crFormatteerDatum(a_rowDate[i], "HH:mm")
-      // + nl + 'week ' + crBepaalWeeknummer(a_rowDate[i]).toString()           // week aanduiding
-      ,
-      // a_titel[i] + nl +
-      // 'Voorganger: ' +
-      a_voorganger[i]
-      // + nl + crVoegTekstToeIndienGevuld('Koster: ', a_koster[i])
-      // + crVoegTekstToeIndienGevuld(', Kerktv: ', a_kerktv[i])
-      // + nl + 'Kleur: ' + a_kleur[i]                                // kleur aanduiding
-      , a_bijz[i].replace(/,\s*/g, nl)
-      , cur_lector
-    ];
-
-    var bgLitColor = "white";
-    switch (a_kleur[i]) {
-      case "wit": bgLitColor = "white"; break;
-      case "roze": bgLitColor = "pink"; break;
-      case "paars": bgLitColor = "plum"; break;
-      case "groen": bgLitColor = "lightgreen"; break;
-      case "rood": bgLitColor = "red"; break;
-
-    }
-
-    report_sheet.appendRow(rowArray);
-
-    var lrow = cmBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setVerticalAlignment("middle"); // data row centered vertically
-    lrow.setWrap(true);
-
-    var datumCell = lrow.getCell(1, 1);
-    datumCell.setBackground(bgLitColor);
-
-
-
-  }
-  report_sheet.setColumnWidth(1, 50);
-  var cell = report_sheet.getRange("A:A");
-  cell.setHorizontalAlignment("center");
-
-
-  for (i = 0; i < hdrRowSize.length; i++) {
-    report_sheet.setColumnWidth(i + 1, hdrRowSize[i]);
-  }
-
-  var numRows = report_sheet.getLastRow();
-  var maxRows = report_sheet.getMaxRows();
-  if (maxRows > numRows)
-    report_sheet.deleteRows(numRows + 1, maxRows - numRows);
-  var numRows = report_sheet.getLastRow();
-  var numCols = report_sheet.getLastColumn();
-  var maxCols = report_sheet.getMaxColumns();
-  if (maxCols > numCols)
-    report_sheet.deleteColumns(numCols + 1, maxCols - numCols);
-
-  // Conditional formatting
-
-  return report_sheet;
 }

@@ -62,7 +62,6 @@ function opPasKleurenToeOpWaarde(sourceSheet, destinationSheet, start_col=0,end_
   // ----- Match and apply formatting -----
 
 
-
   for (let r = 0; r < destValues.length; r++) {
     var last_col = destValues[r].length;
     if (end_col > 0) { last_col = end_col}
@@ -305,17 +304,4 @@ function opStelAchtergrondkleurenIn() {
   // [["Z HA"]] "#cfe2f3"
   // [["M"]] "#fff2cc"
   // [["Z"]] "#ffffff"
-}
-
-
-function opBepaalKleurtype(type, color)
-{
-  switch (type) {
-    case "T" : color = '#ff00ff'; break;
-    case "Z HA":
-    case "B HA": color = "#cfe2f3";break ;
-    case "M": color = "#fff2cc";break;
-    case "AV": color = "#ead1dc";break;
-  }
-  return (color);
 }

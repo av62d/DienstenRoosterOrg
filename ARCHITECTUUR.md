@@ -1,6 +1,6 @@
 # Apps Script-architectuur
 
-Het project bestaat uit tien scriptmodules. Iedere functie begint met de
+Het project bestaat uit tien actieve scriptmodules en één archiefmodule. Iedere functie begint met de
 tweeletterprefix van de module waarin zij staat.
 
 | Bestand | Prefix | Verantwoordelijkheid |
@@ -15,6 +15,7 @@ tweeletterprefix van de module waarin zij staat.
 | `OP_Opmaak.js` | `op` | Kleuren en spreadsheetopmaak |
 | `BH_Beheer.js` | `bh` | Controle en niet-destructieve initialisatie |
 | `TS_Test.js` | `ts` | Handmatig uitvoerbare testfuncties |
+| `Obsolete.js` | divers | Tijdelijk archief van niet actief aangeroepen functies; oorspronkelijke prefixes blijven behouden |
 
 ## Configuratie
 

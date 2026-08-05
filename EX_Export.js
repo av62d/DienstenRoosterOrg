@@ -59,19 +59,6 @@ function exExporteerWerkblad(werkbladnaam, formaat) {
 /* The following functions convert Documents to PDF/xlsx/docx */
 
 
-function exConverteerDocumentNaarPdf(documentId) {
-  var file = Drive.Files.get(documentId);
-  var url = file.exportLinks['application/pdf'];
-  var oauthToken = ScriptApp.getOAuthToken();
-  var response = UrlFetchApp.fetch(url, {
-    headers: {
-      'Authorization': 'Bearer ' + oauthToken
-    }
-  });
-  return response.getBlob();
-}
-
-
 /*
  See formats in https://developers.google.com/drive/api/v3/ref-export-formats
 
@@ -82,41 +69,9 @@ function exConverteerDocumentNaarPdf(documentId) {
 */
 
 
-function exConverteerDocumentNaarDocx(documentId) {
-  var file = Drive.Files.get(documentId);
-  var url = file.exportLinks['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-  var oauthToken = ScriptApp.getOAuthToken();
-  var response = UrlFetchApp.fetch(url, {
-    headers: {
-      'Authorization': 'Bearer ' + oauthToken
-    }
-  });
-  return response.getBlob();
-}
-
-
-function exConverteerDocumentNaarXlsx(documentId) {
-  var file = Drive.Files.get(documentId);
-  var url = file.exportLinks['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-  var oauthToken = ScriptApp.getOAuthToken();
-  var response = UrlFetchApp.fetch(url, {
-    headers: {
-      'Authorization': 'Bearer ' + oauthToken
-    }
-  });
-  return response.getBlob();
-}
-
-
 function exMaakJaarroosterXlsx() {
   curYear = 2026;
   exMaakRoosterXlsx("Rooster-" + curYear + "-xlsx", "Rooster - " + curYear + "xlsx", crBepaalBeginVanJaar(curYear), 12);
-}
-
-
-function exMaakHalfjaarroosterXlsx() {
-  curYear = 2026;
-  exMaakRoosterXlsx("Rooster-" + curYear + "-6maand-xlsx", "Rooster - " + curYear + "xlsx", crBepaalBeginVanMaand(), 6);
 }
 
 
@@ -224,7 +179,6 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
     var t = a_type[i];
 
 
-
     bgColor = altColor;
 
     var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
@@ -248,7 +202,6 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
       lrow.setVerticalAlignment("middle");        // gecentreerd
 
       report_sheet.setRowHeight(report_sheet.getLastRow(), 60);
-
 
 
       */

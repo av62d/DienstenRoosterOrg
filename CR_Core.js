@@ -100,15 +100,9 @@ function crLeesWerkbladInhoud(argSheetName, argA1Position) {
 }
 
 
-function crHaalWerkbladOp(argSheetName) {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(argSheetName);
-}
-
-
 // function tsTestDatumFormattering() {
 //   x = FormatDateDutch(null, "sort");
 // }
-
 
 
 /*** NEWEST */
