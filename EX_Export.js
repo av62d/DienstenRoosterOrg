@@ -86,8 +86,8 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
   rptEndDate.setDate(0);
   if (!rptSheetName || !rptTitle || !rptStartDate || !rptEndDate) return;
 
-  var hdrRow = ["DatumTijd", "Datum", "Tijd", "Voorganger", "Bijzonderheden", "Collectie", "Koster", "Ambtsdragers", "Lector", "Ontvangst", "Klokkenluider", "Koffie", "KerkTV"];
-  var hdrRowSize = [120, 80, 60, 125, 125, 180, 105, 105, 105, 130, 105, 105, 105];
+  var hdrRow = ["Datum en tijd", "Voorganger", "Bijzonderheden", "Collectie", "Koster", "Ambtsdragers", "Lector", "Ontvangst", "Klokkenluider", "Koffie", "KerkTV"];
+  var hdrRowSize = [155, 125, 125, 180, 105, 105, 105, 130, 105, 105, 105];
   var rptNumCols = hdrRow.length;
   var rooster = rsSelecteerGegevens(rptStartDate, rptEndDate);
   var reportSheet = crMaakOfLeegWerkblad(rptSheetName);
@@ -102,9 +102,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
 
   for (var i = 0; i < rooster.datums.length; i++) {
     var rij = [
-      crFormatteerDatum(rooster.datums[i], "d MMMM yyyy HH:mm"),
-      crFormatteerDatum(rooster.datums[i], "d MMMM yyyy"),
-      crFormatteerDatum(rooster.datums[i], "HH:mm"),
+      rooster.datums[i],
       rooster.voorgangers[i], String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), rooster.collectes[i],
       String(rooster.kosters[i] || "").replace(/,\s*/g, nl), String(rooster.ambtsdragers[i] || "").replace(/,\s*/g, nl),
       rooster.lectoren[i], String(rooster.ontvangst[i] || "").replace(/,\s*/g, nl),
@@ -116,8 +114,8 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
     var kleurNaam = String(rooster.kleuren[i] || "").toLowerCase();
     var liturgischeKleur = { wit: "white", roze: "pink", paars: "plum", groen: "lightgreen", rood: "red" }[kleurNaam] || "white";
     var kleuren = new Array(rptNumCols).fill(rooster.avondmaal[i] ? BG_HA : BG_COL1);
-    kleuren[0] = kleuren[1] = kleuren[2] = liturgischeKleur;
-    for (var kolom = 5; kolom < rptNumCols; kolom++) {
+    kleuren[0] = liturgischeKleur;
+    for (var kolom = 3; kolom < rptNumCols; kolom++) {
       var tekst = String(rij[kolom] || "");
       Object.keys(persoonskleuren).some(function (naam) {
         if (tekst.indexOf(naam) >= 0) { kleuren[kolom] = persoonskleuren[naam]; return true; }
@@ -125,21 +123,21 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
       });
     }
     achtergronden.push(kleuren);
-    uitlijningen.push(rij.map(function (_, index) { return index >= 5 ? "center" : "left"; }));
+    uitlijningen.push(rij.map(function (_, index) { return index >= 3 ? "center" : "left"; }));
   }
 
   if (reportSheet.getMaxRows() < rijen.length) reportSheet.insertRowsAfter(reportSheet.getMaxRows(), rijen.length - reportSheet.getMaxRows());
   if (reportSheet.getMaxColumns() < rptNumCols) reportSheet.insertColumnsAfter(reportSheet.getMaxColumns(), rptNumCols - reportSheet.getMaxColumns());
   var volledigBereik = reportSheet.getRange(1, 1, rijen.length, rptNumCols);
-  reportSheet.getRange(1, 1, rijen.length, 2).setNumberFormat("@");
   volledigBereik.setValues(rijen).setBackgrounds(achtergronden).setHorizontalAlignments(uitlijningen)
     .setVerticalAlignment("middle").setWrap(true);
   reportSheet.getRange(1, 1, 1, rptNumCols).setFontWeight("bold").setFontSize(10);
+  if (rijen.length > 1) reportSheet.getRange(2, 1, rijen.length - 1, 1).setNumberFormat("d mmmm yyyy HH:mm");
   if (rijen.length > 1) {
     reportSheet.setRowHeights(2, rijen.length - 1, 40);
-    reportSheet.getRange(2, 6, rijen.length - 1, rptNumCols - 5).setBorder(true, null, true, null, true, true);
+    reportSheet.getRange(2, 4, rijen.length - 1, rptNumCols - 3).setBorder(true, null, true, null, true, true);
   }
-  reportSheet.getRange(1, 1, rijen.length, 3).setHorizontalAlignment("center");
+  reportSheet.getRange(1, 1, rijen.length, 1).setHorizontalAlignment("center");
   hdrRowSize.forEach(function (breedte, index) { reportSheet.setColumnWidth(index + 1, breedte); });
 
   var overbodigeRijen = reportSheet.getMaxRows() - rijen.length;
