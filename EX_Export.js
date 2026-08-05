@@ -102,7 +102,9 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
 
   for (var i = 0; i < rooster.datums.length; i++) {
     var rij = [
-      rooster.datums[i], crFormatteerDatum(rooster.datums[i], "EE d MMMM"), crFormatteerDatum(rooster.datums[i], "HH:mm"),
+      crFormatteerDatum(rooster.datums[i], "d MMMM yyyy HH:mm"),
+      crFormatteerDatum(rooster.datums[i], "d MMMM yyyy"),
+      crFormatteerDatum(rooster.datums[i], "HH:mm"),
       rooster.voorgangers[i], String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), rooster.collectes[i],
       String(rooster.kosters[i] || "").replace(/,\s*/g, nl), String(rooster.ambtsdragers[i] || "").replace(/,\s*/g, nl),
       rooster.lectoren[i], String(rooster.ontvangst[i] || "").replace(/,\s*/g, nl),
@@ -129,6 +131,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
   if (reportSheet.getMaxRows() < rijen.length) reportSheet.insertRowsAfter(reportSheet.getMaxRows(), rijen.length - reportSheet.getMaxRows());
   if (reportSheet.getMaxColumns() < rptNumCols) reportSheet.insertColumnsAfter(reportSheet.getMaxColumns(), rptNumCols - reportSheet.getMaxColumns());
   var volledigBereik = reportSheet.getRange(1, 1, rijen.length, rptNumCols);
+  reportSheet.getRange(1, 1, rijen.length, 2).setNumberFormat("@");
   volledigBereik.setValues(rijen).setBackgrounds(achtergronden).setHorizontalAlignments(uitlijningen)
     .setVerticalAlignment("middle").setWrap(true);
   reportSheet.getRange(1, 1, 1, rptNumCols).setFontWeight("bold").setFontSize(10);
