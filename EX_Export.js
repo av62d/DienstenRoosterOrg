@@ -50,9 +50,10 @@ function exExporteerWerkblad(werkbladnaam, formaat) {
     bestaandeBestanden.next().setTrashed(true);
   }
 
-  var exportbestand = DriveApp.createFile(respons.getBlob().setName(bestandsnaam));
+  var exportblob = respons.getBlob().setName(bestandsnaam);
+  var exportbestand = DriveApp.createFile(exportblob);
   exportbestand.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
-  return exportbestand.getDownloadUrl();
+  return exportblob;
 }
 
 
@@ -69,9 +70,8 @@ function exExporteerWerkblad(werkbladnaam, formaat) {
 */
 
 
-function exMaakJaarroosterXlsx() {
-  curYear = 2026;
-  exMaakRoosterXlsx("Rooster-" + curYear + "-xlsx", "Rooster - " + curYear + "xlsx", crBepaalBeginVanJaar(curYear), 12);
+function exMaakJaarroosterXlsx(curYear = new Date().getFullYear()) {
+  exMaakRoosterXlsx("Rooster-" + curYear + "-xlsx", "Rooster - " + curYear + " xlsx", crBepaalBeginVanJaar(curYear), 12);
 }
 
 

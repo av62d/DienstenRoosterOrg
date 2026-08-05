@@ -121,7 +121,7 @@ Aantal: 6
 | `exConverteerWerkbladNaarXlsx` | Bestandsniveau | `werkbladnaam` – naam van het werkblad | Converteert werkblad naar xlsx. | 6 |
 | `exConverteerWerkbladNaarPdf` | Bestandsniveau | `werkbladnaam` – naam van het werkblad | Converteert werkblad naar pdf. | 11 |
 | `exExporteerWerkblad` | Bestandsniveau | `werkbladnaam` – naam van het werkblad<br>`formaat` – uitvoerformaat | Exporteert één werkblad naar het gekozen bestandsformaat. | 17 |
-| `exMaakJaarroosterXlsx` | Bestandsniveau | geen | Maakt jaarrooster xlsx. | 72 |
+| `exMaakJaarroosterXlsx` | Bestandsniveau | `curYear` – jaar; standaard: `new Date().getFullYear()` | Maakt jaarrooster xlsx. | 73 |
 | `exMaakRoosterXlsx` | Bestandsniveau | `argSheetName` – naam van het werkblad; standaard: `""`<br>`argSheetTitle` – Spreadsheet-werkbladobject; standaard: `""`<br>`rptStartDate` – datum of begindatum; standaard: `crBepaalBeginVanMaand()`<br>`rptNumMonths` – maand of aantal maanden; standaard: `3` | Maakt rooster xlsx. | 81 |
 | `exVerzendJaarroosterXlsx` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Verzendt jaarrooster xlsx. | 151 |
 
