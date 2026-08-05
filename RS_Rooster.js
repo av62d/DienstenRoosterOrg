@@ -138,18 +138,34 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     "Naam van de Zondag", "Collecte Categorie", "Uitgangscollecte", "LectorOrig", "LectorWissel", "Kwartaal", "KoffieDienst", "DidamDienst"
   ];
 
-  return ([a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg,
-    a_lectorWissel, a_kwartaal, a_koffieDienst, a_didamDienst]);
+  return {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte,
+    oorspronkelijkeLectoren: a_lectorOrg,
+    lectorWissels: a_lectorWissel,
+    kwartalen: a_kwartaal,
+    koffieDiensten: a_koffieDienst,
+    didamDiensten: a_didamDienst
+  };
 }
-
-
-/* aanroepen als:
-  var [ a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-       a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-       a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg, a_lectorWissel, a_kwartaal, a_koffieDienst, a_didamDienst ] = SelectData(nowDate, endDate);
-*/
 
 
 function rsMaakRoosterWerkbladnaam(startDate = new Date(), rptNumMonths = 3) {
@@ -178,240 +194,112 @@ function rsMaakRoosterWerkbladtitel(startDate = new Date(), rptNumMonths = 3) {
 
 
 function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDate = crBepaalBeginVanMaand(), rptNumMonths = 3) {
-
-  var rptSheetName = (argSheetName) ? argSheetName : rsMaakRoosterWerkbladnaam(rptStartDate, rptNumMonths);
-  var rptTitle = (argSheetTitle) ? argSheetTitle : rsMaakRoosterWerkbladtitel(rptStartDate, rptNumMonths);
-
+  var startMeting = crStartMeting();
+  var rptSheetName = argSheetName || rsMaakRoosterWerkbladnaam(rptStartDate, rptNumMonths);
+  var rptTitle = argSheetTitle || rsMaakRoosterWerkbladtitel(rptStartDate, rptNumMonths);
   var rptEndDate = crTelMaandenBijDatumOp(rptStartDate, rptNumMonths);
   rptEndDate.setDate(0);
-
-  // rptEndDate.setMonth(5); // HACK Rooster maximaal tot Juli!
-  // rptEndDate.setMonth(11); // HACK Rooster maximaal tot December!
-
-
-  if (!rptSheetName || !rptTitle || !rptStartDate || !rptEndDate)
-    return;
-
-  var sizeNameCol = 105;
-  var sizeVoorgangerCol = 150;
-  var sizeBijzCol = 120;
-  var sizeNameWideCol = 130;
-  var sizeCollecteCol = 200;
+  if (!rptSheetName || !rptTitle || !rptStartDate || !rptEndDate) return;
 
   var hdrRow = ["Tijd", "Voorganger", "Bijzonderheden", "Collecte", "Lector", "Ambtsdragers", "Koster", "Ontvangst", "Klokkenluider", "Koffie", "KerkTV"];
-  var hdrRowSize = [80, sizeVoorgangerCol, sizeBijzCol, sizeCollecteCol, sizeNameCol, sizeNameCol, sizeNameCol, sizeNameWideCol, sizeNameCol, sizeNameCol, sizeNameCol];
-
+  var hdrRowSize = [80, 150, 120, 200, 105, 105, 105, 130, 105, 105, 105];
   var rptNumCols = hdrRow.length;
+  var rooster = rsSelecteerGegevens(rptStartDate, rptEndDate);
+  var reportSheet = crMaakOfLeegWerkblad(rptSheetName);
+  var rijen = [];
+  var typen = [];
+  var achtergronden = [];
+  var gegevensSegmenten = [];
+  var huidigSegment = null;
 
-  var fg_title = "black"; var bg_title = "white";
-  var fg_header = "white"; var bg_header = "blue";
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  var report_sheet = crMaakOfLeegWerkblad(rptSheetName);
-
-  function rsBereikLaatsteRij() {
-    var l = report_sheet.getLastRow();
-    if (l == 0) l += 1;
-    return report_sheet.getRange(l, 1, 1, rptNumCols);
+  function rsVoegRapportRijToe(waarden, type, achtergrond, liturgischeKleur) {
+    var rij = waarden.slice(0, rptNumCols);
+    while (rij.length < rptNumCols) rij.push("");
+    rijen.push(rij);
+    typen.push(type);
+    var kleuren = new Array(rptNumCols).fill(achtergrond || "white");
+    if (liturgischeKleur) kleuren[0] = liturgischeKleur;
+    achtergronden.push(kleuren);
   }
 
-  function rsBereikNamenrij() {
-    var l = report_sheet.getLastRow();
-    if (l == 0) l += 1;
-    return report_sheet.getRange(l, 5, 1, rptNumCols);
-  }
-
-  function rsMaakLaatsteRijOp(fgColor, bgColor, fontSize) {
-    var lrow = rsBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setFontSize(fontSize);
-    lrow.setFontColor(fgColor);
-    lrow.setFontWeight('bold');
-    lrow.setVerticalAlignment("top");
-    lrow.setWrap(true);
-    return lrow;
-  }
-
-  var rptHeader = "";
-
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg, a_lectorWissel, a_kwartaal, a_koffieDienst, a_didamDienst] = rsSelecteerGegevens(rptStartDate, rptEndDate);
-
-  var num_row = 1;
-  var start_col = 29;
-  var num_col1 = 5;
-  var col2_offset = 2;
-  var num_col2 = 4;
-
-  var bgColor = BG_COL1;
-
-  var nowDate = new Date();
-  report_sheet.appendRow([rptTitle]);
-  var lrow = rsMaakLaatsteRijOp(fg_title, bg_title, 24);
-  lrow.setVerticalAlignment("middle");
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");
-  report_sheet.setRowHeight(1, 60);
-
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
-  lrow = rsMaakLaatsteRijOp(fg_title, bg_title, 9);
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");        // gecentreerd
-
-  var rptMonth = "";
-
-  var altColor = BG_COL1;
-
+  rsVoegRapportRijToe([rptTitle], "titel", "white");
+  rsVoegRapportRijToe(["Afgedrukt: " + crFormatteerDatum(new Date(), "DMT")], "afdruk", "white");
+  var vorigeMaand = "";
+  var wisselkleur = BG_COL1;
   var nl = "\n";
 
-  for (var i in a_type) {
-    var t = a_type[i];
-
-    if (altColor == BG_COL1)
-      altColor = BG_COL2;
-    else
-      altColor = BG_COL1;
-
-    bgColor = altColor;
-
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
-    if (monthName !== rptMonth) {
-
-
-      report_sheet.appendRow([monthName]);
-      rptMonth = monthName;
-      lrow = rsMaakLaatsteRijOp(fg_title, bg_title, 18);    // Maand in 18 punt
-      lrow.mergeAcross();
-      lrow.setHorizontalAlignment("center");        // gecentreerd
-      lrow.setVerticalAlignment("middle");        // gecentreerd
-
-      report_sheet.setRowHeight(report_sheet.getLastRow(), 60);
-
-      report_sheet.appendRow(hdrRow);
-      lrow = rsMaakLaatsteRijOp(fg_header, bg_header, 10);
-
-
-      lrow = rsBereikNamenrij(); // Center name cells
-      lrow.setHorizontalAlignment("center");
-
+  for (var i = 0; i < rooster.datums.length; i++) {
+    var maandnaam = crFormatteerDatum(rooster.datums[i], "MMMM");
+    if (maandnaam !== vorigeMaand) {
+      rsVoegRapportRijToe([maandnaam], "maand", "white");
+      rsVoegRapportRijToe(hdrRow, "kop", "blue");
+      vorigeMaand = maandnaam;
+      huidigSegment = { start: rijen.length + 1, aantal: 0 };
+      gegevensSegmenten.push(huidigSegment);
     }
 
-
-    switch (t) {
-      case "M": bgColor = 'LemonChiffon'; break;
-      case "B HA": bgColor = 'AliceBlue'; break;
-      case "Z HA": bgColor = 'AliceBlue'; break;
-      case "AV": bgColor = 'MistyRose'; break;
-    }
-
-
-    var vieringHA = "";
-
-    if (a_ha[i] != "") {
-      bgColor = BG_HA;
-    }
-
-    var date_str = crFormatteerDatum(a_rowDate[i], "EEE d MMM") + nl
-      + crFormatteerDatum(a_rowDate[i], "HH:mm") + " uur";
-
-    if (a_didamDienst[i].localeCompare("ja") == 0) {
-
-      var rowArray = [
-        date_str
-        , a_voorganger[i]
-        , a_bijz[i].replace(/,\s*/g, nl)
-        , a_collecte[i]
-        , a_lector[i]
-        , a_ambtsdragers[i].replace(/,\s*/g, nl)
-        , a_koster[i].replace(/,\s*/g, nl)
-        , a_ontvangst[i].replace(/\s*,\s*/g, nl).replace(/\s*\/\s*/g, nl)  // replace , and / by newline
-        , a_klokkenluider[i].replace(/,\s*/g, nl)
-        , a_koffie[i].replace(/,\s*/g, nl)
-        , a_kerktv[i].replace(/,\s*/g, nl)
-
+    wisselkleur = wisselkleur === BG_COL1 ? BG_COL2 : BG_COL1;
+    var achtergrond = rooster.avondmaal[i] ? BG_HA : wisselkleur;
+    var kleurNaam = String(rooster.kleuren[i] || "").toLowerCase();
+    var liturgischeKleur = { wit: "white", roze: "pink", paars: "plum", groen: "lightgreen", rood: "red" }[kleurNaam] || "white";
+    var isDidam = String(rooster.didamDiensten[i] || "").toLowerCase() === "ja";
+    var rij;
+    if (isDidam) {
+      rij = [
+        crFormatteerDatum(rooster.datums[i], "EEE d MMM") + nl + crFormatteerDatum(rooster.datums[i], "HH:mm") + " uur",
+        rooster.voorgangers[i], String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), rooster.collectes[i],
+        rooster.lectoren[i], String(rooster.ambtsdragers[i] || "").replace(/,\s*/g, nl),
+        String(rooster.kosters[i] || "").replace(/,\s*/g, nl),
+        String(rooster.ontvangst[i] || "").replace(/\s*,\s*/g, nl).replace(/\s*\/\s*/g, nl),
+        String(rooster.klokkenluiders[i] || "").replace(/,\s*/g, nl),
+        String(rooster.koffie[i] || "").replace(/,\s*/g, nl),
+        String(rooster.kerktv[i] || "").replace(/,\s*/g, nl)
       ];
     } else {
-      var rowArray = [
-        crFormatteerDatum(a_rowDate[i], "EEE d MMM")
-        , a_voorganger[i]
-        , a_bijz[i].replace(/,\s*/g, nl)
-        , ""
-        , ""
-        , ""
-        , ""
-        , ""
-        , ""
-        , ""
-        , ""
-
-      ];
+      rij = [crFormatteerDatum(rooster.datums[i], "EEE d MMM"), rooster.voorgangers[i],
+        String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), "", "", "", "", "", "", "", ""];
     }
-
-    var bgLitColor = "white";
-    switch (a_kleur[i]) {
-      case "wit": bgLitColor = "white"; break;
-      case "roze": bgLitColor = "pink"; break;
-      case "paars": bgLitColor = "plum"; break;
-      case "groen": bgLitColor = "lightgreen"; break;
-      case "rood": bgLitColor = "red"; break;
-
-    }
-
-    report_sheet.appendRow(rowArray);
-    report_sheet.setRowHeight(report_sheet.getLastRow(), 40);   // Height of data row
-
-    var lrow = rsBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setVerticalAlignment("middle"); // data row centered vertically
-    lrow.setWrap(true);
-
-    var datumCell = lrow.getCell(1, 1);
-    datumCell.setBackground(bgLitColor);
-
-    var n = lrow.getNumColumns();
-
-    for (var i = 5; i <= n; i++) {
-      var nameCell = lrow.getCell(1, i);
-      nameCell.setHorizontalAlignment("center");
-
-      nameCell.setBorder(true, null, true, null, true, true);
-
-    }
-
-  }
-  report_sheet.setColumnWidth(1, 50);
-  var cell = report_sheet.getRange("A:A");
-  cell.setHorizontalAlignment("center");
-
-
-  // Conditional formatting
-
-  for (i = 0; i < hdrRowSize.length; i++) {
-    var col = i + 1;
-    var w = hdrRowSize[i];
-    //report_sheet.setColumnWidth(col, w);
-    report_sheet.setColumnWidth(i + 1, hdrRowSize[i]);
+    rsVoegRapportRijToe(rij, "gegevens", achtergrond, liturgischeKleur);
+    huidigSegment.aantal++;
   }
 
-  var numRows = report_sheet.getLastRow();
-  var maxRows = report_sheet.getMaxRows();
-  if (maxRows > numRows)
-    report_sheet.deleteRows(numRows + 1, maxRows - numRows);
-  var numRows = report_sheet.getLastRow();
-  var numCols = report_sheet.getLastColumn();
-  var maxCols = report_sheet.getMaxColumns();
-  if (maxCols > numCols)
-    report_sheet.deleteColumns(numCols + 1, maxCols - numCols);
+  if (reportSheet.getMaxRows() < rijen.length) reportSheet.insertRowsAfter(reportSheet.getMaxRows(), rijen.length - reportSheet.getMaxRows());
+  if (reportSheet.getMaxColumns() < rptNumCols) reportSheet.insertColumnsAfter(reportSheet.getMaxColumns(), rptNumCols - reportSheet.getMaxColumns());
+  var volledigBereik = reportSheet.getRange(1, 1, rijen.length, rptNumCols);
+  volledigBereik.setValues(rijen).setBackgrounds(achtergronden).setVerticalAlignment("middle").setWrap(true);
 
-  // Conditional formatting
+  typen.forEach(function (type, index) {
+    var rijNummer = index + 1;
+    if (type === "titel" || type === "afdruk" || type === "maand") {
+      var bereik = reportSheet.getRange(rijNummer, 1, 1, rptNumCols);
+      bereik.mergeAcross().setHorizontalAlignment("center").setFontWeight("bold");
+      if (type === "titel") bereik.setFontSize(24);
+      if (type === "afdruk") bereik.setFontSize(9);
+      if (type === "maand") bereik.setFontSize(18);
+      reportSheet.setRowHeight(rijNummer, type === "afdruk" ? 21 : 60);
+    } else if (type === "kop") {
+      reportSheet.getRange(rijNummer, 1, 1, rptNumCols).setFontColor("white").setFontWeight("bold").setFontSize(10);
+    }
+  });
 
-  /* Color sheet */
-  var src = SpreadsheetApp.getActive().getSheetByName("NaamKleuren");
-  opPasKleurenToeOpWaarde(src, report_sheet, 4, 11);
+  gegevensSegmenten.forEach(function (segment) {
+    if (!segment.aantal) return;
+    reportSheet.setRowHeights(segment.start, segment.aantal, 40);
+    reportSheet.getRange(segment.start, 5, segment.aantal, rptNumCols - 4)
+      .setHorizontalAlignment("center").setBorder(true, null, true, null, true, true);
+  });
+  reportSheet.getRange(1, 1, rijen.length, 1).setHorizontalAlignment("center");
+  hdrRowSize.forEach(function (breedte, index) { reportSheet.setColumnWidth(index + 1, breedte); });
 
-  return report_sheet;
+  var overbodigeRijen = reportSheet.getMaxRows() - rijen.length;
+  if (overbodigeRijen > 0) reportSheet.deleteRows(rijen.length + 1, overbodigeRijen);
+  var overbodigeKolommen = reportSheet.getMaxColumns() - rptNumCols;
+  if (overbodigeKolommen > 0) reportSheet.deleteColumns(rptNumCols + 1, overbodigeKolommen);
+
+  var kleurenblad = SpreadsheetApp.getActive().getSheetByName("NaamKleuren");
+  opPasKleurenToeOpWaarde(kleurenblad, reportSheet, 4, 11);
+  crEindMeting("rsMaakRoosterWerkblad", startMeting, { rijen: rijen.length, kolommen: rptNumCols });
+  return reportSheet;
 }
 
 
@@ -625,9 +513,28 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
 
   rsStelTabelkolommenIn(hdrRow);
 
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(rptStartDate, rptEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte
+  } = rsSelecteerGegevens(rptStartDate, rptEndDate);
 
   var rptMonth = "";
 

@@ -8,10 +8,12 @@ function crMaakOfLeegWerkblad(argSheetName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var retSheet = ss.getSheetByName(argSheetName);
 
-  if (retSheet)
+  if (retSheet) {
+    retSheet.getDataRange().breakApart();
     retSheet.clear();
-  else
+  } else {
     retSheet = ss.insertSheet(argSheetName);
+  }
   return retSheet;
 }
 
@@ -56,33 +58,56 @@ function crZoekKolom(kolommen, naam, verplicht) {
 }
 
 
-function crLeesConfiguratie(sleutel, standaardWaarde) {
+/** In-memory cache; bestaat alleen gedurende één Apps Script-uitvoering. */
+var crConfiguratieCache = null;
+
+function crLeesAlleConfiguratie() {
+  if (crConfiguratieCache !== null) return crConfiguratieCache;
+
   var configuratieblad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Configuratie");
   if (!configuratieblad) {
     throw new Error("Werkblad 'Configuratie' ontbreekt. Voer eerst bhMigreerConfiguratie uit.");
   }
 
   var laatsteRij = configuratieblad.getLastRow();
-  if (laatsteRij === 0) {
-    return standaardWaarde === undefined ? "" : standaardWaarde;
-  }
-
-  var configuratie = configuratieblad.getRange(1, 1, laatsteRij, 3).getValues();
+  var configuratie = laatsteRij ? configuratieblad.getRange(1, 1, laatsteRij, 3).getValues() : [];
+  var resultaat = {};
   for (var rij = 0; rij < configuratie.length; rij++) {
     // Nieuwe indeling: B = instelling, C = waarde.
-    if (String(configuratie[rij][1]).trim() === sleutel) {
-      return configuratie[rij][2];
-    }
+    var nieuweSleutel = String(configuratie[rij][1] || "").trim();
+    if (nieuweSleutel) resultaat[nieuweSleutel] = configuratie[rij][2];
     // Tijdelijke achterwaartse compatibiliteit met de oude A:B-indeling.
-    if (String(configuratie[rij][0]).trim() === sleutel) {
-      return configuratie[rij][1];
-    }
+    var oudeSleutel = String(configuratie[rij][0] || "").trim();
+    if (oudeSleutel && resultaat[oudeSleutel] === undefined) resultaat[oudeSleutel] = configuratie[rij][1];
   }
+  crConfiguratieCache = resultaat;
+  return resultaat;
+}
+
+function crWisConfiguratieCache() {
+  crConfiguratieCache = null;
+}
+
+function crLeesConfiguratie(sleutel, standaardWaarde) {
+  var configuratie = crLeesAlleConfiguratie();
+  if (configuratie.hasOwnProperty(sleutel)) return configuratie[sleutel];
 
   if (standaardWaarde !== undefined) {
     return standaardWaarde;
   }
   throw new Error("Configuratiesleutel ontbreekt: " + sleutel);
+}
+
+/** Start een eenvoudige, centraal gelogde prestatiemeting. */
+function crStartMeting() {
+  return Date.now();
+}
+
+/** Logt en retourneert de verstreken uitvoeringstijd in milliseconden. */
+function crEindMeting(naam, starttijd, details) {
+  var milliseconden = Date.now() - starttijd;
+  console.log(JSON.stringify({ meting: naam, milliseconden: milliseconden, details: details || {} }));
+  return milliseconden;
 }
 
 

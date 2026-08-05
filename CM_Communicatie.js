@@ -145,9 +145,28 @@ function cmVoegLijstItemToe(pfx, str) {
 function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
 
   var rptHeader;
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte
+  } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
 
   var prtWeekNum = "";
 
@@ -231,8 +250,28 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mai
   nextSundayDate.setMinutes(59);
 
   var rptHeader = "";
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(nowDate, nextSundayDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte
+  } = rsSelecteerGegevens(nowDate, nextSundayDate);
 
   if (!a_rowDate.length) {
     throw new Error("Geen dienst gevonden in de geselecteerde periode.");
@@ -381,12 +420,12 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
   if (volgendeWeek) begindatum = crTelDagenBijDatumOp(begindatum, 7);
   var einddatum = crZetTijdOpEindeVanDag(crBepaalVolgendeZondag(begindatum));
   var selectie = rsSelecteerGegevens(begindatum, einddatum);
-  var dienstIndex = cmZoekEersteDienstIndex(selectie[2]);
+  var dienstIndex = cmZoekEersteDienstIndex(selectie);
   if (dienstIndex < 0) {
     throw new Error("Geen geschikte kerkdienst gevonden voor de mededelingen.");
   }
 
-  var dienstdatum = new Date(selectie[1][dienstIndex]);
+  var dienstdatum = new Date(selectie.datums[dienstIndex]);
   var datumtekst = crFormatteerDatum(dienstdatum, "EEEE d MMMM yyyy");
   var onderwerp = "Mededelingen voor " + datumtekst;
   var templateId = crLeesConfiguratie("Template-ID - Mededelingen");
@@ -399,10 +438,10 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
   var bewerkUrl = "https://docs.google.com/document/d/" + document.getId() + "/edit?usp=sharing";
 
   document.getActiveSection()
-    .replaceText("@VOORGANGER@", selectie[4][dienstIndex] || "INVULLEN")
+    .replaceText("@VOORGANGER@", selectie.voorgangers[dienstIndex] || "INVULLEN")
     .replaceText("@ORGANIST@", "Rolf Zandbergen")
-    .replaceText("@LECTOR@", selectie[12][dienstIndex] || "INVULLEN")
-    .replaceText("@COLLECTE@", selectie[8][dienstIndex] || "INVULLEN")
+    .replaceText("@LECTOR@", selectie.lectoren[dienstIndex] || "INVULLEN")
+    .replaceText("@COLLECTE@", selectie.collectes[dienstIndex] || "INVULLEN")
     .replaceText("@DATUM@", datumtekst)
     .replaceText("@BLOEMEN@", "- INVULLEN -")
     .replaceText("@EXTRA_MEDEDELINGEN@", "- Geen -")
@@ -422,12 +461,8 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
 }
 
 
-function cmZoekEersteDienstIndex(types) {
-  var toegestaneTypes = new Set(["B", "Z", "AV", "Z HA"]);
-  for (var index = 0; index < types.length; index++) {
-    if (toegestaneTypes.has(types[index])) return index;
-  }
-  return -1;
+function cmZoekEersteDienstIndex(selectie) {
+  return selectie && selectie.datums && selectie.datums.length ? 0 : -1;
 }
 
 
@@ -716,8 +751,24 @@ function cmMaakHtmlLijstrapport(rptWeekStartDate, rptWeekEndDate) {
   var hdr = "Dienstrooster voor week " + rptWeekStartDate + " t/m " + rptWeekEndDate;
 
   var rptHeader;
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv] = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv
+  } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
 
   var prtWeekNum = "";
 
@@ -877,9 +928,29 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Ma
 function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
 
   var rptHeader;
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg] = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte,
+    oorspronkelijkeLectoren: a_lectorOrg
+  } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
 
   var prtWeekNum = "";
 

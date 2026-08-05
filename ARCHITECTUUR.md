@@ -45,6 +45,21 @@ korte betekenisvolle patronen (`DMT`, `DM`, `MJ`, `sort`) als expliciete tokens
 zoals `EEEE d MMMM yyyy HH:mm`. Maand- en weekdagformatters worden per
 landinstelling en tijdzone hergebruikt.
 
+## Prestatie-afspraken
+
+- `crLeesAlleConfiguratie` leest Configuratie maximaal eenmaal per uitvoering;
+  `crLeesConfiguratie` gebruikt daarna de in-memory cache.
+- `bhBijWijzigingVoorpagina` herberekent alleen de gewijzigde rijen en alleen
+  de afgeleide kolommen waarvan de bron is gewijzigd.
+- `opStelAchtergrondkleurenIn` leest en schrijft alle achtergrondkleuren in
+  één batch.
+- `rsSelecteerGegevens` retourneert een object met benoemde gegevensvelden;
+  afnemers zijn daardoor niet afhankelijk van arrayposities.
+- `rsMaakRoosterWerkblad` en `exMaakRoosterXlsx` bouwen hun uitvoer eerst in
+  geheugen op en schrijven waarden en kleuren vervolgens batchgewijs.
+- De centrale helpers `crStartMeting` en `crEindMeting` loggen uitvoeringstijd
+  en omvang voor vergelijking in het Apps Script-uitvoeringslogboek.
+
 ## Kolommen op Voorpagina
 
 Productiecode zoekt kolommen uitsluitend op basis van de kopnaam in rij 1 via

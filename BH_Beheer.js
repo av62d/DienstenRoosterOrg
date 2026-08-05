@@ -264,14 +264,11 @@ function bhStelVoorpaginaValidatiesIn(toonMelding) {
 }
 
 /** Herbouwt uitsluitend de drie afgeleide kolommen op Voorpagina. */
-function bhHerberekenVoorpagina(toonMelding) {
+function bhHerberekenVoorpagina(toonMelding, eersteRij, aantalRijen, berekenDatum, berekenCollecte) {
+  var startMeting = crStartMeting();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var blad = ss.getSheetByName("Voorpagina");
-  var collecteblad = ss.getSheetByName("Lijst Collectes");
   if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  if (!collecteblad || collecteblad.getLastRow() < 3) {
-    throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
-  }
 
   var kolommen = crMaakKolomindex(blad);
   var datumKolom = crZoekKolom(kolommen, "Datum") + 1;
@@ -280,20 +277,30 @@ function bhHerberekenVoorpagina(toonMelding) {
   var kwartaalKolom = crZoekKolom(kolommen, "Kwartaal") + 1;
   var maandKolom = crZoekKolom(kolommen, "Maand") + 1;
 
-  var collectekolommen = crMaakKolomindex(collecteblad, 2);
-  var doelKolom = crZoekKolom(collectekolommen, "Doel") + 1;
-  var categorieKolom = crZoekKolom(collectekolommen, "Categorie") + 1;
-  var aantalCollectes = collecteblad.getLastRow() - 2;
-  var collectegegevens = collecteblad.getRange(3, 1, aantalCollectes, collecteblad.getLastColumn()).getValues();
   var categoriePerDoel = {};
-  collectegegevens.forEach(function (rij) {
-    var doel = String(rij[doelKolom - 1] || "").trim();
-    if (doel) categoriePerDoel[doel] = rij[categorieKolom - 1] || "";
-  });
+  if (berekenCollecte !== false) {
+    var collecteblad = ss.getSheetByName("Lijst Collectes");
+    if (!collecteblad || collecteblad.getLastRow() < 3) {
+      throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
+    }
+    var collectekolommen = crMaakKolomindex(collecteblad, 2);
+    var doelKolom = crZoekKolom(collectekolommen, "Doel") + 1;
+    var categorieKolom = crZoekKolom(collectekolommen, "Categorie") + 1;
+    var aantalCollectes = collecteblad.getLastRow() - 2;
+    var collectegegevens = collecteblad.getRange(3, 1, aantalCollectes, collecteblad.getLastColumn()).getValues();
+    collectegegevens.forEach(function (rij) {
+      var doel = String(rij[doelKolom - 1] || "").trim();
+      if (doel) categoriePerDoel[doel] = rij[categorieKolom - 1] || "";
+    });
+  }
 
   var laatsteRij = blad.getLastRow();
   if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
-  var gegevens = blad.getRange(2, 1, laatsteRij - 1, blad.getLastColumn()).getValues();
+  var startRij = Math.max(2, eersteRij || 2);
+  var eindeRij = Math.min(laatsteRij, aantalRijen ? startRij + aantalRijen - 1 : laatsteRij);
+  if (eindeRij < startRij) return { bijgewerkteRijen: 0 };
+  var werkelijkAantalRijen = eindeRij - startRij + 1;
+  var gegevens = blad.getRange(startRij, 1, werkelijkAantalRijen, blad.getLastColumn()).getValues();
   var kwartalen = [];
   var maanden = [];
   var categorieen = [];
@@ -308,12 +315,16 @@ function bhHerberekenVoorpagina(toonMelding) {
     categorieen.push([collecte && categoriePerDoel.hasOwnProperty(collecte) ? categoriePerDoel[collecte] : ""]);
   });
 
-  blad.getRange(2, kwartaalKolom, kwartalen.length, 1).setValues(kwartalen);
-  blad.getRange(2, maandKolom, maanden.length, 1).setValues(maanden);
-  blad.getRange(2, collectecategorieKolom, categorieen.length, 1).setValues(categorieen);
-  SpreadsheetApp.flush();
+  if (berekenDatum !== false) {
+    blad.getRange(startRij, kwartaalKolom, kwartalen.length, 1).setValues(kwartalen);
+    blad.getRange(startRij, maandKolom, maanden.length, 1).setValues(maanden);
+  }
+  if (berekenCollecte !== false) {
+    blad.getRange(startRij, collectecategorieKolom, categorieen.length, 1).setValues(categorieen);
+  }
 
-  var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
+  var resultaat = { bijgewerkteRijen: werkelijkAantalRijen };
+  resultaat.milliseconden = crEindMeting("bhHerberekenVoorpagina", startMeting, resultaat);
   console.log(JSON.stringify(resultaat, null, 2));
   if (toonMelding !== false) {
     SpreadsheetApp.getUi().alert("Kwartaal, Maand en CollecteCategorie zijn opnieuw berekend.");
@@ -335,7 +346,13 @@ function bhBijWijzigingVoorpagina(e) {
   if ((datumKolom < gewijzigdeEersteKolom || datumKolom > gewijzigdeLaatsteKolom) &&
       (collecteKolom < gewijzigdeEersteKolom || collecteKolom > gewijzigdeLaatsteKolom)) return;
 
-  bhHerberekenVoorpagina(false);
+  var eersteRij = Math.max(2, e.range.getRow());
+  var laatsteGewijzigdeRij = e.range.getRow() + e.range.getNumRows() - 1;
+  var aantalRijen = Math.max(0, laatsteGewijzigdeRij - eersteRij + 1);
+  if (!aantalRijen) return;
+  var datumGewijzigd = datumKolom >= gewijzigdeEersteKolom && datumKolom <= gewijzigdeLaatsteKolom;
+  var collecteGewijzigd = collecteKolom >= gewijzigdeEersteKolom && collecteKolom <= gewijzigdeLaatsteKolom;
+  bhHerberekenVoorpagina(false, eersteRij, aantalRijen, datumGewijzigd, collecteGewijzigd);
 }
 
 /** Enige bron voor de toegestane configuratieregels en hun presentatievolgorde. */
@@ -460,6 +477,7 @@ function bhSchoonConfiguratieOp() {
     ontbrekendeWaarden: uitvoer.filter(function (rij) { return rij[2] === ""; })
       .map(function (rij) { return rij[1]; })
   };
+  crWisConfiguratieCache();
   console.log(JSON.stringify(resultaat, null, 2));
   SpreadsheetApp.getUi().alert(
     "Configuratie opgeschoond. Behouden instellingen: " + uitvoer.length +
@@ -520,6 +538,7 @@ function bhMigreerConfiguratie(toonMelding) {
     werkblad: configuratieblad.getName(),
     templateMigraties: wijzigingen
   };
+  crWisConfiguratieCache();
   console.log(JSON.stringify(resultaat, null, 2));
   if (toonMelding !== false) {
     SpreadsheetApp.getUi().alert(

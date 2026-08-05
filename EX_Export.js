@@ -79,241 +79,72 @@ function exMaakJaarroosterXlsx() {
 
 
 function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate = crBepaalBeginVanMaand(), rptNumMonths = 3) {
-
-  /*
-  Local functions
-  */
-
-  function exVoegKoprijToe() {
-    report_sheet.appendRow(hdrRow);
-    lrow = exMaakLaatsteRijOp(fg_title, bg_title, 10);
-    lrow = exBereikNamenrij(); // Center name cells
-    lrow.setHorizontalAlignment("center");
-  }
-
-  var rptSheetName = (argSheetName) ? argSheetName : rsMaakRoosterWerkbladnaam(rptStartDate, rptNumMonths);
-  var rptTitle = (argSheetTitle) ? argSheetTitle : rsMaakRoosterWerkbladtitel(rptStartDate, rptNumMonths);
-
+  var startMeting = crStartMeting();
+  var rptSheetName = argSheetName || rsMaakRoosterWerkbladnaam(rptStartDate, rptNumMonths);
+  var rptTitle = argSheetTitle || rsMaakRoosterWerkbladtitel(rptStartDate, rptNumMonths);
   var rptEndDate = crTelMaandenBijDatumOp(rptStartDate, rptNumMonths);
   rptEndDate.setDate(0);
-
-
-  if (!rptSheetName || !rptTitle || !rptStartDate || !rptEndDate)
-    return;
-
-  var sizeDateCol = 80;
-  var sizeDateWideCol = 120;
-  var sizeTimeCol = 60;
-  var sizeNameCol = 105;
-  var sizeNameWideCol = 130;
-  var sizeSpecCol = 125;
-  var sizeOfferCol = 180;
+  if (!rptSheetName || !rptTitle || !rptStartDate || !rptEndDate) return;
 
   var hdrRow = ["DatumTijd", "Datum", "Tijd", "Voorganger", "Bijzonderheden", "Collectie", "Koster", "Ambtsdragers", "Lector", "Ontvangst", "Klokkenluider", "Koffie", "KerkTV"];
-  var hdrRowSize = [sizeDateWideCol, sizeDateCol, sizeTimeCol, sizeSpecCol, sizeSpecCol, sizeOfferCol, sizeNameCol, sizeNameCol, sizeNameCol, sizeNameWideCol, sizeNameCol, sizeNameCol, sizeNameCol];
-
+  var hdrRowSize = [120, 80, 60, 125, 125, 180, 105, 105, 105, 130, 105, 105, 105];
   var rptNumCols = hdrRow.length;
-
-  var fg_title = "black"; var bg_title = "white";
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var report_sheet = crMaakOfLeegWerkblad(rptSheetName);
-
-  function exBereikLaatsteRij() {
-    var l = report_sheet.getLastRow();
-    if (l == 0) l += 1;
-    return report_sheet.getRange(l, 1, 1, rptNumCols);
-  }
-
-  function exBereikNamenrij() {
-    var l = report_sheet.getLastRow();
-    if (l == 0) l += 1;
-    return report_sheet.getRange(l, 5, 1, rptNumCols);
-  }
-
-  function exMaakLaatsteRijOp(fgColor, bgColor, fontSize) {
-    var lrow = exBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setFontSize(fontSize);
-    lrow.setFontColor(fgColor);
-    lrow.setFontWeight('bold');
-    lrow.setVerticalAlignment("top");
-    lrow.setWrap(true);
-    return lrow;
-  }
-
-  /*
-  Haal alle gegevens op in één grote array
-  tussen begindatum en einddatum
-  */
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(rptStartDate, rptEndDate);
-
-  var bgColor = BG_COL1;
-
-  /* Begin met sheet te vullen */
-  var nowDate = new Date();
-
-  /* report_sheet.appendRow([rptTitle]);
-  var lrow = exMaakLaatsteRijOp(fg_title, bg_title, 24);
-  lrow.setVerticalAlignment("middle");
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");
-  report_sheet.setRowHeight(1, 60);
-
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
-  lrow = exMaakLaatsteRijOp(fg_title, bg_title, 9);
-  lrow.mergeAcross();
-  lrow.setHorizontalAlignment("center");        // gecentreerd */
-
-  var rptMonth = "";
-
-  var altColor = BG_COL1;
-
+  var rooster = rsSelecteerGegevens(rptStartDate, rptEndDate);
+  var reportSheet = crMaakOfLeegWerkblad(rptSheetName);
+  var rijen = [hdrRow];
+  var achtergronden = [new Array(rptNumCols).fill("white")];
+  var uitlijningen = [new Array(rptNumCols).fill("center")];
   var nl = "\n";
+  var persoonskleuren = {
+    Blom: "Ivory", Blij: "Lavender", Boelee: "DarkSalmon", Steenblik: "MistyRose",
+    Ketterink: "lightblue", Kroon: "lightblue", Vliet: "gold", Luitwieler: "cyan", Geven: "lightgreen"
+  };
 
-  exVoegKoprijToe();
-
-  /* loop over de array met gegevens */
-  for (var i in a_type) {
-    var t = a_type[i];
-
-
-    bgColor = altColor;
-
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
-
-    if (monthName !== rptMonth) {   // Als niet gelijk aan vorige maand, dan beginnen we aan een nieuwe maand
-
-      rptMonth = monthName;
-
-      /* Wissel achtergrondkleur */
-      if (altColor == BG_COL1)
-        altColor = BG_COL2;
-      else
-        altColor = BG_COL1;
-
-      /* commented out
-      report_sheet.appendRow([monthName]);
-
-      lrow = exMaakLaatsteRijOp(fg_title, bg_title, 18);    // Maand in 18 punt
-      lrow.mergeAcross();
-      lrow.setHorizontalAlignment("center");        // gecentreerd
-      lrow.setVerticalAlignment("middle");        // gecentreerd
-
-      report_sheet.setRowHeight(report_sheet.getLastRow(), 60);
-
-
-      */
-    }
-
-    switch (t) {
-      case "M": bgColor = 'LemonChiffon'; break;
-      case "B HA": bgColor = 'AliceBlue'; break;
-      case "Z HA": bgColor = 'AliceBlue'; break;
-      case "AV": bgColor = 'MistyRose'; break;
-    }
-
-
-    var vieringHA = "";
-
-    if (a_ha[i] != "") {
-      bgColor = BG_HA;
-    }
-
-    var rowArray = [
-      // crFormatteerDatum(a_rowDate[i], "EE d MMMM")
-      a_rowDate[i]
-      , crFormatteerDatum(a_rowDate[i], "EE d MMMM")
-      , crFormatteerDatum(a_rowDate[i], "HH:mm")
-      , a_voorganger[i]
-      , a_bijz[i].replace(/,\s*/g, nl)
-      , a_collecte[i]
-      , a_koster[i].replace(/,\s*/g, nl)
-      , a_ambtsdragers[i].replace(/,\s*/g, nl)
-      , a_lector[i]
-      , a_ontvangst[i].replace(/,\s*/g, nl)
-      , a_klokkenluider[i].replace(/,\s*/g, nl)
-      , a_koffie[i].replace(/,\s*/g, nl)
-      , a_kerktv[i].replace(/,\s*/g, nl)
-      // , a_kleur[i]                                // kleur aanduiding
+  for (var i = 0; i < rooster.datums.length; i++) {
+    var rij = [
+      rooster.datums[i], crFormatteerDatum(rooster.datums[i], "EE d MMMM"), crFormatteerDatum(rooster.datums[i], "HH:mm"),
+      rooster.voorgangers[i], String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), rooster.collectes[i],
+      String(rooster.kosters[i] || "").replace(/,\s*/g, nl), String(rooster.ambtsdragers[i] || "").replace(/,\s*/g, nl),
+      rooster.lectoren[i], String(rooster.ontvangst[i] || "").replace(/,\s*/g, nl),
+      String(rooster.klokkenluiders[i] || "").replace(/,\s*/g, nl), String(rooster.koffie[i] || "").replace(/,\s*/g, nl),
+      String(rooster.kerktv[i] || "").replace(/,\s*/g, nl)
     ];
+    rijen.push(rij);
 
-    var bgLitColor = "white";
-    switch (a_kleur[i]) {
-      case "wit": bgLitColor = "white"; break;
-      case "roze": bgLitColor = "pink"; break;
-      case "paars": bgLitColor = "plum"; break;
-      case "groen": bgLitColor = "lightgreen"; break;
-      case "rood": bgLitColor = "red"; break;
-
+    var kleurNaam = String(rooster.kleuren[i] || "").toLowerCase();
+    var liturgischeKleur = { wit: "white", roze: "pink", paars: "plum", groen: "lightgreen", rood: "red" }[kleurNaam] || "white";
+    var kleuren = new Array(rptNumCols).fill(rooster.avondmaal[i] ? BG_HA : BG_COL1);
+    kleuren[0] = kleuren[1] = kleuren[2] = liturgischeKleur;
+    for (var kolom = 5; kolom < rptNumCols; kolom++) {
+      var tekst = String(rij[kolom] || "");
+      Object.keys(persoonskleuren).some(function (naam) {
+        if (tekst.indexOf(naam) >= 0) { kleuren[kolom] = persoonskleuren[naam]; return true; }
+        return false;
+      });
     }
-
-    report_sheet.appendRow(rowArray);
-
-    var lrow = exBereikLaatsteRij();
-    lrow.setBackground(bgColor);
-    lrow.setVerticalAlignment("middle"); // data row centered vertically
-    lrow.setWrap(true);
-
-    var datumCell;
-
-    for (var i = 1; i <= 3; i++) {
-      datumCell = lrow.getCell(1,i);
-      datumCell.setBackground(bgLitColor);
-    }
-
-    var n = lrow.getNumColumns();
-
-    for (var i = 6; i <= n; i++) {
-      var nameCell = lrow.getCell(1, i);
-      nameCell.setHorizontalAlignment("center");
-
-      nameCell.setBorder(true, null, true, null, true, true);
-
-
-      var cellContent = nameCell.getValues().toString();
-      var bgCellColor = "white";
-      if (cellContent.includes("Blom")) bgCellColor = "Ivory";
-      if (cellContent.includes("Blij")) bgCellColor = "Lavender";
-      if (cellContent.includes("Boelee")) bgCellColor = "DarkSalmon";
-      if (cellContent.includes("Steenblik")) bgCellColor = "MistyRose";
-      if (cellContent.includes("Ketterink")) bgCellColor = "lightblue";
-      if (cellContent.includes("Kroon")) bgCellColor = "lightblue";
-      if (cellContent.includes("Vliet")) bgCellColor = "gold";
-      if (cellContent.includes("Luitwieler")) bgCellColor = "cyan";
-      if (cellContent.includes("Geven")) bgCellColor = "lightgreen";
-      nameCell.setBackground(bgCellColor);
-    }
-
-  }
-  report_sheet.setColumnWidth(1, 50);
-  var cell = report_sheet.getRange("A:A");
-  cell.setHorizontalAlignment("center");
-
-
-  // Conditional formatting
-
-  for (i = 0; i < hdrRowSize.length; i++) {
-    var col = i + 1;
-    var w = hdrRowSize[i];
-    //report_sheet.setColumnWidth(col, w);
-    report_sheet.setColumnWidth(i + 1, hdrRowSize[i]);
+    achtergronden.push(kleuren);
+    uitlijningen.push(rij.map(function (_, index) { return index >= 5 ? "center" : "left"; }));
   }
 
-  var numRows = report_sheet.getLastRow();
-  var maxRows = report_sheet.getMaxRows();
-  if (maxRows > numRows)
-    report_sheet.deleteRows(numRows + 1, maxRows - numRows);
-  var numRows = report_sheet.getLastRow();
-  var numCols = report_sheet.getLastColumn();
-  var maxCols = report_sheet.getMaxColumns();
-  if (maxCols > numCols)
-    report_sheet.deleteColumns(numCols + 1, maxCols - numCols);
+  if (reportSheet.getMaxRows() < rijen.length) reportSheet.insertRowsAfter(reportSheet.getMaxRows(), rijen.length - reportSheet.getMaxRows());
+  if (reportSheet.getMaxColumns() < rptNumCols) reportSheet.insertColumnsAfter(reportSheet.getMaxColumns(), rptNumCols - reportSheet.getMaxColumns());
+  var volledigBereik = reportSheet.getRange(1, 1, rijen.length, rptNumCols);
+  volledigBereik.setValues(rijen).setBackgrounds(achtergronden).setHorizontalAlignments(uitlijningen)
+    .setVerticalAlignment("middle").setWrap(true);
+  reportSheet.getRange(1, 1, 1, rptNumCols).setFontWeight("bold").setFontSize(10);
+  if (rijen.length > 1) {
+    reportSheet.setRowHeights(2, rijen.length - 1, 40);
+    reportSheet.getRange(2, 6, rijen.length - 1, rptNumCols - 5).setBorder(true, null, true, null, true, true);
+  }
+  reportSheet.getRange(1, 1, rijen.length, 3).setHorizontalAlignment("center");
+  hdrRowSize.forEach(function (breedte, index) { reportSheet.setColumnWidth(index + 1, breedte); });
 
-  // Conditional formatting
-
-  return report_sheet;
+  var overbodigeRijen = reportSheet.getMaxRows() - rijen.length;
+  if (overbodigeRijen > 0) reportSheet.deleteRows(rijen.length + 1, overbodigeRijen);
+  var overbodigeKolommen = reportSheet.getMaxColumns() - rptNumCols;
+  if (overbodigeKolommen > 0) reportSheet.deleteColumns(rptNumCols + 1, overbodigeKolommen);
+  crEindMeting("exMaakRoosterXlsx", startMeting, { rijen: rijen.length, kolommen: rptNumCols });
+  return reportSheet;
 }
 
 

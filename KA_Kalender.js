@@ -15,8 +15,28 @@ function kaZetGebeurtenissenInAgenda() {
   var cal = CalendarApp.getCalendarsByName(calName)[0];
   var ui = SpreadsheetApp.getUi();
 
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider, a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(nowDate, endDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte
+  } = rsSelecteerGegevens(nowDate, endDate);
 
   if (cal) {
     var events = cal.getEvents(nowDate, endDate);

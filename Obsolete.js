@@ -121,9 +121,29 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
     return lrow;
   }
 
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte, a_lectorOrg] = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte,
+    oorspronkelijkeLectoren: a_lectorOrg
+  } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
 
   var bgColor = BG_COL1;
 
@@ -400,9 +420,28 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
   }
 
   var rptHeader = "";
-  var [a_headers, a_rowDate, a_type, a_titel, a_voorganger, a_bijz, a_koster, a_kleur,
-    a_collecte, a_koffie, a_ontvangst, a_ha, a_lector, a_ambtsdragers, a_klokkenluider,
-    a_kerktv, a_havorm, a_naamzondag, a_collectecategorie, a_uitgangscollecte] = rsSelecteerGegevens(rptStartDate, rptEndDate);
+  var {
+    koppen: a_headers,
+    datums: a_rowDate,
+    types: a_type,
+    titels: a_titel,
+    voorgangers: a_voorganger,
+    bijzonderheden: a_bijz,
+    kosters: a_koster,
+    kleuren: a_kleur,
+    collectes: a_collecte,
+    koffie: a_koffie,
+    ontvangst: a_ontvangst,
+    avondmaal: a_ha,
+    lectoren: a_lector,
+    ambtsdragers: a_ambtsdragers,
+    klokkenluiders: a_klokkenluider,
+    kerktv: a_kerktv,
+    havormen: a_havorm,
+    zondagnamen: a_naamzondag,
+    collectecategorieen: a_collectecategorie,
+    uitgangscollectes: a_uitgangscollecte
+  } = rsSelecteerGegevens(rptStartDate, rptEndDate);
 
   var num_row = 1;
   var start_col = 29;
