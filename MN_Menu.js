@@ -46,6 +46,7 @@ function mnBijOpenen() {
     .addItem("Controleer spreadsheet", "bhControleerSpreadsheet")
     .addItem("Initialiseer ontbrekende structuur", "bhInitialiseerSpreadsheet")
     .addItem("Migreer Voorpagina (eenmalig)", "bhMigreerVoorpagina")
+    .addItem("Herstel bronnen van draaitabellen", "bhHerstelDraaitabelbronnen")
     .addItem("Herbereken Voorpagina-kolommen", "bhHerberekenVoorpagina")
     .addItem("Herstel keuzes Voorpagina", "bhStelVoorpaginaValidatiesIn")
     .addSeparator()

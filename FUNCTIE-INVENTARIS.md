@@ -3,15 +3,15 @@
 Bron: actuele code in `.\refactor_work`.
 
 - Scriptbestanden: 11
-- Functiedeclaraties: 171
-- Functies op bestandsniveau: 155
+- Functiedeclaraties: 172
+- Functies op bestandsniveau: 156
 - Lokale hulpfuncties: 16
 
 De regelnummers horen bij de geïnventariseerde versie. Een standaardwaarde staat achter het betreffende argument. Functies zonder argumenten zijn aangeduid met **geen**.
 
 ## BH_Beheer.js
 
-Aantal: 16
+Aantal: 17
 
 | Functie | Soort | Argumenten | Doel | Regel |
 |---|---|---|---|---:|
@@ -22,15 +22,16 @@ Aantal: 16
 | `bhZoekVoorpaginaKolom` | Bestandsniveau | `kolommen` – kolom of kolomindex<br>`naam` – invoerwaarde | Zoekt voorpagina kolom. | 199 |
 | `bhMaakDienstVanRij` | Bestandsniveau | `rij` – rij of rijgegevens<br>`kolommen` – kolom of kolomindex | Maakt dienst van rij. | 206 |
 | `bhMigreerVoorpagina` | Bestandsniveau | geen | Maakt een backup en zet Voorpagina om naar de afgesproken kolommen en volgorde. | 218 |
-| `bhStelVoorpaginaValidatiesIn` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Stelt het HA-selectievakje en de ja/nee-keuzes voor de dienstkolommen in. | 303 |
-| `bhHerberekenVoorpagina` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond<br>`eersteRij` – rij of rijgegevens<br>`aantalRijen` – aantal<br>`berekenDatum` – datum of begindatum<br>`berekenCollecte` – kolom of kolomindex | Berekent Maand en Kwartaal uit Datum en CollecteCategorie uit Lijst Collectes. | 346 |
-| `bhBijWijzigingVoorpagina` | Bestandsniveau | `e` – Apps Script-gebeurtenisobject | Herberekent afgeleide Voorpagina-kolommen na wijziging van Datum of Collecte. | 415 |
-| `bhConfiguratieSpecificatie` | Bestandsniveau | geen | Retourneert de toegestane configuratiesleutels, aliassen, categorieën en toelichtingen. | 438 |
-| `bhSchoonConfiguratieOp` | Bestandsniveau | geen | Verwijdert ongebruikte instellingen en bouwt Configuratie opnieuw logisch op. | 474 |
-| `bhMigreerConfiguratie` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Migreert configuratie. | 572 |
-| `bhBepaalDocumentId` | Bestandsniveau | `waarde` – tekst of waarde | Bepaalt document id. | 631 |
-| `bhControleerSpreadsheet` | Bestandsniveau | geen | Controleert spreadsheet. | 655 |
-| `bhInitialiseerSpreadsheet` | Bestandsniveau | geen | Initialiseert spreadsheet. | 741 |
+| `bhHerstelDraaitabelbronnen` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Verwerkt herstel draaitabelbronnen. | 306 |
+| `bhStelVoorpaginaValidatiesIn` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Stelt het HA-selectievakje en de ja/nee-keuzes voor de dienstkolommen in. | 387 |
+| `bhHerberekenVoorpagina` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond<br>`eersteRij` – rij of rijgegevens<br>`aantalRijen` – aantal<br>`berekenDatum` – datum of begindatum<br>`berekenCollecte` – kolom of kolomindex | Berekent Maand en Kwartaal uit Datum en CollecteCategorie uit Lijst Collectes. | 430 |
+| `bhBijWijzigingVoorpagina` | Bestandsniveau | `e` – Apps Script-gebeurtenisobject | Herberekent afgeleide Voorpagina-kolommen na wijziging van Datum of Collecte. | 499 |
+| `bhConfiguratieSpecificatie` | Bestandsniveau | geen | Retourneert de toegestane configuratiesleutels, aliassen, categorieën en toelichtingen. | 522 |
+| `bhSchoonConfiguratieOp` | Bestandsniveau | geen | Verwijdert ongebruikte instellingen en bouwt Configuratie opnieuw logisch op. | 558 |
+| `bhMigreerConfiguratie` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Migreert configuratie. | 656 |
+| `bhBepaalDocumentId` | Bestandsniveau | `waarde` – tekst of waarde | Bepaalt document id. | 715 |
+| `bhControleerSpreadsheet` | Bestandsniveau | geen | Controleert spreadsheet. | 739 |
+| `bhInitialiseerSpreadsheet` | Bestandsniveau | geen | Initialiseert spreadsheet. | 825 |
 
 ## CM_Communicatie.js
 

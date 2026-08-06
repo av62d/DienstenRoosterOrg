@@ -299,6 +299,90 @@ function bhMigreerVoorpagina() {
   return resultaat;
 }
 
+/**
+ * Wijzigt bij alle bestaande draaitabellen uitsluitend het bronwerkblad naar
+ * Voorpagina. Rijen, kolommen, filters, sortering en waarden blijven behouden.
+ */
+function bhHerstelDraaitabelbronnen(toonMelding) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var voorpagina = ss.getSheetByName("Voorpagina");
+  if (!voorpagina) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+
+  var spreadsheetId = ss.getId();
+  var doelSheetId = voorpagina.getSheetId();
+  var bladnaamPerId = {};
+  ss.getSheets().forEach(function (blad) {
+    bladnaamPerId[blad.getSheetId()] = blad.getName();
+  });
+
+  var verzoeken = [];
+  var aangepast = [];
+  var reedsCorrect = [];
+  ss.getSheets().forEach(function (blad) {
+    blad.getPivotTables().forEach(function (draaitabel) {
+      var ankercel = draaitabel.getAnchorCell();
+      var bereiknaam = "'" + blad.getName().replace(/'/g, "''") + "'!" + ankercel.getA1Notation();
+      var antwoord = Sheets.Spreadsheets.get(spreadsheetId, {
+        ranges: [bereiknaam],
+        includeGridData: true,
+        fields: "sheets(data(rowData(values(pivotTable))))"
+      });
+      var definitie = antwoord.sheets && antwoord.sheets[0] && antwoord.sheets[0].data &&
+        antwoord.sheets[0].data[0] && antwoord.sheets[0].data[0].rowData &&
+        antwoord.sheets[0].data[0].rowData[0] && antwoord.sheets[0].data[0].rowData[0].values &&
+        antwoord.sheets[0].data[0].rowData[0].values[0] &&
+        antwoord.sheets[0].data[0].rowData[0].values[0].pivotTable;
+      if (!definitie || !definitie.source) {
+        throw new Error("Draaitabeldefinitie kon niet worden gelezen: " + blad.getName() + "!" + ankercel.getA1Notation());
+      }
+
+      var oudeSheetId = definitie.source.sheetId;
+      var locatie = blad.getName() + "!" + ankercel.getA1Notation();
+      if (oudeSheetId === doelSheetId) {
+        reedsCorrect.push(locatie);
+        return;
+      }
+
+      definitie.source.sheetId = doelSheetId;
+      verzoeken.push({
+        updateCells: {
+          start: {
+            sheetId: blad.getSheetId(),
+            rowIndex: ankercel.getRow() - 1,
+            columnIndex: ankercel.getColumn() - 1
+          },
+          rows: [{ values: [{ pivotTable: definitie }] }],
+          fields: "pivotTable"
+        }
+      });
+      aangepast.push({
+        draaitabel: locatie,
+        oudeBron: bladnaamPerId[oudeSheetId] || ("sheetId " + oudeSheetId),
+        nieuweBron: "Voorpagina"
+      });
+    });
+  });
+
+  if (verzoeken.length) {
+    Sheets.Spreadsheets.batchUpdate({ requests: verzoeken }, spreadsheetId);
+  }
+
+  var resultaat = {
+    aangepast: aangepast,
+    reedsCorrect: reedsCorrect,
+    aantalAangepast: aangepast.length,
+    aantalReedsCorrect: reedsCorrect.length
+  };
+  console.log(JSON.stringify(resultaat, null, 2));
+  if (toonMelding !== false) {
+    SpreadsheetApp.getUi().alert(
+      aangepast.length + " draaitabelbron(nen) gewijzigd naar Voorpagina; " +
+      reedsCorrect.length + " waren al correct."
+    );
+  }
+  return resultaat;
+}
+
 /** Stelt de afgesproken selectievakjes en ja/nee-keuzelijsten opnieuw in. */
 function bhStelVoorpaginaValidatiesIn(toonMelding) {
   var blad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Voorpagina");
