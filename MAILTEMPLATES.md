@@ -89,3 +89,16 @@ Hiermee kan één testtemplate alle hierboven beschreven placeholders bevatten.
 Alle andere opdrachten in het menu **Testen** gebruiken eveneens de instelling
 `Testmail`. De waarde is een kommagescheiden lijst, aanvankelijk:
 `avandervliet@gmail.com, avandervliet@xs4all.nl`.
+
+## Kerkmededelingen: twee templates
+
+Kerkmededelingen gebruiken twee afzonderlijke Google Document-templates:
+
+- `Template-ID - Mededelingen mail` bepaalt alle tekst en opmaak van de mail;
+- `Template-ID - Mededelingen document` bepaalt de mededelingenbijlage die als
+  `.docx` wordt meegestuurd.
+
+Beide templates gebruiken dezelfde placeholders en dezelfde geselecteerde
+dienstgegevens. Het oude `Template-ID - Mededelingen` wordt bij migratie als
+documenttemplate behouden. Het ID van **Mededelingen Mail** moet afzonderlijk
+worden ingevuld.

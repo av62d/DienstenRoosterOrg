@@ -541,22 +541,26 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
 
   var begindatum = crZetOpBeginVanDag(new Date());
   if (volgendeWeek) begindatum = crTelDagenBijDatumOp(begindatum, 7);
-  var templateId = crLeesConfiguratie("Template-ID - Mededelingen");
-  var templateDocument = DocumentApp.openById(templateId);
-  var templateTekst = [templateDocument.getBody(), templateDocument.getHeader(), templateDocument.getFooter()]
+  var mailTemplateId = crLeesConfiguratie("Template-ID - Mededelingen mail");
+  var documentTemplateId = crLeesConfiguratie("Template-ID - Mededelingen document");
+  if (!mailTemplateId || !documentTemplateId) {
+    throw new Error("Vul zowel 'Template-ID - Mededelingen mail' als 'Template-ID - Mededelingen document' in op Configuratie.");
+  }
+  var documentTemplate = DocumentApp.openById(documentTemplateId);
+  var documentTemplateTekst = [documentTemplate.getBody(), documentTemplate.getHeader(), documentTemplate.getFooter()]
     .filter(function (sectie) { return Boolean(sectie); })
     .map(function (sectie) { return sectie.getText(); })
     .join("\n");
-  var templateHtml = cmExporteerDocumentNaarHtml(templateId);
+  var mailTemplateHtml = cmExporteerDocumentNaarHtml(mailTemplateId);
   var aantalDiensten = Math.max(
-    cmBepaalAantalDienstenUitTemplate(templateTekst),
-    cmBepaalAantalDienstenUitTemplate(templateHtml)
+    cmBepaalAantalDienstenUitTemplate(documentTemplateTekst),
+    cmBepaalAantalDienstenUitTemplate(mailTemplateHtml)
   );
   var selectie = cmSelecteerKomendeDiensten(aantalDiensten, begindatum);
   var dienstdatum = new Date(selectie.datums[0]);
   var datumtekst = crFormatteerDatum(dienstdatum, crDatumFormaat.DATUM_LANG);
   var onderwerp = "Mededelingen voor " + datumtekst;
-  var document = cmMaakDocumentkopie(templateId, onderwerp);
+  var document = cmMaakDocumentkopie(documentTemplateId, onderwerp);
   var dagBegin = crZetOpBeginVanDag(new Date(dienstdatum));
   var dagEinde = crZetTijdOpEindeVanDag(new Date(dienstdatum));
   var liturgie = cmLeesLiturgieUitAgenda(
@@ -581,7 +585,7 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
   var bestandsnaam = crFormatteerDatum(dienstdatum, crDatumFormaat.SORTEERDATUM) +
     " - mededelingen " + datumtekst + ".docx";
   var docx = cmExporteerDocumentNaarDocx(documentId, bestandsnaam);
-  var html = cmVervangHtmlTemplate(templateHtml, variabelen, selectie);
+  var html = cmVervangHtmlTemplate(mailTemplateHtml, variabelen, selectie);
   MailApp.sendEmail(emailTo, onderwerp, "Zie HTML gedeelte", {
     htmlBody: html,
     attachments: [docx]

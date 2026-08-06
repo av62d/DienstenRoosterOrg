@@ -561,7 +561,8 @@ function bhConfiguratieSpecificatie() {
     { categorie: "Agenda's", sleutel: "Agenda - Liemersactiviteiten", aliases: ["Kalender Liemers Activiteiten"], toelichting: "Naam van de agenda met Liemersactiviteiten." },
 
     { categorie: "Templates", sleutel: "Template-ID - KerkTV-liturgie", aliases: ["KerkTV MailTemplate Doc", "KerkTV MailTemplate Doc ID"], toelichting: "Google Document-ID van de KerkTV-liturgietemplate.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - Mededelingen", aliases: ["Mededelingen Template", "Mededelingen Template ID"], toelichting: "Google Document-ID van de mededelingentemplate.", documentId: true },
+    { categorie: "Templates", sleutel: "Template-ID - Mededelingen mail", aliases: ["Mededelingen Mail", "Mededelingen Mail Template", "Mededelingen Mail Template ID"], toelichting: "Google Document-ID van de template voor de tekst en opmaak van de mededelingenmail.", documentId: true },
+    { categorie: "Templates", sleutel: "Template-ID - Mededelingen document", aliases: ["Mededelingen Template", "Mededelingen Template ID", "Template-ID - Mededelingen"], toelichting: "Google Document-ID van de mededelingentemplate die als DOCX-bijlage wordt meegestuurd.", documentId: true },
     { categorie: "Templates", sleutel: "Template-ID - MJ-mededelingen", aliases: ["MJ Mededeling Template Doc", "MJ Mededeling Template Doc ID"], toelichting: "Google Document-ID van de Montferland Journaal-template.", documentId: true },
     { categorie: "Templates", sleutel: "Template-ID - Liemersactiviteiten", aliases: ["Liemers Activiteiten Template Doc", "Liemers Activiteiten Template Doc ID"], toelichting: "Google Document-ID van de template voor Liemersactiviteiten.", documentId: true },
     { categorie: "Templates", sleutel: "Template-ID - Testmail", aliases: ["Testmail Template", "Testmail Template ID"], toelichting: "Google Document-ID van de template waarmee alle mailvariabelen worden getest.", documentId: true },
@@ -702,7 +703,9 @@ function bhMigreerConfiguratie(toonMelding) {
 
   var sleutelMigraties = [
     { oud: "KerkTV MailTemplate Doc", nieuw: "Template-ID - KerkTV-liturgie" },
-    { oud: "Mededelingen Template", nieuw: "Template-ID - Mededelingen" },
+    { oud: "Mededelingen Mail", nieuw: "Template-ID - Mededelingen mail" },
+    { oud: "Mededelingen Template", nieuw: "Template-ID - Mededelingen document" },
+    { oud: "Template-ID - Mededelingen", nieuw: "Template-ID - Mededelingen document" },
     { oud: "MJ Mededeling Template Doc", nieuw: "Template-ID - MJ-mededelingen" },
     { oud: "Liemers Activiteiten Template Doc", nieuw: "Template-ID - Liemersactiviteiten" },
     { oud: "Testmail Template", nieuw: "Template-ID - Testmail" }
