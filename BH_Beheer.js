@@ -317,9 +317,8 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
   function bhLeesGroep(groep) {
     return {
       bronkolom: groep.getSourceDataColumn(),
-      naam: groep.getDisplayName(),
-      sortering: String(groep.getSortOrder()),
-      totalen: groep.getTotalsDisplay()
+      datumgroepering: groep.getDateTimeGroupingRule(),
+      groepslimiet: groep.getGroupLimit()
     };
   }
 
@@ -327,10 +326,8 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
     var nieuw = isRijgroep
       ? draaitabel.addRowGroup(groep.bronkolom)
       : draaitabel.addColumnGroup(groep.bronkolom);
-    if (groep.naam) nieuw.setDisplayName(groep.naam);
-    if (groep.sortering === "ASCENDING") nieuw.sortAscending();
-    if (groep.sortering === "DESCENDING") nieuw.sortDescending();
-    if (groep.totalen === false) nieuw.showTotals(false);
+    if (groep.datumgroepering) nieuw.setDateTimeGroupingRule(groep.datumgroepering);
+    if (groep.groepslimiet) nieuw.setGroupLimit(groep.groepslimiet);
   }
 
   var aangepast = [];
@@ -355,14 +352,20 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
 
       var rijgroepen = draaitabel.getRowGroups().map(bhLeesGroep);
       var kolomgroepen = draaitabel.getColumnGroups().map(bhLeesGroep);
+      var waardenorientatie = draaitabel.getValuesDisplayOrientation();
       var waarden = draaitabel.getPivotValues().map(function (waarde) {
         return {
           bronkolom: waarde.getSourceDataColumn(),
-          naam: waarde.getDisplayName(),
           formule: waarde.getFormula(),
-          samenvatting: waarde.getSummarizedBy()
+          samenvatting: waarde.getSummarizedBy(),
+          weergave: waarde.getDisplayType()
         };
       });
+      if (waarden.some(function (waarde) { return Boolean(waarde.formule); })) {
+        throw new Error(
+          "Draaitabel " + locatie + " bevat een berekende waarde en kan niet veilig automatisch worden herbouwd."
+        );
+      }
       var filters = draaitabel.getFilters().map(function (filter) {
         return {
           bronkolom: filter.getSourceDataColumn(),
@@ -381,16 +384,12 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
 
       draaitabel.remove();
       var nieuweDraaitabel = ankercel.createPivotTable(bronBereik);
+      if (waardenorientatie) nieuweDraaitabel.setValuesDisplayOrientation(waardenorientatie);
       rijgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, true); });
       kolomgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, false); });
       waarden.forEach(function (waarde) {
-        var nieuw;
-        if (waarde.formule) {
-          nieuw = nieuweDraaitabel.addCalculatedPivotValue(waarde.naam, waarde.formule);
-        } else {
-          nieuw = nieuweDraaitabel.addPivotValue(waarde.bronkolom, waarde.samenvatting);
-          if (waarde.naam) nieuw.setDisplayName(waarde.naam);
-        }
+        var nieuw = nieuweDraaitabel.addPivotValue(waarde.bronkolom, waarde.samenvatting);
+        if (waarde.weergave) nieuw.showAs(waarde.weergave);
       });
       filters.forEach(function (filter) {
         nieuweDraaitabel.addFilter(filter.bronkolom, filter.criterium);
