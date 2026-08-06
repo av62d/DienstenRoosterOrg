@@ -364,11 +364,13 @@ function rsVerzendJaarrooster(curYear = 2026) {
   Logger.log("\nSubj:" + emailSubject);
   Logger.log("\nText=" + emailTextBody);
   Logger.log("\nbcc=" + emailTo);
-  MailApp.sendEmail("", emailSubject, emailTextBody, {
-    bcc: emailTo,
+  cmVerzendEmail(emailTo, emailSubject, {
+    textBody: emailTextBody,
     name: 'Automatisch verzonden email',
     htmlBody: emailBody,
-    attachments: [xlsx, pdf]
+    attachments: [xlsx, pdf],
+    mode: "bcc",
+    to: myself
   });
 }
 var colcount = 1;

@@ -43,59 +43,59 @@ Aantal: 55
 |---|---|---|---|---:|
 | `cmVerzendRooster` | Bestandsniveau | geen | Verzendt rooster. | 8 |
 | `cmVerzendRoosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject<br>`reportWeeks` – week of aantal weken; standaard: `6`<br>`reportMonths` – maand of aantal maanden; standaard: `6`<br>`confirmAddress` – invoerwaarde | Verzendt rooster naar lijst. | 11 |
-| `cmVerzendEmail` | Bestandsniveau | `recipientList` – invoerwaarde<br>`emailSubject` – onderwerpregel<br>`emailName` – afzendernaam<br>`emailHtmlBody` – HTML-inhoud<br>`emailConfirmationTo` – instelling of tekst voor bevestiging<br>`emailConfirmationMsg` – instelling of tekst voor bevestiging<br>`emailAsBcc` – of BCC-verzending wordt gebruikt | Verzendt HTML-mail naar een lijst, afzonderlijk of als BCC, met optionele bevestiging. | 46 |
-| `cmLeesEmailadressen` | Bestandsniveau | `source` – invoerwaarde | Leest emailadressen. | 80 |
-| `cmMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element. | 91 |
-| `cmVoegLijstItemToe` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe. | 94 |
-| `cmEscapeHtml` | Bestandsniveau | `value` – tekst of waarde | Verwerkt escape html. | 99 |
-| `cmIsJaWaarde` | Bestandsniveau | `value` – tekst of waarde | Verwerkt is ja waarde. | 102 |
-| `cmIsNeeWaarde` | Bestandsniveau | `value` – tekst of waarde | Verwerkt is nee waarde. | 105 |
-| `cmMaakDienstvelden` | Bestandsniveau | `selection` – invoerwaarde<br>`index` – invoerwaarde | Maakt dienstvelden. | 110 |
-| `cmMaakHtmlDienstenrapport` | Bestandsniveau | `selection` – invoerwaarde<br>`count` – aantal | Maakt html dienstenrapport. | 129 |
-| `cmMaakTekstDienstenrapport` | Bestandsniveau | `selection` – invoerwaarde<br>`count` – aantal | Maakt tekst dienstenrapport. | 151 |
-| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 171 |
-| `cmNormaliseerPlaceholder` | Bestandsniveau | `name` – invoerwaarde | Normaliseert placeholder. | 177 |
-| `cmMaakTemplateWaarde` | Bestandsniveau | `text` – tekst of waarde<br>`html` – invoerwaarde | Maakt template waarde. | 182 |
-| `cmMaakTemplateVariabelen` | Bestandsniveau | `selection` – invoerwaarde<br>`index` – invoerwaarde<br>`extras` – invoerwaarde | Maakt template variabelen. | 191 |
-| `cmBepaalAantalDienstenUitTemplate` | Bestandsniveau | `text` – tekst of waarde | Bepaalt aantal diensten uit template. | 230 |
-| `cmSelecteerKomendeDiensten` | Bestandsniveau | `count` – aantal<br>`startDate` – datum of begindatum | Selecteert komende diensten. | 241 |
-| `cmMaakTesttemplateVariabelen` | Bestandsniveau | `selection` – invoerwaarde | Maakt testtemplate variabelen. | 253 |
-| `cmVerzendTesttemplate` | Bestandsniveau | geen | Verzendt testtemplate. | 279 |
-| `cmVervangHtmlTemplate` | Bestandsniveau | `html` – invoerwaarde<br>`vars` – invoerwaarde<br>`selection` – invoerwaarde | Verwerkt vervang html template. | 305 |
-| `cmVervangDocumentTemplate` | Bestandsniveau | `document` – invoerwaarde<br>`vars` – invoerwaarde<br>`selection` – invoerwaarde | Verwerkt vervang document template. | 323 |
-| `cmExporteerDocumentNaarHtml` | Bestandsniveau | `documentId` – Google Document-ID | Exporteert document naar html. | 353 |
-| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 363 |
-| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad<br>`confirmAddress` – invoerwaarde | Verzendt template naar lijst. | 366 |
-| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 410 |
-| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 413 |
-| `cmLeesDocumenttekst` | Bestandsniveau | `document` – invoerwaarde | Leest documenttekst. | 418 |
-| `cmMaakMededelingenMetadata` | Bestandsniveau | `selection` – invoerwaarde | Maakt mededelingen metadata. | 427 |
-| `cmBereidMededelingenVoor` | Bestandsniveau | `nextWeek` – week of aantal weken | Verwerkt bereid mededelingen voor. | 442 |
-| `cmMaakMededelingenVariabelen` | Bestandsniveau | `selection` – invoerwaarde<br>`subject` – invoerwaarde<br>`liturgy` – invoerwaarde<br>`editUrl` – URL of link | Maakt mededelingen variabelen. | 464 |
-| `cmMaakMededelingenBijlage` | Bestandsniveau | `prepared` – invoerwaarde | Maakt mededelingen bijlage. | 478 |
-| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`nextWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 501 |
-| `cmZoekEersteDienstIndex` | Bestandsniveau | `selection` – invoerwaarde | Zoekt eerste dienst index. | 511 |
-| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentName` – invoerwaarde | Maakt documentkopie. | 514 |
-| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `calendarName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest liturgie uit agenda. | 518 |
-| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`fileName` – invoerwaarde | Exporteert document naar docx. | 525 |
-| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 540 |
-| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 543 |
-| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 546 |
-| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 552 |
-| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 563 |
-| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 568 |
-| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 612 |
-| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 615 |
-| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 618 |
-| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 624 |
-| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 640 |
-| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 680 |
-| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 703 |
-| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 725 |
-| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 728 |
-| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 805 |
-| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject<br>`confirmAddress` – invoerwaarde | Verzendt lectorrooster naar lijst. | 808 |
-| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 836 |
+| `cmVerzendEmail` | Bestandsniveau | `source` – invoerwaarde<br>`subject` – invoerwaarde<br>`options` – invoerwaarde | Verzendt HTML-mail naar een lijst, afzonderlijk of als BCC, met optionele bevestiging. | 52 |
+| `cmLeesEmailadressen` | Bestandsniveau | `source` – invoerwaarde | Leest emailadressen. | 96 |
+| `cmMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element. | 107 |
+| `cmVoegLijstItemToe` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe. | 110 |
+| `cmEscapeHtml` | Bestandsniveau | `value` – tekst of waarde | Verwerkt escape html. | 115 |
+| `cmIsJaWaarde` | Bestandsniveau | `value` – tekst of waarde | Verwerkt is ja waarde. | 118 |
+| `cmIsNeeWaarde` | Bestandsniveau | `value` – tekst of waarde | Verwerkt is nee waarde. | 121 |
+| `cmMaakDienstvelden` | Bestandsniveau | `selection` – invoerwaarde<br>`index` – invoerwaarde | Maakt dienstvelden. | 126 |
+| `cmMaakHtmlDienstenrapport` | Bestandsniveau | `selection` – invoerwaarde<br>`count` – aantal | Maakt html dienstenrapport. | 145 |
+| `cmMaakTekstDienstenrapport` | Bestandsniveau | `selection` – invoerwaarde<br>`count` – aantal | Maakt tekst dienstenrapport. | 167 |
+| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 187 |
+| `cmNormaliseerPlaceholder` | Bestandsniveau | `name` – invoerwaarde | Normaliseert placeholder. | 193 |
+| `cmMaakTemplateWaarde` | Bestandsniveau | `text` – tekst of waarde<br>`html` – invoerwaarde | Maakt template waarde. | 198 |
+| `cmMaakTemplateVariabelen` | Bestandsniveau | `selection` – invoerwaarde<br>`index` – invoerwaarde<br>`extras` – invoerwaarde | Maakt template variabelen. | 207 |
+| `cmBepaalAantalDienstenUitTemplate` | Bestandsniveau | `text` – tekst of waarde | Bepaalt aantal diensten uit template. | 246 |
+| `cmSelecteerKomendeDiensten` | Bestandsniveau | `count` – aantal<br>`startDate` – datum of begindatum | Selecteert komende diensten. | 257 |
+| `cmMaakTesttemplateVariabelen` | Bestandsniveau | `selection` – invoerwaarde | Maakt testtemplate variabelen. | 269 |
+| `cmVerzendTesttemplate` | Bestandsniveau | geen | Verzendt testtemplate. | 295 |
+| `cmVervangHtmlTemplate` | Bestandsniveau | `html` – invoerwaarde<br>`vars` – invoerwaarde<br>`selection` – invoerwaarde | Verwerkt vervang html template. | 315 |
+| `cmVervangDocumentTemplate` | Bestandsniveau | `document` – invoerwaarde<br>`vars` – invoerwaarde<br>`selection` – invoerwaarde | Verwerkt vervang document template. | 333 |
+| `cmExporteerDocumentNaarHtml` | Bestandsniveau | `documentId` – Google Document-ID | Exporteert document naar html. | 363 |
+| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 373 |
+| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad<br>`confirmAddress` – invoerwaarde | Verzendt template naar lijst. | 376 |
+| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 426 |
+| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 429 |
+| `cmLeesDocumenttekst` | Bestandsniveau | `document` – invoerwaarde | Leest documenttekst. | 434 |
+| `cmMaakMededelingenMetadata` | Bestandsniveau | `selection` – invoerwaarde | Maakt mededelingen metadata. | 443 |
+| `cmBereidMededelingenVoor` | Bestandsniveau | `nextWeek` – week of aantal weken | Verwerkt bereid mededelingen voor. | 458 |
+| `cmMaakMededelingenVariabelen` | Bestandsniveau | `selection` – invoerwaarde<br>`subject` – invoerwaarde<br>`liturgy` – invoerwaarde<br>`editUrl` – URL of link | Maakt mededelingen variabelen. | 480 |
+| `cmMaakMededelingenBijlage` | Bestandsniveau | `prepared` – invoerwaarde | Maakt mededelingen bijlage. | 494 |
+| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`nextWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 517 |
+| `cmZoekEersteDienstIndex` | Bestandsniveau | `selection` – invoerwaarde | Zoekt eerste dienst index. | 528 |
+| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentName` – invoerwaarde | Maakt documentkopie. | 531 |
+| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `calendarName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest liturgie uit agenda. | 535 |
+| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`fileName` – invoerwaarde | Exporteert document naar docx. | 542 |
+| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 557 |
+| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 560 |
+| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 563 |
+| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 569 |
+| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 580 |
+| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 585 |
+| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 630 |
+| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 633 |
+| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 636 |
+| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 642 |
+| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 658 |
+| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 699 |
+| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 724 |
+| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 746 |
+| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 749 |
+| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 826 |
+| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject<br>`confirmAddress` – invoerwaarde | Verzendt lectorrooster naar lijst. | 829 |
+| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 864 |
 
 ## CR_Core.js
 
@@ -189,26 +189,26 @@ Aantal: 23
 | `cmVerzendRoosterbericht` | Bestandsniveau | geen | Verzendt roosterbericht. | 10 |
 | `cmMaakUrlLink` | Bestandsniveau | `url` – URL of link<br>`text` – tekst of waarde | Maakt url link. | 26 |
 | `cmVerzendDienstenlijst` | Bestandsniveau | geen | Verzendt dienstenlijst. | 29 |
-| `cmMaakRoosterbericht` | Bestandsniveau | geen | Maakt roosterbericht. | 34 |
-| `cmVerzendLectorBericht` | Bestandsniveau | geen | Verzendt lector bericht. | 43 |
-| `cmMaakLectorrooster` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum<br>`rptSheetName` – naam van het werkblad; standaard: `"Lectorrooster"`<br>`rptTitle` – titel; standaard: `"Lectorrooster"` | Bouwt en formatteert het werkblad met het lectorrooster. | 59 |
-| `cmBereikLaatsteRij` | Lokale helper | geen | Bepaalt het bereik voor laatste rij binnen de bovenliggende functie. | 69 |
-| `cmMaakLaatsteRijOp` | Lokale helper | `fgColor` – kleurwaarde of kleurcomponent<br>`bgColor` – kleurwaarde of kleurcomponent<br>`fontSize` – invoerwaarde | Maakt laatste rij op binnen de bovenliggende functie. | 74 |
-| `crHaalWerkbladOp` | Bestandsniveau | `argSheetName` – naam van het werkblad | Haalt werkblad op. | 220 |
-| `exConverteerDocumentNaarPdf` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar pdf. | 226 |
-| `exConverteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar docx. | 237 |
-| `exConverteerDocumentNaarXlsx` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar xlsx. | 248 |
-| `exMaakHalfjaarroosterXlsx` | Bestandsniveau | geen | Maakt halfjaarrooster xlsx. | 259 |
-| `opBepaalKleurtype` | Bestandsniveau | `type` – invoerwaarde<br>`color` – kleurwaarde of kleurcomponent | Bepaalt kleurtype. | 266 |
-| `rsSelecteerCriteria` | Bestandsniveau | geen | Selecteert criteria. | 287 |
-| `rsMaakMaandRooster` | Bestandsniveau | `argDate` – datum of begindatum; standaard: `new Date()`<br>`argSheetName` – naam van het werkblad; standaard: `""`<br>`argSheetTitle` – Spreadsheet-werkbladobject; standaard: `""` | Maakt maand rooster. | 296 |
-| `rsBereikLaatsteRij` | Lokale helper | geen | Bepaalt het bereik voor laatste rij binnen de bovenliggende functie. | 316 |
-| `rsBereikNamenrij` | Lokale helper | geen | Bepaalt het bereik voor namenrij binnen de bovenliggende functie. | 321 |
-| `rsMaakLaatsteRijOp` | Lokale helper | `fgColor` – kleurwaarde of kleurcomponent<br>`bgColor` – kleurwaarde of kleurcomponent<br>`fontSize` – invoerwaarde<br>`fontWeight` – invoerwaarde; standaard: `"bold"`<br>`horizontalAlignment` – invoerwaarde; standaard: `"center"`<br>`verticalAlignment` – invoerwaarde; standaard: `"middle"` | Maakt laatste rij op binnen de bovenliggende functie. | 326 |
-| `rsVoegTabelrijMetEenKolomToe` | Bestandsniveau | `tag` – HTML-tag<br>`val` – tekst of waarde | Voegt tabelrij met een kolom toe. | 496 |
-| `ytVerzendLaatsteVideos` | Bestandsniveau | geen | Verzendt laatste videos. | 502 |
-| `ytMaakUploadWerkblad` | Bestandsniveau | `rptSheet` – Spreadsheet-werkbladobject | Maakt upload werkblad. | 508 |
-| `ytWerkVideoBij` | Bestandsniveau | geen | Werkt video bij. | 526 |
+| `cmMaakRoosterbericht` | Bestandsniveau | geen | Maakt roosterbericht. | 37 |
+| `cmVerzendLectorBericht` | Bestandsniveau | geen | Verzendt lector bericht. | 46 |
+| `cmMaakLectorrooster` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum<br>`rptSheetName` – naam van het werkblad; standaard: `"Lectorrooster"`<br>`rptTitle` – titel; standaard: `"Lectorrooster"` | Bouwt en formatteert het werkblad met het lectorrooster. | 62 |
+| `cmBereikLaatsteRij` | Lokale helper | geen | Bepaalt het bereik voor laatste rij binnen de bovenliggende functie. | 72 |
+| `cmMaakLaatsteRijOp` | Lokale helper | `fgColor` – kleurwaarde of kleurcomponent<br>`bgColor` – kleurwaarde of kleurcomponent<br>`fontSize` – invoerwaarde | Maakt laatste rij op binnen de bovenliggende functie. | 77 |
+| `crHaalWerkbladOp` | Bestandsniveau | `argSheetName` – naam van het werkblad | Haalt werkblad op. | 223 |
+| `exConverteerDocumentNaarPdf` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar pdf. | 229 |
+| `exConverteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar docx. | 240 |
+| `exConverteerDocumentNaarXlsx` | Bestandsniveau | `documentId` – Google Document-ID | Converteert document naar xlsx. | 251 |
+| `exMaakHalfjaarroosterXlsx` | Bestandsniveau | geen | Maakt halfjaarrooster xlsx. | 262 |
+| `opBepaalKleurtype` | Bestandsniveau | `type` – invoerwaarde<br>`color` – kleurwaarde of kleurcomponent | Bepaalt kleurtype. | 269 |
+| `rsSelecteerCriteria` | Bestandsniveau | geen | Selecteert criteria. | 290 |
+| `rsMaakMaandRooster` | Bestandsniveau | `argDate` – datum of begindatum; standaard: `new Date()`<br>`argSheetName` – naam van het werkblad; standaard: `""`<br>`argSheetTitle` – Spreadsheet-werkbladobject; standaard: `""` | Maakt maand rooster. | 299 |
+| `rsBereikLaatsteRij` | Lokale helper | geen | Bepaalt het bereik voor laatste rij binnen de bovenliggende functie. | 319 |
+| `rsBereikNamenrij` | Lokale helper | geen | Bepaalt het bereik voor namenrij binnen de bovenliggende functie. | 324 |
+| `rsMaakLaatsteRijOp` | Lokale helper | `fgColor` – kleurwaarde of kleurcomponent<br>`bgColor` – kleurwaarde of kleurcomponent<br>`fontSize` – invoerwaarde<br>`fontWeight` – invoerwaarde; standaard: `"bold"`<br>`horizontalAlignment` – invoerwaarde; standaard: `"center"`<br>`verticalAlignment` – invoerwaarde; standaard: `"middle"` | Maakt laatste rij op binnen de bovenliggende functie. | 329 |
+| `rsVoegTabelrijMetEenKolomToe` | Bestandsniveau | `tag` – HTML-tag<br>`val` – tekst of waarde | Voegt tabelrij met een kolom toe. | 499 |
+| `ytVerzendLaatsteVideos` | Bestandsniveau | geen | Verzendt laatste videos. | 505 |
+| `ytMaakUploadWerkblad` | Bestandsniveau | `rptSheet` – Spreadsheet-werkbladobject | Maakt upload werkblad. | 514 |
+| `ytWerkVideoBij` | Bestandsniveau | geen | Werkt video bij. | 532 |
 
 ## RS_Rooster.js
 
@@ -230,12 +230,12 @@ Aantal: 20
 | `rsMaakHalfjaarrooster2` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Maakt halfjaarrooster2. | 323 |
 | `rsMaakJaarroosterNaam` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Maakt jaarrooster naam. | 343 |
 | `rsVerzendJaarrooster` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Verzendt jaarrooster. | 346 |
-| `rsStelTabelkolommenIn` | Bestandsniveau | `tableRow` – rij of rijgegevens | Stelt tabelkolommen in. | 375 |
-| `rsMaakHtmlElementen` | Bestandsniveau | `tag` – HTML-tag<br>`tableRow` – rij of rijgegevens | Maakt html elementen. | 378 |
-| `rsMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`val` – tekst of waarde | Maakt html element. | 385 |
-| `rsMaakHtmlElementMetOptie` | Bestandsniveau | `tag` – HTML-tag<br>`opt` – invoerwaarde<br>`val` – tekst of waarde | Maakt html element met optie. | 388 |
-| `rsVoegTabelrijToe` | Bestandsniveau | `tag` – HTML-tag<br>`hdrRow` – rij of rijgegevens | Voegt tabelrij toe. | 391 |
-| `rsMaakHtmlRooster` | Bestandsniveau | `rptStartDate` – datum of begindatum; standaard: `crZetOpBeginVanDag()`<br>`rptNumMonths` – maand of aantal maanden; standaard: `3` | Maakt html rooster. | 397 |
+| `rsStelTabelkolommenIn` | Bestandsniveau | `tableRow` – rij of rijgegevens | Stelt tabelkolommen in. | 377 |
+| `rsMaakHtmlElementen` | Bestandsniveau | `tag` – HTML-tag<br>`tableRow` – rij of rijgegevens | Maakt html elementen. | 380 |
+| `rsMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`val` – tekst of waarde | Maakt html element. | 387 |
+| `rsMaakHtmlElementMetOptie` | Bestandsniveau | `tag` – HTML-tag<br>`opt` – invoerwaarde<br>`val` – tekst of waarde | Maakt html element met optie. | 390 |
+| `rsVoegTabelrijToe` | Bestandsniveau | `tag` – HTML-tag<br>`hdrRow` – rij of rijgegevens | Voegt tabelrij toe. | 393 |
+| `rsMaakHtmlRooster` | Bestandsniveau | `rptStartDate` – datum of begindatum; standaard: `crZetOpBeginVanDag()`<br>`rptNumMonths` – maand of aantal maanden; standaard: `3` | Maakt html rooster. | 399 |
 
 ## TS_Test.js
 

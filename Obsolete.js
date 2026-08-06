@@ -29,7 +29,10 @@ function cmMaakUrlLink(url, text) {
 function cmVerzendDienstenlijst() {
   var n = 4;
   var email = "<h4>Vorige " + n + " diensten</h4>" + ytMaakUploadLijst(n);
-  MailApp.sendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", email);
+  cmVerzendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", {
+    textBody: email,
+    mode: "together"
+  });
 }
 function cmMaakRoosterbericht() {
   var curDate = new Date();
@@ -502,7 +505,10 @@ function rsVoegTabelrijMetEenKolomToe(tag, val) {
 function ytVerzendLaatsteVideos() {
   var videoCount = 16;
   var email = "<h4>Vorige " + videoCount + " diensten</h4>" + ytMaakUploadLijst(videoCount);
-  MailApp.sendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", email);
+  cmVerzendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", {
+    textBody: email,
+    mode: "together"
+  });
   var x = 2;
 }
 function ytMaakUploadWerkblad(rptSheet) {

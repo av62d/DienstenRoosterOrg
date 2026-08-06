@@ -14,10 +14,6 @@ function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths
   var msg = crLeesConfiguratie("Berichttekst - Rooster");
   var curDate = crZetOpBeginVanDag(new Date());
 
-  // zoek de eerstvolgende zondag
-
-  // in plaats van eerstvolgende zondag, gebruik de zondag van deze week + 1, dus op maandag van deze week
-
   // zet rooster begin op vandaag.
   var rptWeekStartDate = crZetOpBeginVanDag();
   var rptWeekEndDate = crBepaalEindeVanWeek(crTelWekenBijDatumOp(rptWeekStartDate, reportWeeks));
@@ -30,9 +26,7 @@ function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths
 
   // Alles voor de email is nu gereed
 
-  var emailHtmlBody = msg.replace(/\n/g, "<br >") +
-  // "<p />Klik voor rooster als PDF: " + cmMaakUrlLink(pdf_link, rptSheetName) + "<p />" +
-  "<h4> Weekrooster voor de komende " + reportWeeks + " weken</h4>" + htmlWeekRaport + "<h4> Maandrooster voor de komende " + reportMonths + " maanden</h4>" + rosterHtml;
+  var emailHtmlBody = msg.replace(/\n/g, "<br >") + "<h4> Weekrooster voor de komende " + reportWeeks + " weken</h4>" + htmlWeekRaport + "<h4> Maandrooster voor de komende " + reportMonths + " maanden</h4>" + rosterHtml;
   var emailAsBcc = false; // send emails in a loop or one by one (mails to Bcc will bounce sending to KPN/Ziggo, incl. hi/planet/xs4all/upc/upcmail)
 
   // Haal addressen op
@@ -41,39 +35,61 @@ function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths
   var emailConfirmationMsg = "Weekrooster verzonden\n";
   var emailSubject = 'Dienstenrooster week ' + rptWeekStartNum + " t/m " + rptWeekEndNum;
   var emailName = 'Weekrooster Protestantse Gemeente Didam';
-  cmVerzendEmail(recipientList, emailSubject, emailName, emailHtmlBody, emailConfirmationTo, emailConfirmationMsg, emailAsBcc);
-}
-function cmVerzendEmail(recipientList, emailSubject, emailName, emailHtmlBody, emailConfirmationTo, emailConfirmationMsg, emailAsBcc) {
-  var emailTo = recipientList.join(',');
-  emailConfirmationMsg += "\nEmail verzonden als Bcc: " + emailAsBcc + "\nVerzonden naar: " + emailTo;
-  Logger.log("\nTo:" + emailTo);
-  Logger.log("\nSubj:" + emailSubject);
-  Logger.log("\nConfirmation:" + emailConfirmationMsg);
-  var emailTextBody = 'Zie HTML gedeelte';
-  var confirmText;
-  if (emailAsBcc) {
-    confirmText = "als Bcc";
-    MailApp.sendEmail(emailConfirmationTo, emailSubject, emailTextBody, {
-      bcc: emailTo,
-      name: emailName,
-      htmlBody: emailHtmlBody
-    });
-  } else {
-    confirmText = "als aparte mails";
-    for (var i in recipientList) {
-      var recipient = recipientList[i][0];
-      if (recipient) {
-        MailApp.sendEmail(recipient, emailSubject, emailTextBody, {
-          name: emailName,
-          htmlBody: emailHtmlBody
-        });
-      }
-    }
-  }
-  MailApp.sendEmail(emailConfirmationTo, emailSubject + " - verzonden " + confirmText, emailConfirmationMsg, {
+  cmVerzendEmail(recipientList, emailSubject, {
     name: emailName,
-    htmlBody: emailConfirmationMsg
+    htmlBody: emailHtmlBody,
+    mode: emailAsBcc ? "bcc" : "individual",
+    to: emailConfirmationTo,
+    confirmTo: emailConfirmationTo,
+    confirmMessage: emailConfirmationMsg
   });
+}
+
+/**
+ * Centrale verzendroute voor HTML-mail, bijlagen, BCC en bevestigingen.
+ * `mode` is `individual`, `together` of `bcc`; standaard is `individual`.
+ */
+function cmVerzendEmail(source, subject, options) {
+  options = options || {};
+  var recipients = cmLeesEmailadressen(source).map(function (row) {
+    return String(Array.isArray(row) ? row[0] : row).trim();
+  }).filter(function (address) {
+    return Boolean(address);
+  });
+  if (!recipients.length) throw new Error("Geen geldige e-mailadressen gevonden.");
+  var mode = options.mode || "individual";
+  if (["individual", "together", "bcc"].indexOf(mode) < 0) {
+    throw new Error("Onbekende e-mailmodus: " + mode);
+  }
+  var textBody = options.textBody || "Zie HTML gedeelte";
+  var mailOptions = {};
+  if (options.name) mailOptions.name = options.name;
+  if (options.htmlBody) mailOptions.htmlBody = options.htmlBody;
+  if (options.attachments && options.attachments.length) mailOptions.attachments = options.attachments;
+  var joined = recipients.join(",");
+  if (mode === "bcc") {
+    mailOptions.bcc = joined;
+    var visibleTo = options.to || options.confirmTo;
+    if (!visibleTo) throw new Error("Voor BCC-verzending is 'to' of 'confirmTo' verplicht.");
+    MailApp.sendEmail(visibleTo, subject, textBody, mailOptions);
+  } else if (mode === "together") {
+    MailApp.sendEmail(joined, subject, textBody, mailOptions);
+  } else {
+    recipients.forEach(function (address) {
+      MailApp.sendEmail(address, subject, textBody, mailOptions);
+    });
+  }
+  Logger.log("\nTo: " + joined + "\nSubject: " + subject + "\nMode: " + mode);
+  if (options.confirmTo) {
+    var modeText = mode === "bcc" ? "als BCC" : mode === "together" ? "gezamenlijk" : "als aparte mails";
+    var confirmation = String(options.confirmMessage || "E-mail verzonden") +
+      "\nVerzendwijze: " + modeText + "\nVerzonden naar: " + joined;
+    MailApp.sendEmail(options.confirmTo, subject + " - verzonden " + modeText, confirmation, {
+      name: options.name || "Dienstenrooster",
+      htmlBody: cmEscapeHtml(confirmation)
+    });
+  }
+  return { recipients: recipients, mode: mode, sentCount: mode === "individual" ? recipients.length : 1 };
 }
 
 /** Leest ontvangers uit een werkblad, kommagescheiden tekst of bestaande lijst. */
@@ -287,18 +303,12 @@ function cmVerzendTesttemplate() {
   var vars = cmMaakTesttemplateVariabelen(selection);
   var html = cmVervangHtmlTemplate(templateHtml, vars, selection);
   var recipients = cmLeesEmailadressen(crLeesConfiguratie("Testmail"));
-  var sent = 0;
-  recipients.forEach(function (row) {
-    var address = Array.isArray(row) ? row[0] : row;
-    if (!String(address || "").trim()) return;
-    MailApp.sendEmail(String(address).trim(), "[TEST] Mailtemplatevariabelen", "Zie HTML-gedeelte", {
-      name: "Test Dienstenrooster",
-      htmlBody: html
-    });
-    sent++;
+  var result = cmVerzendEmail(recipients, "[TEST] Mailtemplatevariabelen", {
+    name: "Test Dienstenrooster",
+    htmlBody: html,
+    mode: "individual"
   });
-  if (!sent) throw new Error("De configuratie-instelling 'Testmail' bevat geen e-mailadressen.");
-  SpreadsheetApp.getUi().alert("Testtemplate verzonden naar " + sent + " testontvanger(s).");
+  SpreadsheetApp.getUi().alert("Testtemplate verzonden naar " + result.sentCount + " testontvanger(s).");
 }
 
 /** Vervangt alle placeholders in geëxporteerde template-HTML. */
@@ -405,7 +415,13 @@ function cmVerzendTemplateNaarLijst(emailListSheetName, confirmAddress) {
   document.saveAndClose();
   var emailHtml = cmVervangHtmlTemplate(templateHtml, vars, selection);
   var emailadressen = cmLeesEmailadressen(emailListSheetName);
-  cmVerzendEmail(emailadressen, subject, "Liturgiemail Protestantse Gemeente Didam", emailHtml, confirmAddress || "avandervliet@gmail.com", "Liturgie verzonden\nDocument: " + editUrl, false);
+  cmVerzendEmail(emailadressen, subject, {
+    name: "Liturgiemail Protestantse Gemeente Didam",
+    htmlBody: emailHtml,
+    mode: "individual",
+    confirmTo: confirmAddress || "avandervliet@gmail.com",
+    confirmMessage: "Liturgie verzonden\nDocument: " + editUrl
+  });
 }
 function cmVerzendMededelingen() {
   cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), false);
@@ -503,9 +519,10 @@ function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
   var prepared = cmBereidMededelingenVoor(nextWeek);
   var attachment = cmMaakMededelingenBijlage(prepared);
   var html = cmVervangHtmlTemplate(prepared.mailHtml, attachment.vars, prepared.selection);
-  MailApp.sendEmail(emailTo, prepared.metadata.subject, "Zie HTML gedeelte", {
+  cmVerzendEmail(emailTo, prepared.metadata.subject, {
     htmlBody: html,
-    attachments: [attachment.docx]
+    attachments: [attachment.docx],
+    mode: "together"
   });
 }
 function cmZoekEersteDienstIndex(selection) {
@@ -603,9 +620,10 @@ function cmVerzendMjMededelingenNaarAdres(emailTo) {
     beschrijving: cmMaakTemplateWaarde("", activityDescription)
   });
   var emailHtml = cmVervangHtmlTemplate(emailHtmlRaw, mjVars, mjData);
-  MailApp.sendEmail(emailTo, emailSubject, emailText, {
+  cmVerzendEmail(emailTo, emailSubject, {
+    textBody: emailText,
     htmlBody: emailHtml,
-    To: emailTo
+    mode: "together"
   });
 }
 var lineBreakTag = "<br />";
@@ -672,9 +690,10 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
   });
   var emailHtml = cmVervangHtmlTemplate(emailHtmlRaw, liemersVars, liemersData);
   Logger.log("Length of final HTML: " + emailHtml.length);
-  MailApp.sendEmail(emailTo, emailSubject, emailText, {
+  cmVerzendEmail(emailTo, emailSubject, {
+    textBody: emailText,
     htmlBody: emailHtml,
-    To: emailTo
+    mode: "together"
   });
 }
 function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglijst - Kerkdiensten")) {
@@ -694,10 +713,12 @@ function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglijst -
   Logger.log("\nSubj:" + emailSubject + "=");
   Logger.log("\nText=" + emailTextBody + "=");
   Logger.log("\nbcc=" + emailTo + "=");
-  MailApp.sendEmail("", emailSubject, emailTextBody, {
-    bcc: emailTo,
+  cmVerzendEmail(emailTo, emailSubject, {
+    textBody: emailTextBody,
     name: 'Automatisch verzonden email',
-    htmlBody: emailBody
+    htmlBody: emailBody,
+    mode: "bcc",
+    to: myself
   });
 }
 function cmMaakHtmlLijstrapport(rptWeekStartDate, rptWeekEndDate) {
@@ -831,7 +852,14 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet, confirmAddress) {
   var emailName = 'Lectorrooster Protestantse Gemeente Didam';
   var emailTo = recipientList.join(",");
   var myself = "avandervliet@gmail.com";
-  cmVerzendEmail(recipientList, emailSubject, emailName, emailHtmlBody, emailConfirmationTo, emailConfirmationMsg, emailAsBcc);
+  cmVerzendEmail(recipientList, emailSubject, {
+    name: emailName,
+    htmlBody: emailHtmlBody,
+    mode: emailAsBcc ? "bcc" : "individual",
+    to: emailConfirmationTo,
+    confirmTo: emailConfirmationTo,
+    confirmMessage: emailConfirmationMsg
+  });
 }
 function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
   var rptHeader;

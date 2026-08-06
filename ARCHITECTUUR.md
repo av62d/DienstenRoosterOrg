@@ -125,3 +125,17 @@ de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
 - Uitgeschakelde code blijft niet als commentaar staan; versiegeschiedenis hoort
   in Git. Commentaar beschrijft bedoeling, randvoorwaarden en niet-obvious
   stappen, vooral bij migraties en functies met meerdere gegevensbronnen.
+
+## Centrale e-mailverzending
+
+Alle actieve e-mailfuncties roepen `cmVerzendEmail` aan; alleen deze functie
+gebruikt rechtstreeks `MailApp.sendEmail`. De opties ondersteunen:
+
+- `individual`: één afzonderlijke mail per ontvanger;
+- `together`: één mail met alle ontvangers in `To`;
+- `bcc`: één mail met de ontvangers in BCC en een verplicht zichtbaar adres;
+- optionele HTML, platte tekst, afzendernaam, bijlagen en verzendbevestiging.
+
+Ontvangers mogen als werkbladnaam, kommagescheiden tekst of bestaande lijst
+worden aangeleverd. De centrale functie normaliseert en valideert ze vóórdat de
+eerste mail wordt verzonden.
