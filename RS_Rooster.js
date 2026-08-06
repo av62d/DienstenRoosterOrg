@@ -42,28 +42,7 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
   var actSheet = SpreadsheetApp.getActiveSpreadsheet();
   var srcSheet = actSheet.getSheetByName('Voorpagina');
   if (!srcSheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  var kolommen = crMaakKolomindex(srcSheet);
-  var p_datum = crZoekKolom(kolommen, "Datum");
-  var p_voorganger = crZoekKolom(kolommen, "Voorganger");
-  var p_bijzonderheden = crZoekKolom(kolommen, "Bijzonderheden");
-  var p_collecte = crZoekKolom(kolommen, "Collecte");
-  var p_lector = crZoekKolom(kolommen, "Lector");
-  var p_ambtsdragers = crZoekKolom(kolommen, "Ouderling");
-  var p_extra = crZoekKolom(kolommen, "Extra");
-  var p_koster = crZoekKolom(kolommen, "Koster");
-  var p_koffie = crZoekKolom(kolommen, "Koffie");
-  var p_ontvangst = crZoekKolom(kolommen, "Ontvangst");
-  var p_klokkenluider = crZoekKolom(kolommen, "Klokkenluider");
-  var p_kerktv = crZoekKolom(kolommen, "KerkTV");
-  var p_kleur = crZoekKolom(kolommen, "Kleur");
-  var p_ha = crZoekKolom(kolommen, "HA");
-  var p_havorm = crZoekKolom(kolommen, "HAvorm");
-  var p_naamzondag = crZoekKolom(kolommen, "ZondagNaam");
-  var p_collectecategorie = crZoekKolom(kolommen, "CollecteCategorie");
-  var p_uitgangscollecte = crZoekKolom(kolommen, "Uitgangscollecte");
-  var p_kwartaal = crZoekKolom(kolommen, "Kwartaal");
-  var p_koffieDienst = crZoekKolom(kolommen, "KoffieDienst");
-  var p_didamDienst = crZoekKolom(kolommen, "DidamDienst");
+  var kolommen = bhMaakVoorpaginaKolomindex(srcSheet);
 
   actSheet.setSpreadsheetLocale("nl.nl");
 
@@ -80,57 +59,57 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
 
   var dataIdx = -1;
   for (var i in rawData) {
-    var rowDate = new Date(rawData[i][p_datum]);
+    var dienst = bhMaakDienstVanRij(rawData[i], kolommen);
+    var rowDate = new Date(dienst.Datum);
     if (isNaN(rowDate.getTime())) continue;
 
     if ((rowDate < argStartDate) || (rowDate > argEndDate))
       continue;
 
-    var c_dat = rawData[i];
     dataIdx++;
     a_rowDate.push(rowDate);
     a_type.push("");
-    var titelVolledig = c_dat[p_voorganger];
-    if (c_dat[p_bijzonderheden]) titelVolledig += ", " + c_dat[p_bijzonderheden];
+    var titelVolledig = dienst.Voorganger;
+    if (dienst.Bijzonderheden) titelVolledig += ", " + dienst.Bijzonderheden;
 
-    if (c_dat[p_ha]) titelVolledig += ", Heilig Avondmaal";
+    if (dienst.HeiligAvondmaal) titelVolledig += ", Heilig Avondmaal";
 
     a_titel.push(titelVolledig);
 
-    var bijzVolledig = c_dat[p_bijzonderheden];
+    var bijzVolledig = dienst.Bijzonderheden;
 
-    if (c_dat[p_ha]) {
+    if (dienst.HeiligAvondmaal) {
       if (bijzVolledig) bijzVolledig += ", ";
       bijzVolledig += "Heilig Avondmaal";
     }
 
-    a_voorganger.push(c_dat[p_voorganger]);
+    a_voorganger.push(dienst.Voorganger);
     a_bijz.push(bijzVolledig);
-    a_koster.push(c_dat[p_koster]);
-    a_kleur.push(c_dat[p_kleur]);
-    a_kerktv.push(c_dat[p_kerktv]);
-    a_collecte.push(c_dat[p_collecte]);
-    a_koffie.push(String(c_dat[p_koffie] || "").replace(/\n/g, ", "));
-    a_ontvangst.push(String(c_dat[p_ontvangst] || "").replace(/\n/g, ", "));
-    a_ha.push(c_dat[p_ha]);
-    a_lector.push(c_dat[p_lector]);
-    var ambtsdragers = c_dat[p_ambtsdragers] || "";
-    if (c_dat[p_extra]) ambtsdragers += (ambtsdragers ? ", " : "") + c_dat[p_extra];
+    a_koster.push(dienst.Koster);
+    a_kleur.push(dienst.Kleur);
+    a_kerktv.push(dienst.KerkTV);
+    a_collecte.push(dienst.Collecte);
+    a_koffie.push(String(dienst.Koffie || "").replace(/\n/g, ", "));
+    a_ontvangst.push(String(dienst.Ontvangst || "").replace(/\n/g, ", "));
+    a_ha.push(dienst.HeiligAvondmaal);
+    a_lector.push(dienst.Lector);
+    var ambtsdragers = dienst.Ouderling || "";
+    if (dienst.Extra) ambtsdragers += (ambtsdragers ? ", " : "") + dienst.Extra;
     a_ambtsdragers.push(ambtsdragers);
-    a_klokkenluider.push(c_dat[p_klokkenluider]);
+    a_klokkenluider.push(dienst.Klokkenluider);
 
     // extra toegevoegd d.d. 20-12-2024
 
-    a_havorm.push(c_dat[p_havorm]);
-    a_naamzondag.push(c_dat[p_naamzondag]);
-    a_collectecategorie.push(c_dat[p_collectecategorie]);
-    a_uitgangscollecte.push(c_dat[p_uitgangscollecte]);
+    a_havorm.push(dienst.Avondmaalsvorm);
+    a_naamzondag.push(dienst.NaamZondag);
+    a_collectecategorie.push(dienst.CollecteCategorie);
+    a_uitgangscollecte.push(dienst.Uitgangscollecte);
     // Behoud de bestaande uitvoerstructuur voor afnemende rapportfuncties.
-    a_lectorOrg.push(c_dat[p_lector]);
+    a_lectorOrg.push(dienst.Lector);
     a_lectorWissel.push(false);
-    a_kwartaal.push(c_dat[p_kwartaal]);
-    a_koffieDienst.push(c_dat[p_koffieDienst]);
-    a_didamDienst.push(c_dat[p_didamDienst]);
+    a_kwartaal.push(dienst.Kwartaal);
+    a_koffieDienst.push(dienst.KoffieDienst);
+    a_didamDienst.push(dienst.DidamDienst);
   }
 
   var a_headers = ["Headers", "Datum", "Type", "Titel", "Voorganger", "Bijzonderheden", "Koster", "kleur",

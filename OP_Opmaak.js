@@ -267,9 +267,9 @@ function opStelAchtergrondkleurenIn() {
   var startMeting = crStartMeting();
   var srcSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Voorpagina');
   if (!srcSheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  var kolommen = crMaakKolomindex(srcSheet);
-  var kolomHa = crZoekKolom(kolommen, "HA");
-  var kolomKleur = crZoekKolom(kolommen, "Kleur");
+  var kolommen = bhMaakVoorpaginaKolomindex(srcSheet);
+  var kolomHa = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.HEILIG_AVONDMAAL);
+  var kolomKleur = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.KLEUR);
 
   var startRow = 2;
   var endRow = srcSheet.getLastRow();

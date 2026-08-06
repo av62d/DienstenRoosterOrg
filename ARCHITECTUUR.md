@@ -62,14 +62,21 @@ landinstelling en tijdzone hergebruikt.
 
 ## Kolommen op Voorpagina
 
-Productiecode zoekt kolommen uitsluitend op basis van de kopnaam in rij 1 via
-`crMaakKolomindex` en `crZoekKolom`. De fysieke volgorde van de kolommen is
-daarom niet meer bepalend voor het uitlezen van roostergegevens.
+`bhVoorpaginaKolomspecificatie` is de enige bron voor de 25 Voorpagina-kolommen.
+Iedere kolom heeft daarin een vaste technische `naam`, een leesbare `titel`, een
+`type`, eventuele oude `aliases` en, voor afgeleide kolommen, een `bron`.
+
+Productiecode gebruikt uitsluitend de vaste namen uit `bhVoorpaginaKolom`.
+`bhMaakVoorpaginaKolomindex` koppelt de zichtbare titels en eventuele oude
+kopteksten aan deze namen. `bhMaakDienstVanRij` zet vervolgens een fysieke rij
+om in een dienstobject met benoemde velden, bijvoorbeeld `dienst.Datum`,
+`dienst.NaamZondag` en `dienst.HeiligAvondmaal`. De zichtbare titel of fysieke
+volgorde is daardoor niet meer bepalend voor het uitlezen van roostergegevens.
 
 `bhMigreerVoorpagina` is een tijdelijke, eenmalige beheerfunctie. Zij maakt
 eerst een backupwerkblad, zet de 25 behouden kolommen in de afgesproken
-volgorde, hernoemt oude koppen, maakt `HA` als selectievakje en
-`KoffieDienst`/`DidamDienst` als ja/nee-keuzelijsten en bouwt
+volgorde, vervangt oude koppen door de leesbare titels, maakt `Heilig Avondmaal`
+als selectievakje en `Koffiedienst`/`Dienst in Didam` als ja/nee-keuzelijsten en bouwt
 de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
 
 ## Beheerfuncties

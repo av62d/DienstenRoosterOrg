@@ -111,35 +111,104 @@ function bhSpreadsheetSpecificatie() {
   };
 }
 
-/** Gewenste kolommen van Voorpagina, in de definitieve volgorde. */
+/** Vaste technische namen waarmee de Voorpagina-kolommen in code worden aangesproken. */
+var bhVoorpaginaKolom = Object.freeze({
+  DATUM: "Datum",
+  VOORGANGER: "Voorganger",
+  BIJZONDERHEDEN: "Bijzonderheden",
+  COLLECTE: "Collecte",
+  LECTOR: "Lector",
+  OUDERLING: "Ouderling",
+  EXTRA: "Extra",
+  KOSTER: "Koster",
+  KOFFIE: "Koffie",
+  ONTVANGST: "Ontvangst",
+  KLOKKENLUIDER: "Klokkenluider",
+  KERKTV: "KerkTV",
+  KLEUR: "Kleur",
+  HEILIG_AVONDMAAL: "HeiligAvondmaal",
+  AVONDMAALSVORM: "Avondmaalsvorm",
+  NAAM_ZONDAG: "NaamZondag",
+  COLLECTECATEGORIE: "CollecteCategorie",
+  UITGANGSCOLLECTE: "Uitgangscollecte",
+  KWARTAAL: "Kwartaal",
+  MAAND: "Maand",
+  KOFFIEDIENST: "KoffieDienst",
+  DIDAMDIENST: "DidamDienst",
+  YOUTUBE_LINK: "YouTubeLink",
+  YOUTUBE_TITEL: "YouTubeTitel",
+  BROADCAST_ID: "BroadcastId"
+});
+var bhVoorpaginaKolomschemaCache = null;
+
+/**
+ * Enige bron voor technische namen, zichtbare titels, volgorde en gedrag van
+ * alle Voorpagina-kolommen.
+ */
 function bhVoorpaginaKolomspecificatie() {
-  return [
-    { naam: "Datum", aliases: ["Datum"] },
-    { naam: "Voorganger", aliases: ["Voorganger"] },
-    { naam: "Bijzonderheden", aliases: ["Bijzonderheden"] },
-    { naam: "Collecte", aliases: ["Collecte"] },
-    { naam: "Lector", aliases: ["Lector"] },
-    { naam: "Ouderling", aliases: ["Ouderling"] },
-    { naam: "Extra", aliases: ["Extra"] },
-    { naam: "Koster", aliases: ["Koster"] },
-    { naam: "Koffie", aliases: ["Koffie"] },
-    { naam: "Ontvangst", aliases: ["Ontvangst", "Comm. van ontvangst"] },
-    { naam: "Klokkenluider", aliases: ["Klokkenluider", "Klokken- luider"] },
-    { naam: "KerkTV", aliases: ["KerkTV"] },
-    { naam: "Kleur", aliases: ["Kleur"] },
-    { naam: "HA", aliases: ["HA"], selectievakje: true },
-    { naam: "HAvorm", aliases: ["HAvorm"] },
-    { naam: "ZondagNaam", aliases: ["ZondagNaam", "Naam van Zondag"] },
-    { naam: "CollecteCategorie", aliases: ["CollecteCategorie", "Collecte (Categorie)"] },
-    { naam: "Uitgangscollecte", aliases: ["Uitgangscollecte"] },
-    { naam: "Kwartaal", aliases: ["Kwartaal"], berekend: "kwartaal" },
-    { naam: "Maand", aliases: ["Maand"], berekend: "maand" },
-    { naam: "KoffieDienst", aliases: ["KoffieDienst", "Koffie Dienst"], janeeKeuze: true },
-    { naam: "DidamDienst", aliases: ["DidamDienst", "Didam Dienst"], janeeKeuze: true },
-    { naam: "YouTubeLink", aliases: ["YouTubeLink"] },
-    { naam: "YouTubeTitel", aliases: ["YouTubeTitel", "Titel"] },
-    { naam: "Broadcast-ID", aliases: ["Broadcast-ID"] }
-  ];
+  if (bhVoorpaginaKolomschemaCache) return bhVoorpaginaKolomschemaCache;
+  bhVoorpaginaKolomschemaCache = [
+    { naam: bhVoorpaginaKolom.DATUM, titel: "Datum", type: "datumtijd", aliases: [] },
+    { naam: bhVoorpaginaKolom.VOORGANGER, titel: "Voorganger", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.BIJZONDERHEDEN, titel: "Bijzonderheden", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.COLLECTE, titel: "Collecte", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.LECTOR, titel: "Lector", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.OUDERLING, titel: "Ouderling", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.EXTRA, titel: "Extra", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.KOSTER, titel: "Koster", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.KOFFIE, titel: "Koffie", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.ONTVANGST, titel: "Ontvangst", type: "tekst", aliases: ["Comm. van ontvangst"] },
+    { naam: bhVoorpaginaKolom.KLOKKENLUIDER, titel: "Klokkenluider", type: "tekst", aliases: ["Klokken- luider"] },
+    { naam: bhVoorpaginaKolom.KERKTV, titel: "KerkTV", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.KLEUR, titel: "Kleur", type: "keuze", aliases: [] },
+    { naam: bhVoorpaginaKolom.HEILIG_AVONDMAAL, titel: "Heilig Avondmaal", type: "selectievakje", aliases: ["HA"] },
+    { naam: bhVoorpaginaKolom.AVONDMAALSVORM, titel: "Vorm Heilig Avondmaal", type: "tekst", aliases: ["HAvorm"] },
+    { naam: bhVoorpaginaKolom.NAAM_ZONDAG, titel: "Naam van de zondag", type: "tekst", aliases: ["ZondagNaam", "Naam van Zondag"] },
+    { naam: bhVoorpaginaKolom.COLLECTECATEGORIE, titel: "Collectecategorie", type: "afgeleid", bron: bhVoorpaginaKolom.COLLECTE, aliases: ["CollecteCategorie", "Collecte (Categorie)"] },
+    { naam: bhVoorpaginaKolom.UITGANGSCOLLECTE, titel: "Uitgangscollecte", type: "tekst", aliases: [] },
+    { naam: bhVoorpaginaKolom.KWARTAAL, titel: "Kwartaal", type: "afgeleid", bron: bhVoorpaginaKolom.DATUM, aliases: [] },
+    { naam: bhVoorpaginaKolom.MAAND, titel: "Maand", type: "afgeleid", bron: bhVoorpaginaKolom.DATUM, aliases: [] },
+    { naam: bhVoorpaginaKolom.KOFFIEDIENST, titel: "Koffiedienst", type: "jaNeeKeuze", aliases: ["KoffieDienst", "Koffie Dienst"] },
+    { naam: bhVoorpaginaKolom.DIDAMDIENST, titel: "Dienst in Didam", type: "jaNeeKeuze", aliases: ["DidamDienst", "Didam Dienst"] },
+    { naam: bhVoorpaginaKolom.YOUTUBE_LINK, titel: "YouTube-link", type: "url", aliases: ["YouTubeLink"] },
+    { naam: bhVoorpaginaKolom.YOUTUBE_TITEL, titel: "YouTube-titel", type: "tekst", aliases: ["YouTubeTitel", "Titel"] },
+    { naam: bhVoorpaginaKolom.BROADCAST_ID, titel: "Broadcast-ID", type: "tekst", aliases: ["BroadcastId"] }
+  ].map(function (kolom) { return Object.freeze(kolom); });
+  return Object.freeze(bhVoorpaginaKolomschemaCache);
+}
+
+/** Koppelt de zichtbare kopteksten van Voorpagina aan de vaste technische namen. */
+function bhMaakVoorpaginaKolomindex(blad) {
+  var aanwezigeKolommen = crMaakKolomindex(blad);
+  var resultaat = {};
+  bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
+    var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
+    for (var i = 0; i < kandidaten.length; i++) {
+      var index = crZoekKolom(aanwezigeKolommen, kandidaten[i], false);
+      if (index !== undefined) {
+        resultaat[kolom.naam] = index;
+        return;
+      }
+    }
+    throw new Error("Verplichte Voorpagina-kolom ontbreekt: " + kolom.titel + " (" + kolom.naam + ")");
+  });
+  return resultaat;
+}
+
+/** Geeft de nulgebaseerde positie van een vaste Voorpagina-kolom. */
+function bhZoekVoorpaginaKolom(kolommen, naam) {
+  var index = kolommen[naam];
+  if (index === undefined) throw new Error("Onbekende Voorpagina-kolom: " + naam);
+  return index;
+}
+
+/** Zet één fysieke Voorpagina-rij om in een object met vaste veldnamen. */
+function bhMaakDienstVanRij(rij, kolommen) {
+  var dienst = {};
+  bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
+    dienst[kolom.naam] = rij[bhZoekVoorpaginaKolom(kolommen, kolom.naam)];
+  });
+  return dienst;
 }
 
 /**
@@ -160,19 +229,20 @@ function bhMigreerVoorpagina() {
   });
 
   var bronnen = specificatie.map(function (kolom) {
-    for (var i = 0; i < kolom.aliases.length; i++) {
-      var index = oudeIndex[crNormaliseerKolomnaam(kolom.aliases[i])];
+    var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
+    for (var i = 0; i < kandidaten.length; i++) {
+      var index = oudeIndex[crNormaliseerKolomnaam(kandidaten[i])];
       if (index !== undefined) return index;
     }
-    throw new Error("Migratie gestopt; bronkolom ontbreekt voor: " + kolom.naam);
+    throw new Error("Migratie gestopt; bronkolom ontbreekt voor: " + kolom.titel + " (" + kolom.naam + ")");
   });
 
   var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
-    return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.naam);
+    return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.titel);
   });
   var antwoord = SpreadsheetApp.getUi().alert(
     alGereed ? "Voorpagina herstellen" : "Voorpagina migreren",
-    "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de 25 afgesproken kolommen " +
+    "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de " + specificatie.length + " afgesproken kolommen " +
       (alGereed ? "opnieuw opgebouwd en gevalideerd." : "in de nieuwe volgorde opgebouwd.") + " Doorgaan?",
     SpreadsheetApp.getUi().ButtonSet.YES_NO
   );
@@ -198,7 +268,7 @@ function bhMigreerVoorpagina() {
     );
     blad.setColumnWidth(doelIndex + 1, backup.getColumnWidth(bronIndex + 1));
   });
-  blad.getRange(1, 1, 1, gewenstAantal).setValues([specificatie.map(function (kolom) { return kolom.naam; })]);
+  blad.getRange(1, 1, 1, gewenstAantal).setValues([specificatie.map(function (kolom) { return kolom.titel; })]);
 
   if (blad.getMaxColumns() > gewenstAantal) {
     blad.deleteColumns(gewenstAantal + 1, blad.getMaxColumns() - gewenstAantal);
@@ -206,7 +276,6 @@ function bhMigreerVoorpagina() {
 
   var laatsteRij = blad.getLastRow();
   if (laatsteRij > 1) {
-    var nieuweKolommen = crMaakKolomindex(blad);
     bhHerberekenVoorpagina(false);
 
     bhStelVoorpaginaValidatiesIn(false);
@@ -220,7 +289,11 @@ function bhMigreerVoorpagina() {
     ss.removeNamedRange("RoosterTypes");
   }
 
-  var resultaat = { gewijzigd: true, backup: backupnaam, kolommen: specificatie.map(function (kolom) { return kolom.naam; }) };
+  var resultaat = {
+    gewijzigd: true,
+    backup: backupnaam,
+    kolommen: specificatie.map(function (kolom) { return { naam: kolom.naam, titel: kolom.titel }; })
+  };
   console.log(JSON.stringify(resultaat, null, 2));
   SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupnaam);
   return resultaat;
@@ -233,20 +306,26 @@ function bhStelVoorpaginaValidatiesIn(toonMelding) {
   var laatsteRij = blad.getLastRow();
   if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
 
-  var kolommen = crMaakKolomindex(blad);
-  var haBereik = blad.getRange(2, crZoekKolom(kolommen, "HA") + 1, laatsteRij - 1, 1);
+  var kolommen = bhMaakVoorpaginaKolomindex(blad);
+  var schema = bhVoorpaginaKolomspecificatie();
+  var selectievakjes = schema.filter(function (kolom) { return kolom.type === "selectievakje"; });
+  var jaNeeKolommen = schema.filter(function (kolom) { return kolom.type === "jaNeeKeuze"; });
+
+  selectievakjes.forEach(function (kolom) {
+    var haBereik = blad.getRange(2, bhZoekVoorpaginaKolom(kolommen, kolom.naam) + 1, laatsteRij - 1, 1);
   var haWaarden = haBereik.getValues().map(function (rij) {
     var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
     return [rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "ha" || waarde === "true" || waarde === "1"];
   });
   haBereik.clearDataValidations().insertCheckboxes().setValues(haWaarden);
+  });
 
   var janeeRegel = SpreadsheetApp.newDataValidation()
     .requireValueInList(["ja", "nee"], true)
     .setAllowInvalid(false)
     .build();
-  ["KoffieDienst", "DidamDienst"].forEach(function (kolomnaam) {
-    var bereik = blad.getRange(2, crZoekKolom(kolommen, kolomnaam) + 1, laatsteRij - 1, 1);
+  jaNeeKolommen.forEach(function (kolom) {
+    var bereik = blad.getRange(2, bhZoekVoorpaginaKolom(kolommen, kolom.naam) + 1, laatsteRij - 1, 1);
     var waarden = bereik.getValues().map(function (rij) {
       var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
       if (rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "true" || waarde === "1") return ["ja"];
@@ -258,7 +337,7 @@ function bhStelVoorpaginaValidatiesIn(toonMelding) {
 
   var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
   if (toonMelding !== false) {
-    SpreadsheetApp.getUi().alert("HA is een selectievakje; KoffieDienst en DidamDienst zijn ja/nee-keuzes.");
+    SpreadsheetApp.getUi().alert("Heilig Avondmaal is een selectievakje; Koffiedienst en Dienst in Didam zijn ja/nee-keuzes.");
   }
   return resultaat;
 }
@@ -270,12 +349,12 @@ function bhHerberekenVoorpagina(toonMelding, eersteRij, aantalRijen, berekenDatu
   var blad = ss.getSheetByName("Voorpagina");
   if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
 
-  var kolommen = crMaakKolomindex(blad);
-  var datumKolom = crZoekKolom(kolommen, "Datum") + 1;
-  var collecteKolom = crZoekKolom(kolommen, "Collecte") + 1;
-  var collectecategorieKolom = crZoekKolom(kolommen, "CollecteCategorie") + 1;
-  var kwartaalKolom = crZoekKolom(kolommen, "Kwartaal") + 1;
-  var maandKolom = crZoekKolom(kolommen, "Maand") + 1;
+  var kolommen = bhMaakVoorpaginaKolomindex(blad);
+  var datumKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.DATUM) + 1;
+  var collecteKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTE) + 1;
+  var collectecategorieKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTECATEGORIE) + 1;
+  var kwartaalKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.KWARTAAL) + 1;
+  var maandKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.MAAND) + 1;
 
   var categoriePerDoel = {};
   if (berekenCollecte !== false) {
@@ -338,11 +417,11 @@ function bhBijWijzigingVoorpagina(e) {
   var blad = e.range.getSheet();
   if (blad.getName() !== "Voorpagina" || e.range.getRow() === 1) return;
 
-  var kolommen = crMaakKolomindex(blad);
+  var kolommen = bhMaakVoorpaginaKolomindex(blad);
   var gewijzigdeEersteKolom = e.range.getColumn() - 1;
   var gewijzigdeLaatsteKolom = gewijzigdeEersteKolom + e.range.getNumColumns() - 1;
-  var datumKolom = crZoekKolom(kolommen, "Datum");
-  var collecteKolom = crZoekKolom(kolommen, "Collecte");
+  var datumKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.DATUM);
+  var collecteKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTE);
   if ((datumKolom < gewijzigdeEersteKolom || datumKolom > gewijzigdeLaatsteKolom) &&
       (collecteKolom < gewijzigdeEersteKolom || collecteKolom > gewijzigdeLaatsteKolom)) return;
 
@@ -603,15 +682,47 @@ function bhControleerSpreadsheet() {
     }
   });
 
+  var ontbrekendeVoorpaginaKolommen = [];
+  var afwijkendeVoorpaginaTitels = [];
+  var voorpagina = ss.getSheetByName("Voorpagina");
+  if (voorpagina && voorpagina.getLastColumn() > 0) {
+    var voorpaginaKoppen = voorpagina.getRange(1, 1, 1, voorpagina.getLastColumn()).getValues()[0];
+    var aanwezigeKolommen = crMaakKolomindex(voorpagina);
+    bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
+      var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
+      var gevondenIndex;
+      var gevondenTitel;
+      for (var i = 0; i < kandidaten.length; i++) {
+        gevondenIndex = crZoekKolom(aanwezigeKolommen, kandidaten[i], false);
+        if (gevondenIndex !== undefined) {
+          gevondenTitel = voorpaginaKoppen[gevondenIndex];
+          break;
+        }
+      }
+      if (gevondenIndex === undefined) {
+        ontbrekendeVoorpaginaKolommen.push({ naam: kolom.naam, titel: kolom.titel });
+      } else if (crNormaliseerKolomnaam(gevondenTitel) !== crNormaliseerKolomnaam(kolom.titel)) {
+        afwijkendeVoorpaginaTitels.push({ naam: kolom.naam, verwacht: kolom.titel, huidig: gevondenTitel });
+      }
+    });
+  } else if (voorpagina) {
+    ontbrekendeVoorpaginaKolommen = bhVoorpaginaKolomspecificatie().map(function (kolom) {
+      return { naam: kolom.naam, titel: kolom.titel };
+    });
+  }
+
   var rapport = {
     geldig: ontbrekendeWerkbladen.length === 0 &&
-      ontbrekendeBereiken.length === 0 && afwijkendeBereiken.length === 0,
+      ontbrekendeBereiken.length === 0 && afwijkendeBereiken.length === 0 &&
+      ontbrekendeVoorpaginaKolommen.length === 0 && afwijkendeVoorpaginaTitels.length === 0,
     spreadsheet: ss.getName(),
     tijdzoneScript: Session.getScriptTimeZone(),
     tijdzoneSpreadsheet: ss.getSpreadsheetTimeZone(),
     ontbrekendeWerkbladen: ontbrekendeWerkbladen,
     ontbrekendeBereiken: ontbrekendeBereiken,
-    afwijkendeBereiken: afwijkendeBereiken
+    afwijkendeBereiken: afwijkendeBereiken,
+    ontbrekendeVoorpaginaKolommen: ontbrekendeVoorpaginaKolommen,
+    afwijkendeVoorpaginaTitels: afwijkendeVoorpaginaTitels
   };
 
   console.log(JSON.stringify(rapport, null, 2));
@@ -642,6 +753,18 @@ function bhInitialiseerSpreadsheet() {
       aangemaakteWerkbladen.push(naam);
     }
   });
+
+  var voorpagina = ss.getSheetByName("Voorpagina");
+  if (voorpagina.getLastRow() === 0 || voorpagina.getLastColumn() === 0) {
+    var voorpaginaSchema = bhVoorpaginaKolomspecificatie();
+    if (voorpagina.getMaxColumns() < voorpaginaSchema.length) {
+      voorpagina.insertColumnsAfter(voorpagina.getMaxColumns(), voorpaginaSchema.length - voorpagina.getMaxColumns());
+    }
+    voorpagina.getRange(1, 1, 1, voorpaginaSchema.length).setValues([
+      voorpaginaSchema.map(function (kolom) { return kolom.titel; })
+    ]);
+    voorpagina.setFrozenRows(1);
+  }
 
   var bestaandeNamen = new Set(ss.getNamedRanges().map(function (namedRange) {
     return namedRange.getName();
