@@ -93,6 +93,6 @@ de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
   migreert oude sleutelnamen en bouwt de vaste, logisch gegroepeerde tabel op.
 - `bhMigreerVoorpagina`: maakt een backup en migreert Voorpagina eenmalig naar
   de nieuwe, naamgestuurde kolomstructuur.
-- `bhHerstelDraaitabelbronnen`: behoudt de volledige definitie van iedere
-  draaitabel en wijzigt via de Google Sheets-service uitsluitend het
-  bronwerkblad naar `Voorpagina`.
+- `bhHerstelDraaitabelbronnen`: bouwt draaitabellen met een verkeerde of
+  onleesbare bron opnieuw op dezelfde ankercel op, met behoud van groepen,
+  waarden, filters, sortering en totalen en met `Voorpagina` als bron.

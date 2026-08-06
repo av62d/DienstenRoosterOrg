@@ -300,76 +300,109 @@ function bhMigreerVoorpagina() {
 }
 
 /**
- * Wijzigt bij alle bestaande draaitabellen uitsluitend het bronwerkblad naar
- * Voorpagina. Rijen, kolommen, filters, sortering en waarden blijven behouden.
+ * Bouwt draaitabellen met een verkeerde of onleesbare bron opnieuw op dezelfde
+ * ankercel op. Groepen, waarden, filters, sortering en totalen blijven behouden.
  */
 function bhHerstelDraaitabelbronnen(toonMelding) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var voorpagina = ss.getSheetByName("Voorpagina");
   if (!voorpagina) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var bronBereik = voorpagina.getRange(
+    1,
+    1,
+    Math.max(voorpagina.getLastRow(), 2),
+    bhVoorpaginaKolomspecificatie().length
+  );
 
-  var spreadsheetId = ss.getId();
-  var doelSheetId = voorpagina.getSheetId();
-  var bladnaamPerId = {};
-  ss.getSheets().forEach(function (blad) {
-    bladnaamPerId[blad.getSheetId()] = blad.getName();
-  });
+  function bhLeesGroep(groep) {
+    return {
+      bronkolom: groep.getSourceDataColumn(),
+      naam: groep.getDisplayName(),
+      sortering: String(groep.getSortOrder()),
+      totalen: groep.getTotalsDisplay()
+    };
+  }
 
-  var verzoeken = [];
+  function bhVoegGroepToe(draaitabel, groep, isRijgroep) {
+    var nieuw = isRijgroep
+      ? draaitabel.addRowGroup(groep.bronkolom)
+      : draaitabel.addColumnGroup(groep.bronkolom);
+    if (groep.naam) nieuw.setDisplayName(groep.naam);
+    if (groep.sortering === "ASCENDING") nieuw.sortAscending();
+    if (groep.sortering === "DESCENDING") nieuw.sortDescending();
+    if (groep.totalen === false) nieuw.showTotals(false);
+  }
+
   var aangepast = [];
   var reedsCorrect = [];
+  var backups = [];
+  var backupPerBlad = {};
+  var tijdstempel = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd-HHmmss");
   ss.getSheets().forEach(function (blad) {
     blad.getPivotTables().forEach(function (draaitabel) {
       var ankercel = draaitabel.getAnchorCell();
-      var bereiknaam = "'" + blad.getName().replace(/'/g, "''") + "'!" + ankercel.getA1Notation();
-      var antwoord = Sheets.Spreadsheets.get(spreadsheetId, {
-        ranges: [bereiknaam],
-        includeGridData: true,
-        fields: "sheets(data(rowData(values(pivotTable))))"
-      });
-      var definitie = antwoord.sheets && antwoord.sheets[0] && antwoord.sheets[0].data &&
-        antwoord.sheets[0].data[0] && antwoord.sheets[0].data[0].rowData &&
-        antwoord.sheets[0].data[0].rowData[0] && antwoord.sheets[0].data[0].rowData[0].values &&
-        antwoord.sheets[0].data[0].rowData[0].values[0] &&
-        antwoord.sheets[0].data[0].rowData[0].values[0].pivotTable;
-      if (!definitie || !definitie.source) {
-        throw new Error("Draaitabeldefinitie kon niet worden gelezen: " + blad.getName() + "!" + ankercel.getA1Notation());
-      }
-
-      var oudeSheetId = definitie.source.sheetId;
       var locatie = blad.getName() + "!" + ankercel.getA1Notation();
-      if (oudeSheetId === doelSheetId) {
-        reedsCorrect.push(locatie);
-        return;
+      var oudeBron = "onleesbare bron";
+      try {
+        oudeBron = draaitabel.getSourceDataRange().getSheet().getName();
+        if (oudeBron === "Voorpagina") {
+          reedsCorrect.push(locatie);
+          return;
+        }
+      } catch (fout) {
+        console.log("Bron van " + locatie + " kon niet worden gelezen: " + fout.message);
       }
 
-      definitie.source.sheetId = doelSheetId;
-      verzoeken.push({
-        updateCells: {
-          start: {
-            sheetId: blad.getSheetId(),
-            rowIndex: ankercel.getRow() - 1,
-            columnIndex: ankercel.getColumn() - 1
-          },
-          rows: [{ values: [{ pivotTable: definitie }] }],
-          fields: "pivotTable"
+      var rijgroepen = draaitabel.getRowGroups().map(bhLeesGroep);
+      var kolomgroepen = draaitabel.getColumnGroups().map(bhLeesGroep);
+      var waarden = draaitabel.getPivotValues().map(function (waarde) {
+        return {
+          bronkolom: waarde.getSourceDataColumn(),
+          naam: waarde.getDisplayName(),
+          formule: waarde.getFormula(),
+          samenvatting: waarde.getSummarizedBy()
+        };
+      });
+      var filters = draaitabel.getFilters().map(function (filter) {
+        return {
+          bronkolom: filter.getSourceDataColumn(),
+          criterium: filter.getFilterCriteria()
+        };
+      });
+
+      if (!backupPerBlad[blad.getSheetId()]) {
+        var achtervoegsel = "-" + blad.getSheetId();
+        var basisnaam = "Draaitabelbackup " + tijdstempel + " - " + blad.getName();
+        var backupnaam = basisnaam.slice(0, 100 - achtervoegsel.length) + achtervoegsel;
+        blad.copyTo(ss).setName(backupnaam);
+        backupPerBlad[blad.getSheetId()] = backupnaam;
+        backups.push(backupnaam);
+      }
+
+      draaitabel.remove();
+      var nieuweDraaitabel = ankercel.createPivotTable(bronBereik);
+      rijgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, true); });
+      kolomgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, false); });
+      waarden.forEach(function (waarde) {
+        var nieuw;
+        if (waarde.formule) {
+          nieuw = nieuweDraaitabel.addCalculatedPivotValue(waarde.naam, waarde.formule);
+        } else {
+          nieuw = nieuweDraaitabel.addPivotValue(waarde.bronkolom, waarde.samenvatting);
+          if (waarde.naam) nieuw.setDisplayName(waarde.naam);
         }
       });
-      aangepast.push({
-        draaitabel: locatie,
-        oudeBron: bladnaamPerId[oudeSheetId] || ("sheetId " + oudeSheetId),
-        nieuweBron: "Voorpagina"
+      filters.forEach(function (filter) {
+        nieuweDraaitabel.addFilter(filter.bronkolom, filter.criterium);
       });
+      aangepast.push({ draaitabel: locatie, oudeBron: oudeBron, nieuweBron: "Voorpagina" });
     });
   });
-
-  if (verzoeken.length) {
-    Sheets.Spreadsheets.batchUpdate({ requests: verzoeken }, spreadsheetId);
-  }
 
   var resultaat = {
     aangepast: aangepast,
     reedsCorrect: reedsCorrect,
+    backups: backups,
     aantalAangepast: aangepast.length,
     aantalReedsCorrect: reedsCorrect.length
   };
@@ -377,7 +410,7 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
   if (toonMelding !== false) {
     SpreadsheetApp.getUi().alert(
       aangepast.length + " draaitabelbron(nen) gewijzigd naar Voorpagina; " +
-      reedsCorrect.length + " waren al correct."
+      reedsCorrect.length + " waren al correct. Backupwerkbladen: " + backups.length + "."
     );
   }
   return resultaat;
