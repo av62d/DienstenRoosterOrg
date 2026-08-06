@@ -315,10 +315,12 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
   );
 
   function bhLeesGroep(groep) {
+    var datumregel = groep.getDateTimeGroupingRule();
+    var groepslimiet = groep.getGroupLimit();
     return {
       bronkolom: groep.getSourceDataColumn(),
-      datumgroepering: groep.getDateTimeGroupingRule(),
-      groepslimiet: groep.getGroupLimit()
+      datumgroepering: datumregel ? datumregel.getRuleType() : null,
+      groepslimiet: groepslimiet ? groepslimiet.getCountLimit() : null
     };
   }
 
