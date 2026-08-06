@@ -38,6 +38,16 @@ doorschakeling naar `mnBijOpenen`.
 `mnBijOpenen` bouwt één hoofdmenu `Dienstenrooster` met de onderdelen
 `Roosters`, `Verzenden`, `Agenda en opmaak`, `Beheer` en `Testen`.
 
+## Mailtemplates
+
+Alle templategestuurde mails gebruiken de centrale functies
+`cmMaakTemplateVariabelen`, `cmVervangHtmlTemplate` en
+`cmVervangDocumentTemplate`. De volledige template blijft de basis van de
+uitvoer; placeholders zijn hoofdletterongevoelig en worden overal vervangen.
+`@gegevens <n>@` voegt een verticaal overzicht van de eerstvolgende `n`
+diensten toe. Onbekende placeholders blokkeren verzending. De beschikbare
+variabelen en template-afspraken staan in `MAILTEMPLATES.md`.
+
 ## Datumformattering
 
 Alle zichtbare datumuitvoer loopt via `crFormatteerDatum` en een benoemde waarde

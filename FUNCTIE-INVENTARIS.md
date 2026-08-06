@@ -3,9 +3,9 @@
 Bron: actuele code in `.\refactor_work`.
 
 - Scriptbestanden: 11
-- Functiedeclaraties: 174
-- Functies op bestandsniveau: 156
-- Lokale hulpfuncties: 18
+- Functiedeclaraties: 181
+- Functies op bestandsniveau: 168
+- Lokale hulpfuncties: 13
 
 De regelnummers horen bij de geïnventariseerde versie. Een standaardwaarde staat achter het betreffende argument. Functies zonder argumenten zijn aangeduid met **geen**.
 
@@ -37,7 +37,7 @@ Aantal: 19
 
 ## CM_Communicatie.js
 
-Aantal: 38
+Aantal: 45
 
 | Functie | Soort | Argumenten | Doel | Regel |
 |---|---|---|---|---:|
@@ -46,39 +46,46 @@ Aantal: 38
 | `cmVerzendEmail` | Bestandsniveau | `emailTo_list` – lijst met e-mailadressen<br>`emailSubject` – onderwerpregel<br>`emailName` – afzendernaam<br>`emailHtmlBody` – HTML-inhoud<br>`emailConfirmationTo` – instelling of tekst voor bevestiging<br>`emailConfirmationMsg` – instelling of tekst voor bevestiging<br>`emailAsBcc` – of BCC-verzending wordt gebruikt | Verzendt HTML-mail naar een lijst, afzonderlijk of als BCC, met optionele bevestiging. | 75 |
 | `cmMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element. | 132 |
 | `cmVoegLijstItemToe` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe. | 137 |
-| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 145 |
-| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 232 |
-| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Test")` | Verzendt template naar lijst. | 237 |
-| `cmMaakHtmlElement` | Lokale helper | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 315 |
-| `cmMaakHtmlElementIndienGevuld` | Lokale helper | `tg` – HTML-tag<br>`pfx` – voorvoegsel<br>`str` – tekst of waarde | Maakt html element indien gevuld binnen de bovenliggende functie. | 318 |
-| `cmMaakHtmlLink` | Lokale helper | `link` – URL of link<br>`text` – tekst of waarde | Maakt html link binnen de bovenliggende functie. | 324 |
-| `cmMaakWeblink` | Lokale helper | `text` – tekst of waarde | Maakt weblink binnen de bovenliggende functie. | 328 |
-| `cmMaakMaillink` | Lokale helper | `text` – tekst of waarde | Maakt maillink binnen de bovenliggende functie. | 329 |
-| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 406 |
-| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 411 |
-| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`volgendeWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 416 |
-| `cmZoekEersteDienstIndex` | Bestandsniveau | `selectie` – invoerwaarde | Zoekt eerste dienst index. | 464 |
-| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentnaam` – invoerwaarde | Maakt documentkopie. | 469 |
-| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `agendanaam` – agendanaam<br>`begindatum` – datum of begindatum<br>`einddatum` – einddatum | Leest liturgie uit agenda. | 475 |
-| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`bestandsnaam` – invoerwaarde | Exporteert document naar docx. | 486 |
-| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 503 |
-| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 508 |
-| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 513 |
-| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 525 |
-| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 538 |
-| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 546 |
-| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 602 |
-| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 607 |
-| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 612 |
-| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 622 |
-| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 648 |
-| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 711 |
-| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 750 |
-| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 776 |
-| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 780 |
-| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 865 |
-| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test")` | Verzendt lectorrooster naar lijst. | 870 |
-| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 929 |
+| `cmEscapeHtml` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt escape html. | 146 |
+| `cmMaakDienstvelden` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde | Maakt dienstvelden. | 157 |
+| `cmMaakHtmlDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt html dienstenrapport. | 182 |
+| `cmMaakTekstDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt tekst dienstenrapport. | 207 |
+| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 221 |
+| `cmNormaliseerPlaceholder` | Bestandsniveau | `naam` – invoerwaarde | Normaliseert placeholder. | 227 |
+| `cmMaakTemplateWaarde` | Bestandsniveau | `tekst` – tekst of waarde<br>`html` – invoerwaarde | Maakt template waarde. | 232 |
+| `cmMaakTemplateVariabelen` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde<br>`aanvullingen` – invoerwaarde | Maakt template variabelen. | 238 |
+| `cmBepaalAantalDienstenUitTemplate` | Bestandsniveau | `tekst` – tekst of waarde | Bepaalt aantal diensten uit template. | 280 |
+| `cmSelecteerKomendeDiensten` | Bestandsniveau | `aantal` – aantal<br>`begindatum` – datum of begindatum | Selecteert komende diensten. | 291 |
+| `cmVervangHtmlTemplate` | Bestandsniveau | `html` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang html template. | 303 |
+| `cmVervangDocumentTemplate` | Bestandsniveau | `document` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang document template. | 321 |
+| `cmExporteerDocumentNaarHtml` | Bestandsniveau | `documentId` – Google Document-ID | Exporteert document naar html. | 351 |
+| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 361 |
+| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Test")` | Verzendt template naar lijst. | 366 |
+| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 436 |
+| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 441 |
+| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`volgendeWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 446 |
+| `cmZoekEersteDienstIndex` | Bestandsniveau | `selectie` – invoerwaarde | Zoekt eerste dienst index. | 499 |
+| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentnaam` – invoerwaarde | Maakt documentkopie. | 504 |
+| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `agendanaam` – agendanaam<br>`begindatum` – datum of begindatum<br>`einddatum` – einddatum | Leest liturgie uit agenda. | 510 |
+| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`bestandsnaam` – invoerwaarde | Exporteert document naar docx. | 521 |
+| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 538 |
+| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 543 |
+| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 548 |
+| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 560 |
+| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 573 |
+| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 581 |
+| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 642 |
+| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 647 |
+| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 652 |
+| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 662 |
+| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 688 |
+| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 756 |
+| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 795 |
+| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 821 |
+| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 825 |
+| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 910 |
+| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test")` | Verzendt lectorrooster naar lijst. | 915 |
+| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 974 |
 
 ## CR_Core.js
 
@@ -96,27 +103,27 @@ Aantal: 31
 | `crStartMeting` | Bestandsniveau | geen | Verwerkt start meting. | 102 |
 | `crEindMeting` | Bestandsniveau | `naam` – invoerwaarde<br>`starttijd` – tijd<br>`details` – invoerwaarde | Verwerkt eind meting. | 107 |
 | `crLeesWerkbladInhoud` | Bestandsniveau | `argSheetName` – naam van het werkblad<br>`argA1Position` – invoerwaarde | Leest werkblad inhoud. | 114 |
-| `crFormatteerDatum` | Bestandsniveau | `datum` – datum of begindatum<br>`formaat` – uitvoerformaat | Formatteert een datum centraal volgens een alias of expliciet patroon. | 172 |
-| `crVoegTekstToeIndienGevuld` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt tekst toe indien gevuld. | 226 |
-| `crVoegTekstToe` | Bestandsniveau | `data` – invoerwaarde<br>`start` – invoerwaarde<br>`count` – aantal | Voegt tekst toe. | 234 |
-| `crBepaalDatumVanWeeknummer` | Bestandsniveau | `wantWeekDay` – week of aantal weken<br>`wantWeekNumber` – week of aantal weken | Bepaalt datum van weeknummer. | 257 |
-| `crLogFoutopsporing` | Bestandsniveau | `arg` – invoerwaarde | Logt foutopsporing. | 273 |
-| `crBepaalBeginVanMaand` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt begin van maand. | 279 |
-| `crZetOpBeginVanDag` | Bestandsniveau | `argDate` – datum of begindatum | Zet op begin van dag. | 291 |
-| `crMaakBegindatumVanMaand` | Bestandsniveau | `month` – maand of aantal maanden<br>`curYear` – jaar; standaard: `2026` | Maakt begindatum van maand. | 301 |
-| `crBepaalEindeVanMaand` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt einde van maand. | 314 |
-| `crBepaalBeginVanJaar` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Bepaalt begin van jaar. | 327 |
-| `crBepaalEindeVanJaar` | Bestandsniveau | geen | Bepaalt einde van jaar. | 340 |
-| `crBepaalWeeknummer` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt weeknummer. | 352 |
-| `crBepaalBegindatumVanWeeknummer` | Bestandsniveau | `argWeekNum` – week of aantal weken | Bepaalt begindatum van weeknummer. | 361 |
-| `crBepaalBeginVanWeek` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt begin van week. | 368 |
-| `crBepaalEindeVanWeek` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt einde van week. | 380 |
-| `crTelDagenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`daysOffset` – dag of aantal dagen | Telt dagen bij datum op. | 392 |
-| `crTelWekenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`weeksOffset` – week of aantal weken | Telt weken bij datum op. | 401 |
-| `crTelMaandenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`monthsOffset` – maand of aantal maanden<br>`maxMonth` – maand of aantal maanden; standaard: `12` | Telt maanden bij datum op. | 410 |
-| `crBepaalVolgendeZondag` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt volgende zondag. | 428 |
-| `crZetTijdOpBeginVanDag` | Bestandsniveau | `retDate` – datum of begindatum | Zet tijd op begin van dag. | 440 |
-| `crZetTijdOpEindeVanDag` | Bestandsniveau | `retDate` – datum of begindatum | Zet tijd op einde van dag. | 451 |
+| `crFormatteerDatum` | Bestandsniveau | `datum` – datum of begindatum<br>`formaat` – uitvoerformaat | Formatteert een datum centraal volgens een alias of expliciet patroon. | 167 |
+| `crVoegTekstToeIndienGevuld` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt tekst toe indien gevuld. | 221 |
+| `crVoegTekstToe` | Bestandsniveau | `data` – invoerwaarde<br>`start` – invoerwaarde<br>`count` – aantal | Voegt tekst toe. | 229 |
+| `crBepaalDatumVanWeeknummer` | Bestandsniveau | `wantWeekDay` – week of aantal weken<br>`wantWeekNumber` – week of aantal weken | Bepaalt datum van weeknummer. | 252 |
+| `crLogFoutopsporing` | Bestandsniveau | `arg` – invoerwaarde | Logt foutopsporing. | 268 |
+| `crBepaalBeginVanMaand` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt begin van maand. | 274 |
+| `crZetOpBeginVanDag` | Bestandsniveau | `argDate` – datum of begindatum | Zet op begin van dag. | 286 |
+| `crMaakBegindatumVanMaand` | Bestandsniveau | `month` – maand of aantal maanden<br>`curYear` – jaar; standaard: `2026` | Maakt begindatum van maand. | 296 |
+| `crBepaalEindeVanMaand` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt einde van maand. | 309 |
+| `crBepaalBeginVanJaar` | Bestandsniveau | `curYear` – jaar; standaard: `2026` | Bepaalt begin van jaar. | 322 |
+| `crBepaalEindeVanJaar` | Bestandsniveau | geen | Bepaalt einde van jaar. | 335 |
+| `crBepaalWeeknummer` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt weeknummer. | 347 |
+| `crBepaalBegindatumVanWeeknummer` | Bestandsniveau | `argWeekNum` – week of aantal weken | Bepaalt begindatum van weeknummer. | 356 |
+| `crBepaalBeginVanWeek` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt begin van week. | 363 |
+| `crBepaalEindeVanWeek` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt einde van week. | 375 |
+| `crTelDagenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`daysOffset` – dag of aantal dagen | Telt dagen bij datum op. | 387 |
+| `crTelWekenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`weeksOffset` – week of aantal weken | Telt weken bij datum op. | 396 |
+| `crTelMaandenBijDatumOp` | Bestandsniveau | `argDate` – datum of begindatum<br>`monthsOffset` – maand of aantal maanden<br>`maxMonth` – maand of aantal maanden; standaard: `12` | Telt maanden bij datum op. | 405 |
+| `crBepaalVolgendeZondag` | Bestandsniveau | `argDate` – datum of begindatum | Bepaalt volgende zondag. | 423 |
+| `crZetTijdOpBeginVanDag` | Bestandsniveau | `retDate` – datum of begindatum | Zet tijd op begin van dag. | 435 |
+| `crZetTijdOpEindeVanDag` | Bestandsniveau | `retDate` – datum of begindatum | Zet tijd op einde van dag. | 446 |
 
 ## EX_Export.js
 

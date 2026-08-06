@@ -142,90 +142,219 @@ function cmVoegLijstItemToe(pfx, str) {
 }
 
 
-function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
+/** Escapet een waarde voordat deze in een HTML-template wordt geplaatst. */
+function cmEscapeHtml(waarde) {
+  return String(waarde === null || waarde === undefined ? "" : waarde)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/\r?\n/g, "<br>");
+}
 
-  var rptHeader;
-  var {
-    koppen: a_headers,
-    datums: a_rowDate,
-    types: a_type,
-    titels: a_titel,
-    voorgangers: a_voorganger,
-    bijzonderheden: a_bijz,
-    kosters: a_koster,
-    kleuren: a_kleur,
-    collectes: a_collecte,
-    koffie: a_koffie,
-    ontvangst: a_ontvangst,
-    avondmaal: a_ha,
-    lectoren: a_lector,
-    ambtsdragers: a_ambtsdragers,
-    klokkenluiders: a_klokkenluider,
-    kerktv: a_kerktv,
-    havormen: a_havorm,
-    zondagnamen: a_naamzondag,
-    collectecategorieen: a_collectecategorie,
-    uitgangscollectes: a_uitgangscollecte
-  } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+/** Geeft de velden van één geselecteerde dienst in een vaste presentatievolgorde. */
+function cmMaakDienstvelden(selectie, index) {
+  return [
+    ["Voorganger", selectie.voorgangers[index]],
+    ["Bijzonderheden", selectie.bijzonderheden[index]],
+    ["Collecte", selectie.collectes[index]],
+    ["Collectecategorie", selectie.collectecategorieen[index]],
+    ["Uitgangscollecte", selectie.uitgangscollectes[index]],
+    ["Lector", selectie.lectoren[index]],
+    ["Ambtsdragers", selectie.ambtsdragers[index]],
+    ["Koster", selectie.kosters[index]],
+    ["Koffie", selectie.koffie[index]],
+    ["Ontvangst", selectie.ontvangst[index]],
+    ["Klokkenluider", selectie.klokkenluiders[index]],
+    ["KerkTV", selectie.kerktv[index]],
+    ["Kleur", selectie.kleuren[index]],
+    ["Heilig Avondmaal", selectie.avondmaal[index] ? "ja" : "nee"],
+    ["Vorm Heilig Avondmaal", selectie.havormen[index]],
+    ["Naam van de zondag", selectie.zondagnamen[index]],
+    ["Kwartaal", selectie.kwartalen[index]],
+    ["Koffiedienst", selectie.koffieDiensten[index]],
+    ["Dienst in Didam", selectie.didamDiensten[index]]
+  ];
+}
 
-  var prtWeekNum = "";
-
-  var fullMsg = "";
-
-  for (var i in a_type) {
-
-
-    var msg = "";
-    var cur = "";
-    var li_tag = "<li>";
-
-    var rowWeekNum = crBepaalWeeknummer(a_rowDate[i]);
-
-    if (prtWeekNum !== rowWeekNum) {
-      msg += cmMaakHtmlElement("h3", "WEEK " + rowWeekNum);
-      prtWeekNum = rowWeekNum;
+/** Maakt een verticaal HTML-overzicht van de eerste `aantal` diensten. */
+function cmMaakHtmlDienstenrapport(selectie, aantal) {
+  var limiet = Math.min(Math.max(Number(aantal) || 1, 1), selectie.datums.length);
+  var html = "";
+  var vorigeWeek = null;
+  for (var index = 0; index < limiet; index++) {
+    var week = crBepaalWeeknummer(selectie.datums[index]);
+    if (week !== vorigeWeek) {
+      html += cmMaakHtmlElement("h3", "Week " + week);
+      vorigeWeek = week;
     }
-
-    msg += cmMaakHtmlElement("h4", crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR));
-
-    msg += "<ul>";
-
-    msg += li_tag + a_titel[i].bold();
-
-    if (a_ha[i]) {
-      msg += cmVoegLijstItemToe("Viering Heilig Avondmaal: ", a_havorm[i]);
-    }
-
-    msg += cmVoegLijstItemToe("Ambtsdragers: ", a_ambtsdragers[i]);
-    msg += cmVoegLijstItemToe("Koster: ", a_koster[i]);
-
-
-    msg += cmVoegLijstItemToe("Lector: ", a_lector[i]);
-    msg += cmVoegLijstItemToe("Klokkenluider: ", a_klokkenluider[i]);
-    msg += cmVoegLijstItemToe("Koffie: ", a_koffie[i]);
-    msg += cmVoegLijstItemToe("Ontvangst: ", a_ontvangst[i]);
-    msg += cmVoegLijstItemToe("KerkTV: ", a_kerktv[i]);
-    var colmsg = a_collecte[i];
-    if (String(a_collectecategorie[i]).localeCompare("Liemers") == true) {
-      colmsg = a_collecte[i] + " (" + a_collectecategorie[i] + ")";
-    }
-    msg += cmVoegLijstItemToe("Collecte: ", colmsg);
-
-    msg += cmVoegLijstItemToe("Uitgangscollecte: ", a_uitgangscollecte[i]);
-    msg += cmVoegLijstItemToe("Naam van de zondag: ", a_naamzondag[i]);
-    msg += cmVoegLijstItemToe("Kleur: ", a_kleur[i]);
-    msg += "</ul>";
-
-    msg.trim();
-
-    if (fullMsg.length > 0)
-      fullMsg += "\n\n";
-
-    fullMsg += msg;
-
+    html += cmMaakHtmlElement(
+      "h4",
+      cmEscapeHtml(crFormatteerDatum(selectie.datums[index], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR))
+    );
+    html += "<ul>\n";
+    cmMaakDienstvelden(selectie, index).forEach(function (veld) {
+      if (veld[1] === "" || veld[1] === null || veld[1] === undefined) return;
+      html += "<li><strong>" + cmEscapeHtml(veld[0]) + ":</strong> " + cmEscapeHtml(veld[1]) + "</li>\n";
+    });
+    html += "</ul>\n";
   }
+  return html;
+}
 
-  return fullMsg;
+/** Maakt hetzelfde verticale dienstenoverzicht als platte documenttekst. */
+function cmMaakTekstDienstenrapport(selectie, aantal) {
+  var limiet = Math.min(Math.max(Number(aantal) || 1, 1), selectie.datums.length);
+  var blokken = [];
+  for (var index = 0; index < limiet; index++) {
+    var regels = [crFormatteerDatum(selectie.datums[index], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)];
+    cmMaakDienstvelden(selectie, index).forEach(function (veld) {
+      if (veld[1] === "" || veld[1] === null || veld[1] === undefined) return;
+      regels.push(veld[0] + ": " + veld[1]);
+    });
+    blokken.push(regels.join("\n"));
+  }
+  return blokken.join("\n\n");
+}
+
+function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
+  var selectie = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
+  return cmMaakHtmlDienstenrapport(selectie, selectie.datums.length);
+}
+
+/** Normaliseert een placeholdernaam, bijvoorbeeld `Naam Zondag` naar `naam zondag`. */
+function cmNormaliseerPlaceholder(naam) {
+  return String(naam || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** Maakt een tekst- en HTML-waarde voor gebruik door beide templaterenderers. */
+function cmMaakTemplateWaarde(tekst, html) {
+  var platteTekst = String(tekst === null || tekst === undefined ? "" : tekst);
+  return { tekst: platteTekst, html: html === undefined ? cmEscapeHtml(platteTekst) : html };
+}
+
+/** Stelt alle enkelvoudige variabelen van één dienst centraal samen. */
+function cmMaakTemplateVariabelen(selectie, index, aanvullingen) {
+  index = index || 0;
+  var datum = selectie.datums[index];
+  var waarden = {
+    datum: cmMaakTemplateWaarde(crFormatteerDatum(datum, crDatumFormaat.DATUM_LANG)),
+    tijd: cmMaakTemplateWaarde(crFormatteerDatum(datum, crDatumFormaat.TIJD)),
+    datumtijd: cmMaakTemplateWaarde(crFormatteerDatum(datum, crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)),
+    voorganger: cmMaakTemplateWaarde(selectie.voorgangers[index]),
+    bijzonderheden: cmMaakTemplateWaarde(selectie.bijzonderheden[index]),
+    collecte: cmMaakTemplateWaarde(selectie.collectes[index]),
+    collectecategorie: cmMaakTemplateWaarde(selectie.collectecategorieen[index]),
+    uitgangscollecte: cmMaakTemplateWaarde(selectie.uitgangscollectes[index]),
+    lector: cmMaakTemplateWaarde(selectie.lectoren[index]),
+    ambtsdragers: cmMaakTemplateWaarde(selectie.ambtsdragers[index]),
+    koster: cmMaakTemplateWaarde(selectie.kosters[index]),
+    koffie: cmMaakTemplateWaarde(selectie.koffie[index]),
+    ontvangst: cmMaakTemplateWaarde(selectie.ontvangst[index]),
+    klokkenluider: cmMaakTemplateWaarde(selectie.klokkenluiders[index]),
+    kerktv: cmMaakTemplateWaarde(selectie.kerktv[index]),
+    kleur: cmMaakTemplateWaarde(selectie.kleuren[index]),
+    heiligavondmaal: cmMaakTemplateWaarde(selectie.avondmaal[index] ? "ja" : "nee"),
+    avondmaalsvorm: cmMaakTemplateWaarde(selectie.havormen[index]),
+    naamzondag: cmMaakTemplateWaarde(selectie.zondagnamen[index]),
+    kwartaal: cmMaakTemplateWaarde(selectie.kwartalen[index]),
+    koffiedienst: cmMaakTemplateWaarde(selectie.koffieDiensten[index]),
+    didamdienst: cmMaakTemplateWaarde(selectie.didamDiensten[index])
+  };
+  // Tijdelijke aliases voor bestaande templates.
+  waarden.ha = waarden.heiligavondmaal;
+  waarden.havorm = waarden.avondmaalsvorm;
+  waarden.zondagnaam = waarden.naamzondag;
+
+  Object.keys(aanvullingen || {}).forEach(function (naam) {
+    var waarde = aanvullingen[naam];
+    waarden[cmNormaliseerPlaceholder(naam)] = waarde && waarde.tekst !== undefined
+      ? waarde
+      : cmMaakTemplateWaarde(waarde);
+  });
+  return waarden;
+}
+
+/** Bepaalt het hoogste gevraagde aantal uit `@gegevens@` of `@gegevens <n>@`. */
+function cmBepaalAantalDienstenUitTemplate(tekst) {
+  var aantal = 1;
+  var patroon = /@gegevens(?:\s+(\d+))?@/gi;
+  var gevonden;
+  while ((gevonden = patroon.exec(String(tekst || ""))) !== null) {
+    aantal = Math.max(aantal, Number(gevonden[1]) || 1);
+  }
+  return aantal;
+}
+
+/** Selecteert voldoende toekomstige diensten voor de placeholders in een template. */
+function cmSelecteerKomendeDiensten(aantal, begindatum) {
+  var begin = crZetOpBeginVanDag(begindatum || new Date());
+  var einde = crZetTijdOpEindeVanDag(crTelMaandenBijDatumOp(new Date(begin), 24));
+  var selectie = rsSelecteerGegevens(begin, einde);
+  if (!selectie.datums.length) throw new Error("Geen toekomstige diensten gevonden voor de mailtemplate.");
+  if (selectie.datums.length < aantal) {
+    console.log("Template vraagt " + aantal + " diensten; slechts " + selectie.datums.length + " gevonden.");
+  }
+  return selectie;
+}
+
+/** Vervangt alle placeholders in geëxporteerde template-HTML. */
+function cmVervangHtmlTemplate(html, variabelen, selectie) {
+  var onbekend = {};
+  var resultaat = String(html || "").replace(/@([A-Za-z][A-Za-z0-9 _-]*)@/g, function (volledig, naam) {
+    var sleutel = cmNormaliseerPlaceholder(naam);
+    var gegevens = /^gegevens(?:\s+(\d+))?$/.exec(sleutel);
+    if (gegevens) return cmMaakHtmlDienstenrapport(selectie, Number(gegevens[1]) || 1);
+    if (variabelen[sleutel]) return variabelen[sleutel].html;
+    onbekend[sleutel] = true;
+    return volledig;
+  });
+  var onbekendeNamen = Object.keys(onbekend);
+  if (onbekendeNamen.length) {
+    throw new Error("Onbekende placeholder(s) in mailtemplate: @" + onbekendeNamen.join("@, @") + "@");
+  }
+  return resultaat;
+}
+
+/** Vervangt placeholders in documenttekst zonder de overige documentopmaak te verliezen. */
+function cmVervangDocumentTemplate(document, variabelen, selectie) {
+  var secties = [document.getBody(), document.getHeader(), document.getFooter()].filter(function (sectie) {
+    return Boolean(sectie);
+  });
+  secties.forEach(function (sectie) {
+    var gevonden = sectie.findText("@[A-Za-z][A-Za-z0-9 _-]*@");
+    while (gevonden) {
+      var tekstElement = gevonden.getElement().asText();
+      var begin = gevonden.getStartOffset();
+      var einde = gevonden.getEndOffsetInclusive();
+      var placeholder = tekstElement.getText().substring(begin, einde + 1);
+      var sleutel = cmNormaliseerPlaceholder(placeholder.slice(1, -1));
+      var gegevens = /^gegevens(?:\s+(\d+))?$/.exec(sleutel);
+      var vervanging;
+      if (gegevens) {
+        vervanging = cmMaakTekstDienstenrapport(selectie, Number(gegevens[1]) || 1);
+      } else if (variabelen[sleutel]) {
+        vervanging = variabelen[sleutel].tekst;
+      } else {
+        throw new Error("Onbekende placeholder in documenttemplate: @" + sleutel + "@");
+      }
+      tekstElement.deleteText(begin, einde);
+      tekstElement.insertText(begin, vervanging);
+      gevonden = sectie.findText("@[A-Za-z][A-Za-z0-9 _-]*@");
+    }
+  });
+  return document;
+}
+
+/** Exporteert een Google Document met behoud van alle template-inhoud naar HTML. */
+function cmExporteerDocumentNaarHtml(documentId) {
+  var url = "https://docs.google.com/document/d/" + documentId + "/export?format=html";
+  return UrlFetchApp.fetch(url, {
+    method: "get",
+    headers: { Authorization: "Bearer " + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: false
+  }).getContentText();
 }
 
 
@@ -235,171 +364,72 @@ function cmVerzendTemplate() {
 
 
 function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mailinglijstwerkblad - Test")) {
-  //function cmVerzendTemplateNaarLijst(emailListSheetName) {
-  Logger.log(emailListSheetName);
-  var calName = crLeesConfiguratie("Agenda - KerkTV");
+  var agendanaam = crLeesConfiguratie("Agenda - KerkTV");
   var mededeling = crLeesConfiguratie("Berichttekst - KerkTV");
-  var templateDocumentId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
+  var templateId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
+  var templateDocument = DocumentApp.openById(templateId);
+  var templateTekst = [templateDocument.getBody(), templateDocument.getHeader(), templateDocument.getFooter()]
+    .filter(function (sectie) { return Boolean(sectie); })
+    .map(function (sectie) { return sectie.getText(); })
+    .join("\n");
+  var templateHtml = cmExporteerDocumentNaarHtml(templateId);
+  var aantalDiensten = Math.max(
+    cmBepaalAantalDienstenUitTemplate(templateTekst),
+    cmBepaalAantalDienstenUitTemplate(templateHtml)
+  );
+  var selectie = cmSelecteerKomendeDiensten(aantalDiensten);
+  var dienstdatum = new Date(selectie.datums[0]);
+  var onderwerp = "Liturgie voor " + crFormatteerDatum(dienstdatum, crDatumFormaat.DATUM_LANG);
 
-  Logger.log(templateDocumentId);
-  var nowDate = new Date();
-  nowDate.setHours(0);
-  nowDate.setMinutes(0);
-  var nextSundayDate = crBepaalVolgendeZondag(nowDate); // crBepaalVolgendeZondag returns starttime of next Sunday (0:00)
-  nextSundayDate.setHours(23);
-  nextSundayDate.setMinutes(59);
+  var dagBegin = crZetOpBeginVanDag(new Date(dienstdatum));
+  var dagEinde = crZetTijdOpEindeVanDag(new Date(dienstdatum));
+  var gebeurtenissen = CalendarApp.getCalendarsByName(agendanaam);
+  var agendaItems = gebeurtenissen.length ? gebeurtenissen[0].getEvents(dagBegin, dagEinde) : [];
+  var agendaTitel = agendaItems.length ? agendaItems[0].getTitle() : "";
+  var liturgie = agendaItems.length ? agendaItems[0].getDescription() : "";
 
-  var rptHeader = "";
-  var {
-    koppen: a_headers,
-    datums: a_rowDate,
-    types: a_type,
-    titels: a_titel,
-    voorgangers: a_voorganger,
-    bijzonderheden: a_bijz,
-    kosters: a_koster,
-    kleuren: a_kleur,
-    collectes: a_collecte,
-    koffie: a_koffie,
-    ontvangst: a_ontvangst,
-    avondmaal: a_ha,
-    lectoren: a_lector,
-    ambtsdragers: a_ambtsdragers,
-    klokkenluiders: a_klokkenluider,
-    kerktv: a_kerktv,
-    havormen: a_havorm,
-    zondagnamen: a_naamzondag,
-    collectecategorieen: a_collectecategorie,
-    uitgangscollectes: a_uitgangscollecte
-  } = rsSelecteerGegevens(nowDate, nextSundayDate);
+  var contactTekst = [
+    "Contact",
+    "Rechtstreekse uitzending: https://www.pkn-didam.nl/kerktv/rechtstreekse-uitzending",
+    "Kerkdienst gemist: https://www.pkn-didam.nl/kerktv/kerkdienst-gemist",
+    "Handleiding: https://www.pkn-didam.nl/kerktv/handleiding",
+    "E-mail: kerktv@pkn-didam.nl"
+  ].join("\n");
+  var contactHtml = "<h4>Contact</h4>" +
+    '<p>Rechtstreekse uitzending: <a href="https://www.pkn-didam.nl/kerktv/rechtstreekse-uitzending">link</a><br>' +
+    'Kerkdienst gemist: <a href="https://www.pkn-didam.nl/kerktv/kerkdienst-gemist">link</a><br>' +
+    'Handleiding: <a href="https://www.pkn-didam.nl/kerktv/handleiding">link</a><br>' +
+    'E-mail: <a href="mailto:kerktv@pkn-didam.nl">kerktv@pkn-didam.nl</a></p>';
+  var archiefHtml = "<h4>Vorige 4 diensten</h4>" + ytMaakUploadLijst(4);
 
-  if (!a_rowDate.length) {
-    throw new Error("Geen dienst gevonden in de geselecteerde periode.");
-  }
-  var sel_date = 0;
+  var kopie = DriveApp.getFileById(templateId).makeCopy(onderwerp);
+  var document = DocumentApp.openById(kopie.getId());
+  var bewerkUrl = "https://docs.google.com/document/d/" + document.getId() + "/edit?usp=sharing";
+  var variabelen = cmMaakTemplateVariabelen(selectie, 0, {
+    onderwerp: onderwerp,
+    titel: agendaTitel,
+    mededeling: mededeling,
+    liturgie: liturgie,
+    archief: cmMaakTemplateWaarde("", archiefHtml),
+    contactgegevens: cmMaakTemplateWaarde(contactTekst, contactHtml),
+    "url edit": bewerkUrl,
+    url_edit: bewerkUrl,
+    kerktvpagina: "https://www.pkn-didam.nl/kerktv"
+  });
 
-  var startDate = new Date(a_rowDate[sel_date]);
-  var lastDate = new Date(a_rowDate[sel_date]);
-
-  var date_str = crFormatteerDatum(startDate, crDatumFormaat.DATUM_LANG);
-  var date_time_str = crFormatteerDatum(startDate, crDatumFormaat.TIJD);
-  var emailSubject = "Liturgie voor " + date_str;
-
-  var templateFile = DriveApp.getFileById(templateDocumentId);
-  var instanceDocId = templateFile.makeCopy().getId();
-  var templateDoc = DocumentApp.openById(templateDocumentId);
-  var instanceDoc = DocumentApp.openById(instanceDocId);
-  instanceDoc.setName(emailSubject);
-
-
-  /// kanaal URL : https://www.youtube.com/user/langenaam/
-
-  ////////////
-
-  startDate.setHours(0);
-  startDate.setMinutes(0);
-  lastDate.setHours(23);
-  lastDate.setMinutes(59);
-  var cal = CalendarApp.getCalendarsByName(calName)[0];
-
-  var title = "";
-  var desc = "";
-  if (cal) {
-    var events = cal.getEvents(startDate, lastDate);
-    var n_events = events.length;
-    title = events[0].getTitle();
-    desc = events[0].getDescription();
-  }
-
-  var tag_nl = "<br />";
-  function cmMaakHtmlElement(tg, str) {
-    return "<" + tg + ">" + str + "</" + tg + ">";
-  }
-  function cmMaakHtmlElementIndienGevuld(tg, pfx, str) {
-    if (str)
-      return cmMaakHtmlElement(tg, pfx + str);
-    else
-      return "";
-  }
-  function cmMaakHtmlLink(link, text) {
-    return '<a href="' + link + '">' + text + '</a>';
-  }
-
-  function cmMaakWeblink(text) { return cmMaakHtmlLink(text, text); }
-  function cmMaakMaillink(text) { return cmMaakHtmlLink("mailto:" + text, text); }
-
-  // =============== ARCHIEF ==================
-  var archief = "<h4>Vorige 4 diensten</h4>" + ytMaakUploadLijst(4);
-
-  // var msg =  cmMaakHtmlElement("h4", emailSubject)+
-  // "<b>" + date_time_str +  ": " + title + "</b>" + "\n\n" +
-  // desc +  "\n\n"+
-  // "Uw regisseur vanochtend is: " + a_kerktv[sel_date] ;
-
-  // =============== GEGEVENS ==================
-  var gegevens = cmMaakHtmlElement("h4", emailSubject);
-  gegevens += "<ul>";
-  gegevens += cmMaakHtmlElement("li", title.bold());
-  gegevens += cmMaakHtmlElement("li", "Aanvang: " + date_time_str);
-  gegevens += cmMaakHtmlElementIndienGevuld("li", "Collecte: ", a_collecte[sel_date]);
-  gegevens += cmMaakHtmlElementIndienGevuld("li", "Uw regisseur vanochtend is: ", a_kerktv[sel_date]);
-  gegevens += cmMaakHtmlElement("li", "KerkTV pagina : " + cmMaakHtmlLink("https://www.pkn-didam.nl/kerktv", "KLIK HIER"));
-  gegevens += "</ul>";
-  gegevens += cmMaakHtmlElement("h4", "Orde van dienst");
-  // ==== voeg gegevens uit kalender toe
-  gegevens += desc.replace(/\n/g, tag_nl);
-
-  var nl = "\n";
-  var gegevensText = nl + emailSubject + nl + "------------" + nl;
-  gegevensText += title + nl;
-  if (mededeling) gegevensText += mededeling + nl;
-  gegevensText += " - Aanvang: " + date_time_str + nl;
-  gegevensText += " - Collecte: ", a_collecte[sel_date] + nl;
-  gegevensText += " - Uw regisseur vanochtend is: " + a_kerktv[sel_date] + nl + nl;
-  gegevensText += "Orde van dienst" + nl + "------------" + nl;
-  // ==== voeg gegevens uit kalender toe
-  gegevensText += nl + desc + nl;
-
-  // =============== CONTACTGEGEVENS ==================
-  var contactGegevens = "<h4>Contact</h4>Rechtstreekse uitzending: " + cmMaakWeblink("https://www.pkn-didam.nl/kerktv/rechtstreekse-uitzending") + tag_nl;
-  contactGegevens += "Kerkdienst gemist: " + cmMaakWeblink("https://www.pkn-didam.nl/kerktv/kerkdienst-gemist") + tag_nl;
-  contactGegevens += "Handleiding voor gebruik: " + cmMaakWeblink("https://www.pkn-didam.nl/kerktv/handleiding") + tag_nl;
-  contactGegevens += "Vragen en opmerkingen, email naar " + cmMaakMaillink("kerktv@pkn-didam.nl") + tag_nl;
-
-  var body = instanceDoc.getActiveSection();
-  body.replaceText("@GEGEVENS@", gegevensText).replaceText("@ARCHIEF@", "").replaceText("@CONTACTGEGEVENS@", "");
-  instanceDoc.saveAndClose();
-
-  var url = "https://docs.google.com/document/d/" + templateDoc.getId() + "/export?format=html"
-  var param = {
-    method: "get",
-    headers: { "Authorization": "Bearer " + ScriptApp.getOAuthToken() },
-    muteHttpExceptions: true,
-  };
-
- // Alles voor de email is nu gereed
-
-  var emailHtmlBodyRaw = UrlFetchApp.fetch(url, param).getContentText();
-  var emailHtmlBody = emailHtmlBodyRaw.replace("@GEGEVENS@", gegevens).replace("@ARCHIEF@", archief).replace("@CONTACTGEGEVENS@", contactGegevens);
-
-  // var pdf = instanceDoc.getAs(MimeType.PDF).setName(emailSubject + ".pdf");
-
-  var emailAsBcc = false;  // send emails in a loop or one by one
-
-  // Haal addressen op
-  var emailTo_list = crLeesWerkbladInhoud(emailListSheetName);
-
-  var emailConfirmationTo = "avandervliet@gmail.com";
-  var emailConfirmationMsg = "Liturgie verzonden\n";
-
-  var emailName = 'Liturgiemail Protestantse Gemeente Didam';
-
-  cmVerzendEmail(emailTo_list, emailSubject, emailName, emailHtmlBody, emailConfirmationTo, emailConfirmationMsg, emailAsBcc);
-
-
-/*   // MailApp.sendEmail(myself, emailSubject, emailTekst, {htmlBody: emailHtml, bcc: emailTo, replyTo: myself, attachments: pdf });
-  MailApp.sendEmail(myself, emailSubject, emailTekst, { htmlBody: emailHtml, To: myself, bcc: emailTo });
-  MailApp.sendEmail("avandervliet@pg-didam.nl", emailSubject + " - controle mail", emailTekst, { htmlBody: controleEmailHtml }); */
+  cmVervangDocumentTemplate(document, variabelen, selectie);
+  document.saveAndClose();
+  var emailHtml = cmVervangHtmlTemplate(templateHtml, variabelen, selectie);
+  var emailadressen = crLeesWerkbladInhoud(emailListSheetName);
+  cmVerzendEmail(
+    emailadressen,
+    onderwerp,
+    "Liturgiemail Protestantse Gemeente Didam",
+    emailHtml,
+    "avandervliet@gmail.com",
+    "Liturgie verzonden\nDocument: " + bewerkUrl,
+    false
+  );
 }
 
 
@@ -418,17 +448,21 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
 
   var begindatum = crZetOpBeginVanDag(new Date());
   if (volgendeWeek) begindatum = crTelDagenBijDatumOp(begindatum, 7);
-  var einddatum = crZetTijdOpEindeVanDag(crBepaalVolgendeZondag(begindatum));
-  var selectie = rsSelecteerGegevens(begindatum, einddatum);
-  var dienstIndex = cmZoekEersteDienstIndex(selectie);
-  if (dienstIndex < 0) {
-    throw new Error("Geen geschikte kerkdienst gevonden voor de mededelingen.");
-  }
-
-  var dienstdatum = new Date(selectie.datums[dienstIndex]);
+  var templateId = crLeesConfiguratie("Template-ID - Mededelingen");
+  var templateDocument = DocumentApp.openById(templateId);
+  var templateTekst = [templateDocument.getBody(), templateDocument.getHeader(), templateDocument.getFooter()]
+    .filter(function (sectie) { return Boolean(sectie); })
+    .map(function (sectie) { return sectie.getText(); })
+    .join("\n");
+  var templateHtml = cmExporteerDocumentNaarHtml(templateId);
+  var aantalDiensten = Math.max(
+    cmBepaalAantalDienstenUitTemplate(templateTekst),
+    cmBepaalAantalDienstenUitTemplate(templateHtml)
+  );
+  var selectie = cmSelecteerKomendeDiensten(aantalDiensten, begindatum);
+  var dienstdatum = new Date(selectie.datums[0]);
   var datumtekst = crFormatteerDatum(dienstdatum, crDatumFormaat.DATUM_LANG);
   var onderwerp = "Mededelingen voor " + datumtekst;
-  var templateId = crLeesConfiguratie("Template-ID - Mededelingen");
   var document = cmMaakDocumentkopie(templateId, onderwerp);
   var dagBegin = crZetOpBeginVanDag(new Date(dienstdatum));
   var dagEinde = crZetTijdOpEindeVanDag(new Date(dienstdatum));
@@ -436,24 +470,25 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
     crLeesConfiguratie("Agenda - KerkTV"), dagBegin, dagEinde
   );
   var bewerkUrl = "https://docs.google.com/document/d/" + document.getId() + "/edit?usp=sharing";
+  var variabelen = cmMaakTemplateVariabelen(selectie, 0, {
+    onderwerp: onderwerp,
+    organist: "Rolf Zandbergen",
+    bloemen: "- INVULLEN -",
+    "extra mededelingen": "- Geen -",
+    extra_mededelingen: "- Geen -",
+    liturgie: liturgie,
+    "url edit": bewerkUrl,
+    url_edit: bewerkUrl
+  });
 
-  document.getActiveSection()
-    .replaceText("@VOORGANGER@", selectie.voorgangers[dienstIndex] || "INVULLEN")
-    .replaceText("@ORGANIST@", "Rolf Zandbergen")
-    .replaceText("@LECTOR@", selectie.lectoren[dienstIndex] || "INVULLEN")
-    .replaceText("@COLLECTE@", selectie.collectes[dienstIndex] || "INVULLEN")
-    .replaceText("@DATUM@", datumtekst)
-    .replaceText("@BLOEMEN@", "- INVULLEN -")
-    .replaceText("@EXTRA_MEDEDELINGEN@", "- Geen -")
-    .replaceText("@URL_EDIT@", bewerkUrl)
-    .replaceText("@LITURGIE@", liturgie);
+  cmVervangDocumentTemplate(document, variabelen, selectie);
   var documentId = document.getId();
   document.saveAndClose();
 
   var bestandsnaam = crFormatteerDatum(dienstdatum, crDatumFormaat.SORTEERDATUM) +
     " - mededelingen " + datumtekst + ".docx";
   var docx = cmExporteerDocumentNaarDocx(documentId, bestandsnaam);
-  var html = cmMaakHtmlWeekrapport(dagBegin, dagEinde);
+  var html = cmVervangHtmlTemplate(templateHtml, variabelen, selectie);
   MailApp.sendEmail(emailTo, onderwerp, "Zie HTML gedeelte", {
     htmlBody: html,
     attachments: [docx]
@@ -585,8 +620,13 @@ function cmVerzendMjMededelingenNaarAdres(emailTo) {
   };
 
   var emailHtmlRaw = UrlFetchApp.fetch(url, param).getContentText();
-  var emailHtml = emailHtmlRaw.replace("@KERKDIENSTEN@", msgKerkdiensten).replace("@ACTIVITEITEN@", msgActiviteiten)
-    .replace("@BESCHRIJVING@", msgDescActiviteit);
+  var mjSelectie = cmSelecteerKomendeDiensten(cmBepaalAantalDienstenUitTemplate(emailHtmlRaw), startDate);
+  var mjVariabelen = cmMaakTemplateVariabelen(mjSelectie, 0, {
+    kerkdiensten: cmMaakTemplateWaarde("", msgKerkdiensten),
+    activiteiten: cmMaakTemplateWaarde("", msgActiviteiten),
+    beschrijving: cmMaakTemplateWaarde("", msgDescActiviteit)
+  });
+  var emailHtml = cmVervangHtmlTemplate(emailHtmlRaw, mjVariabelen, mjSelectie);
   //var controleEmailHtml = emailHtmlRaw.replace("@GEGEVENS@", gegevens).replace("@ARCHIEF@", archief).replace("@CONTACTGEGEVENS@", alleContactGegevens);
 
   // var pdf = instanceDoc.getAs(MimeType.PDF).setName(emailSubject + ".pdf");
@@ -693,8 +733,13 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
 
   Logger.log("Length of raw HTML: " + emailHtmlRaw.length);
 
-  // var emailHtml = emailHtmlRaw.replace("@SAMENVATTING@", msgSamenvatting).replace("@DETAILS@", msgDetails);
-  var emailHtml = emailHtmlRaw.replace("@SAMENVATTING@", msgSamenvatting);
+  var liemersSelectie = cmSelecteerKomendeDiensten(cmBepaalAantalDienstenUitTemplate(emailHtmlRaw), startDate);
+  var liemersVariabelen = cmMaakTemplateVariabelen(liemersSelectie, 0, {
+    samenvatting: cmMaakTemplateWaarde("", msgSamenvatting),
+    details: cmMaakTemplateWaarde("", msgDetails),
+    periode: txtPeriode
+  });
+  var emailHtml = cmVervangHtmlTemplate(emailHtmlRaw, liemersVariabelen, liemersSelectie);
 
   Logger.log("Length of final HTML: " + emailHtml.length);
 
