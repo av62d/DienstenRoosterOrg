@@ -166,7 +166,7 @@ function crFormatteerDatum(date, formaat) {
     throw new Error("Onbekend datumformaat: " + selectedFormat);
   }
   var locale = "nl-NL";
-  var timeZone = Session.getScriptTimeZone() || "Europe/Amsterdam";
+  var timeZone = Session.getScriptTimeZone() || "Europe/Brussels";
   var cacheKey = locale + "|" + timeZone;
   if (!crDateFormatterCache[cacheKey]) {
     crDateFormatterCache[cacheKey] = {
