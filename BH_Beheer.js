@@ -248,7 +248,7 @@ function bhMigreerVoorpagina() {
   );
   if (antwoord !== SpreadsheetApp.getUi().Button.YES) return { gewijzigd: false, reden: "geannuleerd" };
 
-  var backupnaam = "Voorpagina backup " + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd-HHmmss");
+  var backupnaam = "Voorpagina backup " + crFormatteerDatum(new Date(), crDatumFormaat.BACKUPTIJDSTEMPEL);
   var backup = blad.copyTo(ss).setName(backupnaam);
   var aantalRijen = Math.max(backup.getMaxRows(), backup.getLastRow(), 2);
   var gewenstAantal = specificatie.length;
@@ -336,7 +336,7 @@ function bhHerstelDraaitabelbronnen(toonMelding) {
   var reedsCorrect = [];
   var backups = [];
   var backupPerBlad = {};
-  var tijdstempel = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd-HHmmss");
+  var tijdstempel = crFormatteerDatum(new Date(), crDatumFormaat.BACKUPTIJDSTEMPEL);
   ss.getSheets().forEach(function (blad) {
     blad.getPivotTables().forEach(function (draaitabel) {
       var ankercel = draaitabel.getAnchorCell();

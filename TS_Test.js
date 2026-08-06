@@ -4,15 +4,10 @@
  */
 
 function tsTestVertaalDatum() {
-  var date = new Date('2026-03-26');
-
-
-  var date_type_list = ['full', 'long', 'medium', 'short'];
-
-  for (i in date_type_list) {
-    Logger.log(date_type_list[i]);
-    Logger.log(crFormatteerDatum(date, date_type_list[i], 'nl-NL'));
-  }
+  var datum = new Date("2026-03-26T10:15:00");
+  Object.keys(crDatumFormaat).forEach(function (naam) {
+    Logger.log(naam + ": " + crFormatteerDatum(datum, crDatumFormaat[naam]));
+  });
 }
 
 
@@ -37,7 +32,7 @@ function tsTestOpmaak() {
   // crLogFoutopsporing ( "End week " + ( curWeekNum + addWeeks ) + " :  " +  crTelWekenBijDatumOp(crBepaalEindeVanWeek(curDate), addWeeks));
 
   crLogFoutopsporing("Begin month " + crFormatteerDatum(crBepaalBeginVanMaand()));
-  crLogFoutopsporing("Begin month " + crFormatteerDatum(crBepaalBeginVanMaand(), "MMMM"));
+  crLogFoutopsporing("Begin month " + crFormatteerDatum(crBepaalBeginVanMaand(), crDatumFormaat.MAAND));
   crLogFoutopsporing("End month " + crBepaalEindeVanMaand());
   crLogFoutopsporing("6 month from now" + crTelMaandenBijDatumOp(curDate, 6));
   crLogFoutopsporing("End 6 month " + crBepaalEindeVanMaand(crTelMaandenBijDatumOp(curDate, 6)));
@@ -52,7 +47,7 @@ function tsTestMaakRooster(curYear = 2026) {
   rptStartDate = crMaakBegindatumVanMaand(6, curYear);
   var sheetPos = "3e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 }
 

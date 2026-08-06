@@ -186,7 +186,7 @@ function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
       prtWeekNum = rowWeekNum;
     }
 
-    msg += cmMaakHtmlElement("h4", crFormatteerDatum(a_rowDate[i], "DMT"));
+    msg += cmMaakHtmlElement("h4", crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR));
 
     msg += "<ul>";
 
@@ -281,8 +281,8 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mai
   var startDate = new Date(a_rowDate[sel_date]);
   var lastDate = new Date(a_rowDate[sel_date]);
 
-  var date_str = crFormatteerDatum(startDate, "EEEE d MMMM yyyy");
-  var date_time_str = crFormatteerDatum(startDate, "HH:mm");
+  var date_str = crFormatteerDatum(startDate, crDatumFormaat.DATUM_LANG);
+  var date_time_str = crFormatteerDatum(startDate, crDatumFormaat.TIJD);
   var emailSubject = "Liturgie voor " + date_str;
 
   var templateFile = DriveApp.getFileById(templateDocumentId);
@@ -426,7 +426,7 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
   }
 
   var dienstdatum = new Date(selectie.datums[dienstIndex]);
-  var datumtekst = crFormatteerDatum(dienstdatum, "EEEE d MMMM yyyy");
+  var datumtekst = crFormatteerDatum(dienstdatum, crDatumFormaat.DATUM_LANG);
   var onderwerp = "Mededelingen voor " + datumtekst;
   var templateId = crLeesConfiguratie("Template-ID - Mededelingen");
   var document = cmMaakDocumentkopie(templateId, onderwerp);
@@ -450,7 +450,7 @@ function cmVerzendMededelingenNaarAdres(emailTo, volgendeWeek) {
   var documentId = document.getId();
   document.saveAndClose();
 
-  var bestandsnaam = crFormatteerDatum(dienstdatum, "sort") +
+  var bestandsnaam = crFormatteerDatum(dienstdatum, crDatumFormaat.SORTEERDATUM) +
     " - mededelingen " + datumtekst + ".docx";
   var docx = cmExporteerDocumentNaarDocx(documentId, bestandsnaam);
   var html = cmMaakHtmlWeekrapport(dagBegin, dagEinde);
@@ -528,7 +528,7 @@ function cmFormatteerGebeurtenissen(events) {
     var title = events[i].getTitle();
     var desc = events[i].getDescription();
     var startTime = events[i].getStartTime();
-    msg += cmMaakMjHtmlElement("li", crFormatteerDatum(startTime, "DMT") + " " + title);
+    msg += cmMaakMjHtmlElement("li", crFormatteerDatum(startTime, crDatumFormaat.DATUM_TIJD_ZONDER_JAAR) + " " + title);
   }
   msg += "</ul>";
   return msg;
@@ -537,7 +537,7 @@ function cmFormatteerGebeurtenissen(events) {
 
 function cmFormatteerEersteGebeurtenisVolledig(events) {
   var msg = "<p>";
-  //msg += crFormatteerDatum(events[0].getStartTime(), "DMT") + " " + events[0].getTitle().bold() + " " + events[0].getDescription();
+  // msg += crFormatteerDatum(events[0].getStartTime(), crDatumFormaat.DATUM_TIJD_ZONDER_JAAR) + " " + events[0].getTitle().bold();
   msg += "</p>";
   return msg;
 }
@@ -627,8 +627,8 @@ function cmFormatteerLiemersGebeurtenissen(events) {
   // msgDetails += "<ul>";
 
   for (var i in events) {
-    var startTimeKort = crFormatteerDatum(events[i].getStartTime(), "dm");
-    var startTimeLang = crFormatteerDatum(events[i].getStartTime(), "DMT");
+    var startTimeKort = crFormatteerDatum(events[i].getStartTime(), crDatumFormaat.DATUM_KORT);
+    var startTimeLang = crFormatteerDatum(events[i].getStartTime(), crDatumFormaat.DATUM_TIJD_ZONDER_JAAR);
 
     var title = startTimeKort + ": " + cmMaakLiemersHtmlElement("b", events[i].getTitle());
     msgSamenvatting += cmMaakLiemersHtmlElement("li", startTimeLang + ":\t" + cmMaakLiemersHtmlElement("b", events[i].getTitle()));
@@ -666,7 +666,8 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
 
   var eventsActiviteiten = cmLeesAgenda(calActiviteiten, startDate, lastDateActiviteiten);
 
-  var txtPeriode = crFormatteerDatum(startDate, "DM") + " tot en met " + crFormatteerDatum(lastDateActiviteiten, "DM") + "(" + numActiviteitWeken + " weken)";
+  var txtPeriode = crFormatteerDatum(startDate, crDatumFormaat.DATUM_ZONDER_JAAR) + " tot en met " +
+    crFormatteerDatum(lastDateActiviteiten, crDatumFormaat.DATUM_ZONDER_JAAR) + " (" + numActiviteitWeken + " weken)";
 
   var msg_array = cmFormatteerLiemersGebeurtenissen(eventsActiviteiten);
   var msgSamenvatting = cmMaakLiemersHtmlElement("h2", "Activiteiten in de Liemers van " + txtPeriode) + msg_array[0];
@@ -792,7 +793,7 @@ function cmMaakHtmlLijstrapport(rptWeekStartDate, rptWeekEndDate) {
     var msg = "";
     var cur = "";
 
-    msg += crFormatteerDatum(a_rowDate[i], "EEEE d MMM") + ", " + a_titel[i] + "<br />" + nl;
+    msg += crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_KORT) + ", " + a_titel[i] + "<br />" + nl;
 
     msg.trim();
 
@@ -967,7 +968,7 @@ function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
     var li_tag = "<li>";
 
     var newMonth = false;
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
+    var monthName = crFormatteerDatum(a_rowDate[i], crDatumFormaat.MAAND);
 
     if (monthName !== rptMonth) {
       if (inList) {
@@ -982,7 +983,7 @@ function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
       msg += "<ul>"; inList = true;
     }
 
-    msg += li_tag + crFormatteerDatum(a_rowDate[i], "EEE d HH:mm") + "u&emsp;:&nbsp;";
+    msg += li_tag + crFormatteerDatum(a_rowDate[i], crDatumFormaat.DAG_TIJD_KORT) + "u&emsp;:&nbsp;";
 
 
     if (a_lector[i].length > 0)

@@ -155,7 +155,7 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
   lrow.setHorizontalAlignment("center");
   report_sheet.setRowHeight(1, 60);
 
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
+  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)])
   lrow = cmMaakLaatsteRijOp(fg_title, bg_title, 9);
   lrow.mergeAcross();
   lrow.setHorizontalAlignment("center");        // gecentreerd
@@ -176,7 +176,7 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
 
     bgColor = altColor;
 
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
+    var monthName = crFormatteerDatum(a_rowDate[i], crDatumFormaat.MAAND);
     if (monthName !== rptMonth) {
 
 
@@ -221,8 +221,8 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
 
 
     var rowArray = [
-      crFormatteerDatum(a_rowDate[i], "EEE d MMMM") + nl
-      + crFormatteerDatum(a_rowDate[i], "HH:mm")
+      crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_KORT_MET_LANGE_MAAND) + nl
+      + crFormatteerDatum(a_rowDate[i], crDatumFormaat.TIJD)
       // + nl + 'week ' + crBepaalWeeknummer(a_rowDate[i]).toString()           // week aanduiding
       ,
       // a_titel[i] + nl +
@@ -459,7 +459,7 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
   lrow.setHorizontalAlignment("center");
   report_sheet.setRowHeight(1, 60);
 
-  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, "DMT")])
+  report_sheet.appendRow(["Afgedrukt: " + crFormatteerDatum(nowDate, crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)])
   lrow = rsMaakLaatsteRijOp(fg_title, bg_title, 9);
   lrow.mergeAcross();
   lrow.setHorizontalAlignment("center");        // gecentreerd
@@ -480,7 +480,7 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
 
     bgColor = altColor;
 
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
+    var monthName = crFormatteerDatum(a_rowDate[i], crDatumFormaat.MAAND);
     if (monthName !== rptMonth) {
 
 
@@ -518,8 +518,8 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
     }
 
     var rowArray = [
-      crFormatteerDatum(a_rowDate[i], "EEE d MMMM") + nl
-      + crFormatteerDatum(a_rowDate[i], "HH:mm")
+      crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_KORT_MET_LANGE_MAAND) + nl
+      + crFormatteerDatum(a_rowDate[i], crDatumFormaat.TIJD)
       // + nl + 'week ' + crBepaalWeeknummer(a_rowDate[i]).toString()           // week aanduiding
       ,
       // a_titel[i] + nl +

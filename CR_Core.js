@@ -125,54 +125,59 @@ function crLeesWerkbladInhoud(argSheetName, argA1Position) {
 }
 
 
-// function tsTestDatumFormattering() {
-//   x = FormatDateDutch(null, "sort");
-// }
+/** Betekenisvolle, centraal beheerde datumformaten voor alle zichtbare uitvoer. */
+var crDatumFormaat = Object.freeze({
+  DATUM_LANG: "datumLang",
+  DATUM_ZONDER_JAAR: "datumZonderJaar",
+  DATUM_KORT: "datumKort",
+  DATUM_KORT_MET_LANGE_MAAND: "datumKortMetLangeMaand",
+  DATUM_TIJD_ZONDER_JAAR: "datumTijdZonderJaar",
+  DAG_TIJD_KORT: "dagTijdKort",
+  TIJD: "tijd",
+  MAAND: "maand",
+  MAAND_JAAR: "maandJaar",
+  JAAR: "jaar",
+  SORTEERDATUM: "sorteerdatum",
+  SORTEERMAAND: "sorteermaand",
+  BACKUPTIJDSTEMPEL: "backuptijdstempel"
+});
 
+var crDatumPatronen = Object.freeze({
+  datumLang: "EEEE d MMMM yyyy",
+  datumZonderJaar: "EEEE d MMMM",
+  datumKort: "EEE d MMM",
+  datumKortMetLangeMaand: "EEE d MMMM",
+  datumTijdZonderJaar: "EEEE d MMMM HH:mm 'uur'",
+  dagTijdKort: "EEE d HH:mm",
+  tijd: "HH:mm",
+  maand: "MMMM",
+  maandJaar: "MMMM yyyy",
+  jaar: "yyyy",
+  sorteerdatum: "yy-MM-dd",
+  sorteermaand: "yy-MM",
+  backuptijdstempel: "yyyyMMdd-HHmmss"
+});
 
-/*** NEWEST */
-/** Cache voor hergebruikte Nederlandstalige datumformatters. */
+/** Cache voor hergebruikte Nederlandstalige datumonderdelen. */
 var crDatumFormatterCache = {};
 
 /**
- * Centrale datumformatter voor alle rapporten, e-mails en werkbladnamen.
- * Ondersteunt zowel betekenisvolle korte patronen als expliciete datumtokens.
+ * Formatteert een datum met een benoemd formaat uit crDatumFormaat.
  */
-function crFormatteerDatum(datum, patroon, landinstelling) {
+function crFormatteerDatum(datum, formaat) {
   var waarde = datum === undefined || datum === null ? new Date() : new Date(datum);
   if (isNaN(waarde.getTime())) {
     throw new Error("Ongeldige datum voor formattering: " + datum);
   }
 
-  var land = landinstelling || "nl-NL";
-  var tijdzone = Session.getScriptTimeZone() || "Europe/Amsterdam";
-  var gekozenPatroon = patroon || "DMT";
-  var aliassen = {
-    sort: "yy-MM-dd",
-    DMJ: "EEEE d MMMM yyyy",
-    DMT: "EEEE d MMMM HH:mm 'uur'",
-    DM: "EEEE d MMMM",
-    dm: "EEE d MMM",
-    DMTa: "EEE d MMM HH:mm 'uur'",
-    DMa: "EEE d MMM",
-    T: "HH:mm",
-    M: "MMMM",
-    MJ: "MMMM yyyy",
-    J: "yyyy",
-    sMJ: "yy-MM"
-  };
-  gekozenPatroon = aliassen[gekozenPatroon] || gekozenPatroon;
-
-  var stijlen = {
-    full: { weekday: "long", year: "numeric", month: "long", day: "numeric" },
-    long: { year: "numeric", month: "long", day: "numeric" },
-    medium: { year: "numeric", month: "short", day: "numeric" },
-    short: { year: "2-digit", month: "2-digit", day: "2-digit" }
-  };
-  if (stijlen[gekozenPatroon]) {
-    return new Intl.DateTimeFormat(land, Object.assign({ timeZone: tijdzone }, stijlen[gekozenPatroon]))
-      .format(waarde);
+  var gekozenFormaat = formaat || crDatumFormaat.DATUM_TIJD_ZONDER_JAAR;
+  var gekozenPatroon = crDatumPatronen[gekozenFormaat];
+  if (!gekozenPatroon) {
+    throw new Error("Onbekend datumformaat: " + gekozenFormaat);
   }
+
+  var land = "nl-NL";
+  var tijdzone = Session.getScriptTimeZone() || "Europe/Amsterdam";
 
   var cacheSleutel = land + "|" + tijdzone;
   if (!crDatumFormatterCache[cacheSleutel]) {

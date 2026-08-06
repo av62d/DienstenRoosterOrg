@@ -154,7 +154,7 @@ function rsMaakRoosterWerkbladnaam(startDate = new Date(), rptNumMonths = 3) {
     case 12: title = 'heel jaar'; break;
     default: title = rptNumMonths + " maanden"; break;
   }
-  return "Rooster-" + crFormatteerDatum(startDate, "J") + " " + title;
+  return "Rooster-" + crFormatteerDatum(startDate, crDatumFormaat.JAAR) + " " + title;
 }
 
 
@@ -165,7 +165,7 @@ function rsMaakRoosterWerkbladtitel(startDate = new Date(), rptNumMonths = 3) {
     case 12: title = 'heel jaar'; break;
     default: title = rptNumMonths + " maanden"; break;
   }
-  return "Rooster " + title + " vanaf " + crFormatteerDatum(startDate, "MJ");
+  return "Rooster " + title + " vanaf " + crFormatteerDatum(startDate, crDatumFormaat.MAAND_JAAR);
 }
 
 
@@ -202,13 +202,13 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
   }
 
   rsVoegRapportRijToe([rptTitle], "titel", "white");
-  rsVoegRapportRijToe(["Afgedrukt: " + crFormatteerDatum(new Date(), "DMT")], "afdruk", "white");
+  rsVoegRapportRijToe(["Afgedrukt: " + crFormatteerDatum(new Date(), crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)], "afdruk", "white");
   var vorigeMaand = "";
   var wisselkleur = BG_COL1;
   var nl = "\n";
 
   for (var i = 0; i < rooster.datums.length; i++) {
-    var maandnaam = crFormatteerDatum(rooster.datums[i], "MMMM");
+    var maandnaam = crFormatteerDatum(rooster.datums[i], crDatumFormaat.MAAND);
     if (maandnaam !== vorigeMaand) {
       rsVoegRapportRijToe([maandnaam], "maand", "white");
       rsVoegRapportRijToe(hdrRow, "kop", "blue");
@@ -225,7 +225,8 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
     var rij;
     if (isDidam) {
       rij = [
-        crFormatteerDatum(rooster.datums[i], "EEE d MMM") + nl + crFormatteerDatum(rooster.datums[i], "HH:mm") + " uur",
+        crFormatteerDatum(rooster.datums[i], crDatumFormaat.DATUM_KORT) + nl +
+          crFormatteerDatum(rooster.datums[i], crDatumFormaat.TIJD) + " uur",
         rooster.voorgangers[i], String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), rooster.collectes[i],
         rooster.lectoren[i], String(rooster.ambtsdragers[i] || "").replace(/,\s*/g, nl),
         String(rooster.kosters[i] || "").replace(/,\s*/g, nl),
@@ -235,7 +236,7 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
         String(rooster.kerktv[i] || "").replace(/,\s*/g, nl)
       ];
     } else {
-      rij = [crFormatteerDatum(rooster.datums[i], "EEE d MMM"), rooster.voorgangers[i],
+      rij = [crFormatteerDatum(rooster.datums[i], crDatumFormaat.DATUM_KORT), rooster.voorgangers[i],
         String(rooster.bijzonderheden[i] || "").replace(/,\s*/g, nl), "", "", "", "", "", "", "", ""];
     }
     rsVoegRapportRijToe(rij, "gegevens", achtergrond, liturgischeKleur);
@@ -284,13 +285,13 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
 
 function rsMaakMaandroosterWerkbladnaam(startDate = new Date()) {
   var title = "";
-  return "Rooster-" + crFormatteerDatum(startDate, "sMJ");
+  return "Rooster-" + crFormatteerDatum(startDate, crDatumFormaat.SORTEERMAAND);
 }
 
 
 function rsMaakMaandroosterWerkbladtitel(startDate = new Date()) {
   var title = "";
-  return crFormatteerDatum(startDate, "MJ");
+  return crFormatteerDatum(startDate, crDatumFormaat.MAAND_JAAR);
 }
 
 
@@ -344,19 +345,19 @@ function rsMaakHalfjaarrooster1(curYear = 2026) {
 
   var sheetPos = "1e halfjaar"; var sheetLen = 6;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
   rptStartDate = crMaakBegindatumVanMaand(0, curYear);
   var sheetPos = "1e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
   rptStartDate = crMaakBegindatumVanMaand(3, curYear);
   var sheetPos = "2e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
 }
@@ -368,19 +369,19 @@ function rsMaakHalfjaarrooster2(curYear = 2026) {
 
   var sheetPos = "2e halfjaar"; var sheetLen = 6;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
   rptStartDate = crMaakBegindatumVanMaand(6, curYear);
   var sheetPos = "3e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
   rptStartDate = crMaakBegindatumVanMaand(9, curYear);
   var sheetPos = "4e kwartaal"; var sheetLen = 3;
   var sheetName = "Rooster-" + curYear + " " + sheetPos;
-  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, "MMMM yyyy");
+  var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDatumFormaat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 
 }
@@ -519,7 +520,7 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
 
   for (var i in a_type) {
     var t = a_type[i];
-    var monthName = crFormatteerDatum(a_rowDate[i], "MMMM");
+    var monthName = crFormatteerDatum(a_rowDate[i], crDatumFormaat.MAAND);
     if (monthName !== rptMonth) {
       if (curInTable) {
         htmlFullResult += rsMaakHtmlElement("table border=\"1\"", htmlTable); // beeindig de vorige tabel en voeg toe aan eindresultaat
@@ -533,8 +534,8 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
     }
 
     var rowArray = [
-      crFormatteerDatum(a_rowDate[i], "EEE d MMMM") + nl
-      + crFormatteerDatum(a_rowDate[i], "HH:mm")
+      crFormatteerDatum(a_rowDate[i], crDatumFormaat.DATUM_KORT_MET_LANGE_MAAND) + nl
+      + crFormatteerDatum(a_rowDate[i], crDatumFormaat.TIJD)
       // + nl + 'week ' + crBepaalWeeknummer(a_rowDate[i]).toString()           // week aanduiding
       ,
       // a_titel[i] + nl +

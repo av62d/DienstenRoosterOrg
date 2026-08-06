@@ -40,10 +40,16 @@ doorschakeling naar `mnBijOpenen`.
 
 ## Datumformattering
 
-Alle datumuitvoer loopt via `crFormatteerDatum`. De functie ondersteunt zowel
-korte betekenisvolle patronen (`DMT`, `DM`, `MJ`, `sort`) als expliciete tokens
-zoals `EEEE d MMMM yyyy HH:mm`. Maand- en weekdagformatters worden per
-landinstelling en tijdzone hergebruikt.
+Alle zichtbare datumuitvoer loopt via `crFormatteerDatum` en een benoemde waarde
+uit `crDatumFormaat`, bijvoorbeeld `DATUM_LANG`, `DATUM_KORT`, `MAAND_JAAR` of
+`SORTEERDATUM`. Vrije patronen en cryptische aliassen zijn niet toegestaan in
+aanroepende code. De onderliggende patronen staan uitsluitend in
+`crDatumPatronen`; maand- en weekdagformatters worden voor `nl-NL` en de
+scripttijdzone hergebruikt.
+
+Technische protocollen blijven afzonderlijk herkenbaar. Zo gebruikt de
+YouTube-integratie rechtstreeks RFC3339 en gebruikt de weeknummerberekening een
+technische kalendernotatie; dit zijn geen zichtbare rapportformaten.
 
 ## Prestatie-afspraken
 
