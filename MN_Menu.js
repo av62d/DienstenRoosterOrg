@@ -54,6 +54,8 @@ function mnBijOpenen() {
     .addItem("Controleer projectconfiguratie", "bhControleerProjectConfiguratie"));
 
   hoofdmenu.addSubMenu(ui.createMenu("Testen")
+    .addItem("Verzend testtemplate", "tsVerzendTesttemplate")
+    .addSeparator()
     .addItem("Verzend rooster", "tsTestVerzendRooster")
     .addItem("Verzend KerkTV-liturgie", "tsTestVerzendTemplate")
     .addItem("Verzend kerkmededelingen", "tsTestVerzendMededelingen")

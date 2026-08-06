@@ -564,21 +564,18 @@ function bhConfiguratieSpecificatie() {
     { categorie: "Templates", sleutel: "Template-ID - Mededelingen", aliases: ["Mededelingen Template", "Mededelingen Template ID"], toelichting: "Google Document-ID van de mededelingentemplate.", documentId: true },
     { categorie: "Templates", sleutel: "Template-ID - MJ-mededelingen", aliases: ["MJ Mededeling Template Doc", "MJ Mededeling Template Doc ID"], toelichting: "Google Document-ID van de Montferland Journaal-template.", documentId: true },
     { categorie: "Templates", sleutel: "Template-ID - Liemersactiviteiten", aliases: ["Liemers Activiteiten Template Doc", "Liemers Activiteiten Template Doc ID"], toelichting: "Google Document-ID van de template voor Liemersactiviteiten.", documentId: true },
+    { categorie: "Templates", sleutel: "Template-ID - Testmail", aliases: ["Testmail Template", "Testmail Template ID"], toelichting: "Google Document-ID van de template waarmee alle mailvariabelen worden getest.", documentId: true },
 
     { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Rooster", aliases: ["Rooster Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van het rooster." },
-    { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Test", aliases: ["Test Mailinglist Sheet"], toelichting: "Werkblad met algemene testontvangers." },
     { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - KerkTV", aliases: ["KerkTV Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van KerkTV-berichten." },
     { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Lectoren", aliases: ["Lector Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van het lectorrooster." },
-    { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Lectoren test", aliases: ["Lector TestMailinglist Sheet"], toelichting: "Werkblad met testontvangers van het lectorrooster." },
 
     { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Jaarrooster", aliases: ["Mailinglist JaarRooster"], toelichting: "Ontvangers van het jaarrooster." },
     { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Mededelingen", aliases: ["Mailinglist Mededelingen"], toelichting: "Ontvangers van de kerkmededelingen." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Mededelingen test", aliases: ["Test Mailinglist Mededelingen"], toelichting: "Testontvangers van de kerkmededelingen." },
     { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Kerkdiensten", aliases: ["Mailinglist lijst kerkdiensten"], toelichting: "Ontvangers van de lijst met kerkdiensten." },
     { categorie: "Mailinglijsten", sleutel: "Mailinglijst - MJ", aliases: ["MJ Maillist"], toelichting: "Ontvangers van Montferland Journaal-berichten." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - MJ test", aliases: ["MJ Maillist test", "MJ Maillist tsTestDatumFormattering"], toelichting: "Testontvangers van Montferland Journaal-berichten." },
     { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Liemersactiviteiten", aliases: ["Liemers Activiteiten Maillist"], toelichting: "Ontvangers van Liemersactiviteiten." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Liemersactiviteiten test", aliases: ["Test Liemers Activiteiten Maillist"], toelichting: "Testontvangers van Liemersactiviteiten." },
+    { categorie: "Mailinglijsten", sleutel: "Testmail", aliases: ["Testmailadressen"], toelichting: "Kommagescheiden ontvangers voor alle testmails.", standaardwaarde: "avandervliet@gmail.com, avandervliet@xs4all.nl" },
 
     { categorie: "Berichtteksten", sleutel: "Berichttekst - Rooster", aliases: ["Rooster Mededeling"], toelichting: "Standaardtekst voor roosterberichten." },
     { categorie: "Berichtteksten", sleutel: "Berichttekst - KerkTV", aliases: ["KerkTV Mededeling", "KerkTV Mededeling "], toelichting: "Standaardtekst voor KerkTV-berichten." }
@@ -625,7 +622,7 @@ function bhSchoonConfiguratieOp() {
         }
       }
     }
-    waarde = waarde === undefined ? "" : waarde;
+    waarde = waarde === undefined || waarde === "" ? (item.standaardwaarde || "") : waarde;
     if (item.documentId && String(waarde).trim()) {
       waarde = bhBepaalDocumentId(String(waarde).trim());
     }
@@ -707,7 +704,8 @@ function bhMigreerConfiguratie(toonMelding) {
     { oud: "KerkTV MailTemplate Doc", nieuw: "Template-ID - KerkTV-liturgie" },
     { oud: "Mededelingen Template", nieuw: "Template-ID - Mededelingen" },
     { oud: "MJ Mededeling Template Doc", nieuw: "Template-ID - MJ-mededelingen" },
-    { oud: "Liemers Activiteiten Template Doc", nieuw: "Template-ID - Liemersactiviteiten" }
+    { oud: "Liemers Activiteiten Template Doc", nieuw: "Template-ID - Liemersactiviteiten" },
+    { oud: "Testmail Template", nieuw: "Template-ID - Testmail" }
   ];
   var laatsteRij = configuratieblad.getLastRow();
   var gegevens = laatsteRij ? configuratieblad.getRange(1, 1, laatsteRij, 2).getValues() : [];

@@ -91,7 +91,7 @@ function tsTestVerzendRooster() {
   // The user can also close the dialog by clicking the close button in its title
   // bar.
 
-  cmVerzendRoosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Test"), num_weeks, num_months);
+  cmVerzendRoosterNaarLijst(tsLeesTestmailadressen(), num_weeks, num_months, tsEersteTestmailadres());
 
 }
 
@@ -110,22 +110,28 @@ function tsTestMaakHtmlWeekrapport() {
 
 
 function tsTestVerzendTemplate() {
-  cmVerzendTemplateNaarLijst();
+  cmVerzendTemplateNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres());
+}
+
+
+/** Verzendt de algemene testtemplate naar de ingestelde testadressen. */
+function tsVerzendTesttemplate() {
+  cmVerzendTesttemplate();
 }
 
 
 function tsTestVerzendMededelingen() {
-  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen test"),false);
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Testmail"), false);
 }
 
 
 function tsTestVerzendMjMededelingen() {
-    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - MJ test"));
+    cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Testmail"));
 }
 
 
 function tsTestVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Mailinglijst - Liemersactiviteiten test"));
+  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Testmail"));
 }
 
 
@@ -141,7 +147,21 @@ function tsTestConversie() {
 
 
 function tsTestVerzendLectorrooster() {
-  cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test"));
+  cmVerzendLectorroosterNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres());
+}
+
+
+/** Leest de centrale ontvangerslijst voor alle testmails. */
+function tsLeesTestmailadressen() {
+  var adressen = cmLeesEmailadressen(crLeesConfiguratie("Testmail"));
+  if (!adressen.length) throw new Error("De configuratie-instelling 'Testmail' bevat geen e-mailadressen.");
+  return adressen;
+}
+
+
+/** Geeft het eerste testadres terug voor verzendbevestigingen. */
+function tsEersteTestmailadres() {
+  return tsLeesTestmailadressen()[0][0];
 }
 
 

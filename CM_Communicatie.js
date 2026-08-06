@@ -12,7 +12,7 @@ function cmVerzendRooster() {
 }
 
 
-function cmVerzendRoosterNaarLijst(emailListSheet = crLeesConfiguratie("Mailinglijstwerkblad - Test"), num_weeks_in_report = 6, num_months_in_report = 6) {
+function cmVerzendRoosterNaarLijst(emailListSheet, num_weeks_in_report = 6, num_months_in_report = 6, bevestigingsadres) {
 
   //var num_weeks_in_report = 4;
   //var num_months_in_report = 6;
@@ -60,9 +60,9 @@ function cmVerzendRoosterNaarLijst(emailListSheet = crLeesConfiguratie("Mailingl
   var emailAsBcc = false;  // send emails in a loop or one by one (mails to Bcc will bounce sending to KPN/Ziggo, incl. hi/planet/xs4all/upc/upcmail)
 
   // Haal addressen op
-  var emailTo_list = crLeesWerkbladInhoud(emailListSheet);
+  var emailTo_list = cmLeesEmailadressen(emailListSheet);
 
-  var emailConfirmationTo = "avandervliet@gmail.com";
+  var emailConfirmationTo = bevestigingsadres || "avandervliet@gmail.com";
   var emailConfirmationMsg = "Weekrooster verzonden\n";
 
   var emailSubject = 'Dienstenrooster week ' + rptWeekStartNum + " t/m " + rptWeekEndNum;
@@ -126,6 +126,19 @@ function cmVerzendEmail(emailTo_list, emailSubject, emailName, emailHtmlBody, em
       htmlBody: emailConfirmationMsg
     }
   );
+}
+
+/** Leest ontvangers uit een werkblad, kommagescheiden tekst of bestaande lijst. */
+function cmLeesEmailadressen(bron) {
+  if (Array.isArray(bron)) return bron;
+  var tekst = String(bron || "").trim();
+  if (!tekst) return [];
+  if (tekst.indexOf("@") === -1) return crLeesWerkbladInhoud(tekst);
+  return tekst.split(/[,;\n]+/).map(function (adres) {
+    return [adres.trim()];
+  }).filter(function (rij) {
+    return Boolean(rij[0]);
+  });
 }
 
 
@@ -324,6 +337,61 @@ function cmSelecteerKomendeDiensten(aantal, begindatum) {
   return selectie;
 }
 
+/** Maakt voorbeeldwaarden voor alle aanvullende placeholders van de mailtypen. */
+function cmMaakTesttemplateVariabelen(selectie) {
+  var htmlLijst = "<ul><li>Voorbeeldregel 1</li><li>Voorbeeldregel 2</li></ul>";
+  return cmMaakTemplateVariabelen(selectie, 0, {
+    onderwerp: "TEST – onderwerp",
+    titel: "TEST – titel",
+    mededeling: "TEST – mededeling",
+    liturgie: "TEST – liturgie",
+    archief: cmMaakTemplateWaarde("TEST – archieflink", '<a href="https://example.invalid/archief">TEST – archieflink</a>'),
+    contactgegevens: cmMaakTemplateWaarde("TEST – contactgegevens", "<strong>TEST</strong> – contactgegevens"),
+    kerktvpagina: cmMaakTemplateWaarde("TEST – KerkTV-pagina", '<a href="https://example.invalid/kerktv">TEST – KerkTV-pagina</a>'),
+    organist: "TEST – organist",
+    bloemen: "TEST – bloemen",
+    extra_mededelingen: "TEST – extra mededelingen",
+    "extra mededelingen": "TEST – extra mededelingen",
+    url_edit: "https://example.invalid/bewerken",
+    "url edit": "https://example.invalid/bewerken",
+    kerkdiensten: cmMaakTemplateWaarde("TEST – lijst met kerkdiensten", htmlLijst),
+    activiteiten: cmMaakTemplateWaarde("TEST – lijst met activiteiten", htmlLijst),
+    beschrijving: "TEST – beschrijving",
+    samenvatting: "TEST – samenvatting",
+    details: cmMaakTemplateWaarde("TEST – details", htmlLijst),
+    periode: "TEST – periode"
+  });
+}
+
+/** Leest de testtemplate, vervangt alle variabelen en mailt hem naar de testlijst. */
+function cmVerzendTesttemplate() {
+  var templateId = crLeesConfiguratie("Template-ID - Testmail");
+  if (!String(templateId || "").trim()) {
+    throw new Error("Vul eerst 'Template-ID - Testmail' in op het werkblad Configuratie.");
+  }
+
+  var templateHtml = cmExporteerDocumentNaarHtml(templateId);
+  var aantalDiensten = cmBepaalAantalDienstenUitTemplate(templateHtml);
+  var selectie = cmSelecteerKomendeDiensten(aantalDiensten);
+  var variabelen = cmMaakTesttemplateVariabelen(selectie);
+  var html = cmVervangHtmlTemplate(templateHtml, variabelen, selectie);
+  var ontvangers = cmLeesEmailadressen(crLeesConfiguratie("Testmail"));
+  var verzonden = 0;
+
+  ontvangers.forEach(function (rij) {
+    var adres = Array.isArray(rij) ? rij[0] : rij;
+    if (!String(adres || "").trim()) return;
+    MailApp.sendEmail(String(adres).trim(), "[TEST] Mailtemplatevariabelen", "Zie HTML-gedeelte", {
+      name: "Test Dienstenrooster",
+      htmlBody: html
+    });
+    verzonden++;
+  });
+
+  if (!verzonden) throw new Error("De configuratie-instelling 'Testmail' bevat geen e-mailadressen.");
+  SpreadsheetApp.getUi().alert("Testtemplate verzonden naar " + verzonden + " testontvanger(s).");
+}
+
 /** Vervangt alle placeholders in geëxporteerde template-HTML. */
 function cmVervangHtmlTemplate(html, variabelen, selectie) {
   var onbekend = {};
@@ -388,7 +456,7 @@ function cmVerzendTemplate() {
 }
 
 
-function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mailinglijstwerkblad - Test")) {
+function cmVerzendTemplateNaarLijst(emailListSheetName, bevestigingsadres) {
   var agendanaam = crLeesConfiguratie("Agenda - KerkTV");
   var mededeling = crLeesConfiguratie("Berichttekst - KerkTV");
   var templateId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
@@ -445,13 +513,13 @@ function cmVerzendTemplateNaarLijst(emailListSheetName = crLeesConfiguratie("Mai
   cmVervangDocumentTemplate(document, variabelen, selectie);
   document.saveAndClose();
   var emailHtml = cmVervangHtmlTemplate(templateHtml, variabelen, selectie);
-  var emailadressen = crLeesWerkbladInhoud(emailListSheetName);
+  var emailadressen = cmLeesEmailadressen(emailListSheetName);
   cmVerzendEmail(
     emailadressen,
     onderwerp,
     "Liturgiemail Protestantse Gemeente Didam",
     emailHtml,
-    "avandervliet@gmail.com",
+    bevestigingsadres || "avandervliet@gmail.com",
     "Liturgie verzonden\nDocument: " + bewerkUrl,
     false
   );
@@ -937,7 +1005,7 @@ function cmVerzendLectorrooster() {
 }
 
 
-function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test")) {
+function cmVerzendLectorroosterNaarLijst(emailListSheet, bevestigingsadres) {
 
   var num_weeks_in_report = 52;
 
@@ -979,9 +1047,9 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet = crLeesConfiguratie("Ma
   var emailAsBcc = true;  // send emails in a loop or one by one
 
   // Haal addressen op
-  var emailTo_list = crLeesWerkbladInhoud(emailListSheet);
+  var emailTo_list = cmLeesEmailadressen(emailListSheet);
 
-  var emailConfirmationTo = "avandervliet@gmail.com";
+  var emailConfirmationTo = bevestigingsadres || "avandervliet@gmail.com";
   var emailConfirmationMsg = "Lectorrooster verzonden\n";
 
   var emailSubject = 'Lectorrooster vanaf week ' + rptWeekStartNum;

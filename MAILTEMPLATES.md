@@ -69,3 +69,23 @@ Afhankelijk van het type mail zijn onder andere beschikbaar:
 
 Een onbekende placeholder stopt de verzending. De foutmelding noemt de
 onbekende naam, zodat een typefout niet ongemerkt in een verzonden mail komt.
+
+## Testtemplate
+
+Vul op het werkblad **Configuratie** bij `Template-ID - Testmail` het
+Google Document-ID van een aparte testtemplate in. Kies daarna in het menu
+**Dienstenrooster → Testen → Verzend testtemplate**.
+
+De testmail:
+
+- gebruikt echte roosterwaarden van de eerstvolgende dienst(en);
+- ondersteunt ook `@gegevens <n>@`;
+- vult alle aanvullende placeholders met duidelijk herkenbare `TEST`-waarden;
+- wordt uitsluitend verzonden naar de adressen uit `Testmail`;
+- stopt vóór verzending als de template een onbekende placeholder bevat.
+
+Hiermee kan één testtemplate alle hierboven beschreven placeholders bevatten.
+
+Alle andere opdrachten in het menu **Testen** gebruiken eveneens de instelling
+`Testmail`. De waarde is een kommagescheiden lijst, aanvankelijk:
+`avandervliet@gmail.com, avandervliet@xs4all.nl`.

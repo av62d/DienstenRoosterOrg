@@ -1,10 +1,10 @@
 # Functie-inventaris Apps Script
 
-Bron: actuele code in `.\refactor_work`.
+Bron: actuele code in `\\wsl.localhost\Ubuntu\home\avliet\projects\dienstenrooster-origineel`.
 
 - Scriptbestanden: 11
-- Functiedeclaraties: 183
-- Functies op bestandsniveau: 170
+- Functiedeclaraties: 189
+- Functies op bestandsniveau: 176
 - Lokale hulpfuncties: 13
 
 De regelnummers horen bij de geïnventariseerde versie. Een standaardwaarde staat achter het betreffende argument. Functies zonder argumenten zijn aangeduid met **geen**.
@@ -29,65 +29,68 @@ Aantal: 19
 | `bhHerberekenVoorpagina` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond<br>`eersteRij` – rij of rijgegevens<br>`aantalRijen` – aantal<br>`berekenDatum` – datum of begindatum<br>`berekenCollecte` – kolom of kolomindex | Berekent Maand en Kwartaal uit Datum en CollecteCategorie uit Lijst Collectes. | 464 |
 | `bhBijWijzigingVoorpagina` | Bestandsniveau | `e` – Apps Script-gebeurtenisobject | Herberekent afgeleide Voorpagina-kolommen na wijziging van Datum of Collecte. | 533 |
 | `bhConfiguratieSpecificatie` | Bestandsniveau | geen | Retourneert de toegestane configuratiesleutels, aliassen, categorieën en toelichtingen. | 556 |
-| `bhSchoonConfiguratieOp` | Bestandsniveau | geen | Verwijdert ongebruikte instellingen en bouwt Configuratie opnieuw logisch op. | 592 |
-| `bhMigreerConfiguratie` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Migreert configuratie. | 690 |
-| `bhBepaalDocumentId` | Bestandsniveau | `waarde` – tekst of waarde | Bepaalt document id. | 749 |
-| `bhControleerSpreadsheet` | Bestandsniveau | geen | Controleert spreadsheet. | 773 |
-| `bhInitialiseerSpreadsheet` | Bestandsniveau | geen | Initialiseert spreadsheet. | 859 |
+| `bhSchoonConfiguratieOp` | Bestandsniveau | geen | Verwijdert ongebruikte instellingen en bouwt Configuratie opnieuw logisch op. | 589 |
+| `bhMigreerConfiguratie` | Bestandsniveau | `toonMelding` – of na afloop een melding wordt getoond | Migreert configuratie. | 687 |
+| `bhBepaalDocumentId` | Bestandsniveau | `waarde` – tekst of waarde | Bepaalt document id. | 747 |
+| `bhControleerSpreadsheet` | Bestandsniveau | geen | Controleert spreadsheet. | 771 |
+| `bhInitialiseerSpreadsheet` | Bestandsniveau | geen | Initialiseert spreadsheet. | 857 |
 
 ## CM_Communicatie.js
 
-Aantal: 47
+Aantal: 50
 
 | Functie | Soort | Argumenten | Doel | Regel |
 |---|---|---|---|---:|
 | `cmVerzendRooster` | Bestandsniveau | geen | Verzendt rooster. | 10 |
-| `cmVerzendRoosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Test")`<br>`num_weeks_in_report` – week of aantal weken; standaard: `6`<br>`num_months_in_report` – maand of aantal maanden; standaard: `6` | Verzendt rooster naar lijst. | 15 |
+| `cmVerzendRoosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject<br>`num_weeks_in_report` – week of aantal weken; standaard: `6`<br>`num_months_in_report` – maand of aantal maanden; standaard: `6`<br>`bevestigingsadres` – invoerwaarde | Verzendt rooster naar lijst. | 15 |
 | `cmVerzendEmail` | Bestandsniveau | `emailTo_list` – lijst met e-mailadressen<br>`emailSubject` – onderwerpregel<br>`emailName` – afzendernaam<br>`emailHtmlBody` – HTML-inhoud<br>`emailConfirmationTo` – instelling of tekst voor bevestiging<br>`emailConfirmationMsg` – instelling of tekst voor bevestiging<br>`emailAsBcc` – of BCC-verzending wordt gebruikt | Verzendt HTML-mail naar een lijst, afzonderlijk of als BCC, met optionele bevestiging. | 75 |
-| `cmMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element. | 132 |
-| `cmVoegLijstItemToe` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe. | 137 |
-| `cmEscapeHtml` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt escape html. | 146 |
-| `cmIsJaWaarde` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt is ja waarde. | 156 |
-| `cmIsNeeWaarde` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt is nee waarde. | 160 |
-| `cmMaakDienstvelden` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde | Maakt dienstvelden. | 165 |
-| `cmMaakHtmlDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt html dienstenrapport. | 200 |
-| `cmMaakTekstDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt tekst dienstenrapport. | 225 |
-| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 246 |
-| `cmNormaliseerPlaceholder` | Bestandsniveau | `naam` – invoerwaarde | Normaliseert placeholder. | 252 |
-| `cmMaakTemplateWaarde` | Bestandsniveau | `tekst` – tekst of waarde<br>`html` – invoerwaarde | Maakt template waarde. | 257 |
-| `cmMaakTemplateVariabelen` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde<br>`aanvullingen` – invoerwaarde | Maakt template variabelen. | 263 |
-| `cmBepaalAantalDienstenUitTemplate` | Bestandsniveau | `tekst` – tekst of waarde | Bepaalt aantal diensten uit template. | 305 |
-| `cmSelecteerKomendeDiensten` | Bestandsniveau | `aantal` – aantal<br>`begindatum` – datum of begindatum | Selecteert komende diensten. | 316 |
-| `cmVervangHtmlTemplate` | Bestandsniveau | `html` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang html template. | 328 |
-| `cmVervangDocumentTemplate` | Bestandsniveau | `document` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang document template. | 346 |
-| `cmExporteerDocumentNaarHtml` | Bestandsniveau | `documentId` – Google Document-ID | Exporteert document naar html. | 376 |
-| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 386 |
-| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Test")` | Verzendt template naar lijst. | 391 |
-| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 461 |
-| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 466 |
-| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`volgendeWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 471 |
-| `cmZoekEersteDienstIndex` | Bestandsniveau | `selectie` – invoerwaarde | Zoekt eerste dienst index. | 524 |
-| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentnaam` – invoerwaarde | Maakt documentkopie. | 529 |
-| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `agendanaam` – agendanaam<br>`begindatum` – datum of begindatum<br>`einddatum` – einddatum | Leest liturgie uit agenda. | 535 |
-| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`bestandsnaam` – invoerwaarde | Exporteert document naar docx. | 546 |
-| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 563 |
-| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 568 |
-| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 573 |
-| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 585 |
-| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 598 |
-| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 606 |
-| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 667 |
-| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 672 |
-| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 677 |
-| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 687 |
-| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 713 |
-| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 781 |
-| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 820 |
-| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 846 |
-| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 850 |
-| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 935 |
-| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject; standaard: `crLeesConfiguratie("Mailinglijstwerkblad - Lectoren test")` | Verzendt lectorrooster naar lijst. | 940 |
-| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 999 |
+| `cmLeesEmailadressen` | Bestandsniveau | `bron` – invoerwaarde | Leest emailadressen. | 132 |
+| `cmMaakHtmlElement` | Bestandsniveau | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element. | 145 |
+| `cmVoegLijstItemToe` | Bestandsniveau | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe. | 150 |
+| `cmEscapeHtml` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt escape html. | 159 |
+| `cmIsJaWaarde` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt is ja waarde. | 169 |
+| `cmIsNeeWaarde` | Bestandsniveau | `waarde` – tekst of waarde | Verwerkt is nee waarde. | 173 |
+| `cmMaakDienstvelden` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde | Maakt dienstvelden. | 178 |
+| `cmMaakHtmlDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt html dienstenrapport. | 213 |
+| `cmMaakTekstDienstenrapport` | Bestandsniveau | `selectie` – invoerwaarde<br>`aantal` – aantal | Maakt tekst dienstenrapport. | 238 |
+| `cmMaakHtmlWeekrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Bouwt een HTML-weekrapport voor de opgegeven periode. | 259 |
+| `cmNormaliseerPlaceholder` | Bestandsniveau | `naam` – invoerwaarde | Normaliseert placeholder. | 265 |
+| `cmMaakTemplateWaarde` | Bestandsniveau | `tekst` – tekst of waarde<br>`html` – invoerwaarde | Maakt template waarde. | 270 |
+| `cmMaakTemplateVariabelen` | Bestandsniveau | `selectie` – invoerwaarde<br>`index` – invoerwaarde<br>`aanvullingen` – invoerwaarde | Maakt template variabelen. | 276 |
+| `cmBepaalAantalDienstenUitTemplate` | Bestandsniveau | `tekst` – tekst of waarde | Bepaalt aantal diensten uit template. | 318 |
+| `cmSelecteerKomendeDiensten` | Bestandsniveau | `aantal` – aantal<br>`begindatum` – datum of begindatum | Selecteert komende diensten. | 329 |
+| `cmMaakTesttemplateVariabelen` | Bestandsniveau | `selectie` – invoerwaarde | Maakt testtemplate variabelen. | 341 |
+| `cmVerzendTesttemplate` | Bestandsniveau | geen | Verzendt testtemplate. | 367 |
+| `cmVervangHtmlTemplate` | Bestandsniveau | `html` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang html template. | 396 |
+| `cmVervangDocumentTemplate` | Bestandsniveau | `document` – invoerwaarde<br>`variabelen` – invoerwaarde<br>`selectie` – invoerwaarde | Verwerkt vervang document template. | 414 |
+| `cmExporteerDocumentNaarHtml` | Bestandsniveau | `documentId` – Google Document-ID | Exporteert document naar html. | 444 |
+| `cmVerzendTemplate` | Bestandsniveau | geen | Verzendt template. | 454 |
+| `cmVerzendTemplateNaarLijst` | Bestandsniveau | `emailListSheetName` – naam van het werkblad<br>`bevestigingsadres` – invoerwaarde | Verzendt template naar lijst. | 459 |
+| `cmVerzendMededelingen` | Bestandsniveau | geen | Verzendt mededelingen. | 529 |
+| `cmVerzendMededelingenVolgendeWeek` | Bestandsniveau | geen | Verzendt mededelingen volgende week. | 534 |
+| `cmVerzendMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s)<br>`volgendeWeek` – week of aantal weken | Maakt mededelingen vanuit template en agenda en verzendt het resultaat naar een adres. | 539 |
+| `cmZoekEersteDienstIndex` | Bestandsniveau | `selectie` – invoerwaarde | Zoekt eerste dienst index. | 592 |
+| `cmMaakDocumentkopie` | Bestandsniveau | `templateId` – Google Document-ID<br>`documentnaam` – invoerwaarde | Maakt documentkopie. | 597 |
+| `cmLeesLiturgieUitAgenda` | Bestandsniveau | `agendanaam` – agendanaam<br>`begindatum` – datum of begindatum<br>`einddatum` – einddatum | Leest liturgie uit agenda. | 603 |
+| `cmExporteerDocumentNaarDocx` | Bestandsniveau | `documentId` – Google Document-ID<br>`bestandsnaam` – invoerwaarde | Exporteert document naar docx. | 614 |
+| `cmVerzendMjMededelingen` | Bestandsniveau | geen | Verzendt mj mededelingen. | 631 |
+| `cmMaakMjHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt mj html element. | 636 |
+| `cmHaalGebeurtenissenUitAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Haalt gebeurtenissen uit agenda. | 641 |
+| `cmFormatteerGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert gebeurtenissen. | 653 |
+| `cmFormatteerEersteGebeurtenisVolledig` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert eerste gebeurtenis volledig. | 666 |
+| `cmVerzendMjMededelingenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt mj mededelingen naar adres. | 674 |
+| `cmVerzendLiemersActiviteiten` | Bestandsniveau | geen | Verzendt liemers activiteiten. | 735 |
+| `cmMaakLiemersHtmlElement` | Bestandsniveau | `tg` – HTML-tag<br>`str` – tekst of waarde | Maakt liemers html element. | 740 |
+| `cmLeesAgenda` | Bestandsniveau | `calName` – agendanaam<br>`startDate` – datum of begindatum<br>`endDate` – einddatum | Leest agenda. | 745 |
+| `cmFormatteerLiemersGebeurtenissen` | Bestandsniveau | `events` – agenda-afspraak of lijst met afspraken | Formatteert liemers gebeurtenissen. | 755 |
+| `cmVerzendLiemersActiviteitenNaarAdres` | Bestandsniveau | `emailTo` – ontvanger(s) | Verzendt liemers activiteiten naar adres. | 781 |
+| `cmVerzendLijstKerkdiensten` | Bestandsniveau | `emailTo` – ontvanger(s); standaard: `crLeesConfiguratie("Mailinglijst - Kerkdiensten")` | Verzendt lijst kerkdiensten. | 849 |
+| `cmMaakHtmlLijstrapport` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Maakt html lijstrapport. | 888 |
+| `cmMaakHtmlElement` | Lokale helper | `tag` – HTML-tag<br>`str` – tekst of waarde | Maakt html element binnen de bovenliggende functie. | 914 |
+| `cmVoegLijstItemToe` | Lokale helper | `pfx` – voorvoegsel<br>`str` – tekst of waarde | Voegt lijst item toe binnen de bovenliggende functie. | 918 |
+| `cmVerzendLectorrooster` | Bestandsniveau | geen | Verzendt lectorrooster. | 1003 |
+| `cmVerzendLectorroosterNaarLijst` | Bestandsniveau | `emailListSheet` – Spreadsheet-werkbladobject<br>`bevestigingsadres` – invoerwaarde | Verzendt lectorrooster naar lijst. | 1008 |
+| `cmGenereerLectorroosterLijst` | Bestandsniveau | `rptWeekStartDate` – datum of begindatum<br>`rptWeekEndDate` – einddatum | Genereert lectorrooster lijst. | 1067 |
 
 ## CR_Core.js
 
@@ -231,7 +234,7 @@ Aantal: 20
 
 ## TS_Test.js
 
-Aantal: 18
+Aantal: 21
 
 | Functie | Soort | Argumenten | Doel | Regel |
 |---|---|---|---|---:|
@@ -242,17 +245,20 @@ Aantal: 18
 | `tsTestVerzendRooster` | Bestandsniveau | geen | Test verzend rooster. | 83 |
 | `tsTestMaakHtmlWeekrapport` | Bestandsniveau | geen | Test maak html weekrapport. | 99 |
 | `tsTestVerzendTemplate` | Bestandsniveau | geen | Test verzend template. | 112 |
-| `tsTestVerzendMededelingen` | Bestandsniveau | geen | Test verzend mededelingen. | 117 |
-| `tsTestVerzendMjMededelingen` | Bestandsniveau | geen | Test verzend mj mededelingen. | 122 |
-| `tsTestVerzendLiemersActiviteiten` | Bestandsniveau | geen | Test verzend liemers activiteiten. | 127 |
-| `tsTestConversie` | Bestandsniveau | geen | Test conversie. | 132 |
-| `tsTestVerzendLectorrooster` | Bestandsniveau | geen | Test verzend lectorrooster. | 143 |
-| `tsTestAgenda` | Bestandsniveau | geen | Test agenda. | 148 |
-| `tsTestMaakUitzending` | Bestandsniveau | geen | Test maak uitzending. | 154 |
-| `tsTestBereikbaarheid` | Bestandsniveau | geen | Test bereikbaarheid. | 174 |
-| `tsTestOphalen` | Bestandsniveau | geen | Test ophalen. | 181 |
-| `tsTestKleurwerkblad` | Bestandsniveau | geen | Test kleurwerkblad. | 222 |
-| `tsTestGenereerKleuren` | Bestandsniveau | geen | Test genereer kleuren. | 231 |
+| `tsVerzendTesttemplate` | Bestandsniveau | geen | Verzendt testtemplate. | 118 |
+| `tsTestVerzendMededelingen` | Bestandsniveau | geen | Test verzend mededelingen. | 123 |
+| `tsTestVerzendMjMededelingen` | Bestandsniveau | geen | Test verzend mj mededelingen. | 128 |
+| `tsTestVerzendLiemersActiviteiten` | Bestandsniveau | geen | Test verzend liemers activiteiten. | 133 |
+| `tsTestConversie` | Bestandsniveau | geen | Test conversie. | 138 |
+| `tsTestVerzendLectorrooster` | Bestandsniveau | geen | Test verzend lectorrooster. | 149 |
+| `tsLeesTestmailadressen` | Bestandsniveau | geen | Leest testmailadressen. | 155 |
+| `tsEersteTestmailadres` | Bestandsniveau | geen | Verwerkt eerste testmailadres. | 163 |
+| `tsTestAgenda` | Bestandsniveau | geen | Test agenda. | 168 |
+| `tsTestMaakUitzending` | Bestandsniveau | geen | Test maak uitzending. | 174 |
+| `tsTestBereikbaarheid` | Bestandsniveau | geen | Test bereikbaarheid. | 194 |
+| `tsTestOphalen` | Bestandsniveau | geen | Test ophalen. | 201 |
+| `tsTestKleurwerkblad` | Bestandsniveau | geen | Test kleurwerkblad. | 242 |
+| `tsTestGenereerKleuren` | Bestandsniveau | geen | Test genereer kleuren. | 251 |
 
 ## YT_YouTube.js
 
