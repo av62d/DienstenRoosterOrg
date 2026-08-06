@@ -94,7 +94,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
       groen: "lightgreen",
       rood: "red"
     }[colorName] || "white";
-    var colors = new Array(rptNumCols).fill(roster.avondmaal[i] ? BG_HA : BG_COL1);
+    var colors = new Array(rptNumCols).fill(roster.avondmaal[i] ? crCommunionBg : crRowBg);
     colors[0] = liturgicalColor;
     for (var col = 3; col < rptNumCols; col++) {
       var text = String(row[col] || "");

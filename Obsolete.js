@@ -104,7 +104,7 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
     uitgangscollectes: exitCollections,
     oorspronkelijkeLectoren: originalReaders
   } = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
-  var bgColor = BG_COL1;
+  var bgColor = crRowBg;
   var nowDate = new Date();
   reportSheet.appendRow([rptTitle]);
   var lrow = cmMaakLaatsteRijOp(fgTitle, titleBg, 24);
@@ -118,11 +118,11 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
   lrow.setHorizontalAlignment("center"); // gecentreerd
 
   var rptMonth = "";
-  var altColor = BG_COL1;
+  var altColor = crRowBg;
   var nl = "\n";
   for (var i in types) {
     var t = types[i];
-    if (altColor == BG_COL1) altColor = BG_COL2;else altColor = BG_COL1;
+    if (altColor == crRowBg) altColor = crAltRowBg;else altColor = crRowBg;
     bgColor = altColor;
     var monthName = crFormatteerDatum(rowDates[i], crDateFormat.MAAND);
     if (monthName !== rptMonth) {
@@ -152,7 +152,7 @@ function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "L
         break;
     }
     if (communions[i] != "") {
-      bgColor = BG_HA;
+      bgColor = crCommunionBg;
     }
     var currentReader = "";
     if (readers[i].localeCompare(originalReaders[i])) {
@@ -362,7 +362,7 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
   var firstCol = 5;
   var secondColOffset = 2;
   var secondCol = 4;
-  var bgColor = BG_COL1;
+  var bgColor = crRowBg;
   var nowDate = new Date();
   reportSheet.appendRow([rptTitle]);
   var lrow = rsMaakLaatsteRijOp(fgTitle, titleBg, 24);
@@ -376,11 +376,11 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
   lrow.setHorizontalAlignment("center"); // gecentreerd
 
   var rptMonth = "";
-  var altColor = BG_COL1;
+  var altColor = crRowBg;
   var nl = "\n";
   for (var i in types) {
     var t = types[i];
-    if (altColor == BG_COL1) altColor = BG_COL2;else altColor = BG_COL1;
+    if (altColor == crRowBg) altColor = crAltRowBg;else altColor = crRowBg;
     bgColor = altColor;
     var monthName = crFormatteerDatum(rowDates[i], crDateFormat.MAAND);
     if (monthName !== rptMonth) {
@@ -413,7 +413,7 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
     }
     var communionService = "";
     if (communions[i] != "") {
-      bgColor = BG_HA;
+      bgColor = crCommunionBg;
     }
     var rowArray = [crFormatteerDatum(rowDates[i], crDateFormat.DATUM_KORT_MET_LANGE_MAAND) + nl + crFormatteerDatum(rowDates[i], crDateFormat.TIJD)
     // + nl + 'week ' + crBepaalWeeknummer(a_rowDate[i]).toString()           // week aanduiding

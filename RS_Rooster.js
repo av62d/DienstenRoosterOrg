@@ -187,7 +187,7 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
   rsVoegRapportRijToe([rptTitle], "titel", "white");
   rsVoegRapportRijToe(["Afgedrukt: " + crFormatteerDatum(new Date(), crDateFormat.DATUM_TIJD_ZONDER_JAAR)], "afdruk", "white");
   var previousMonth = "";
-  var alternateColor = BG_COL1;
+  var alternateColor = crRowBg;
   var nl = "\n";
   for (var i = 0; i < roster.datums.length; i++) {
     var monthName = crFormatteerDatum(roster.datums[i], crDateFormat.MAAND);
@@ -201,8 +201,8 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
       };
       dataSegments.push(currentSegment);
     }
-    alternateColor = alternateColor === BG_COL1 ? BG_COL2 : BG_COL1;
-    var background = roster.avondmaal[i] ? BG_HA : alternateColor;
+    alternateColor = alternateColor === crRowBg ? crAltRowBg : crRowBg;
+    var background = roster.avondmaal[i] ? crCommunionBg : alternateColor;
     var colorName = String(roster.kleuren[i] || "").toLowerCase();
     var liturgicalColor = {
       wit: "white",

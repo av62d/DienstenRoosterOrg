@@ -3,6 +3,11 @@
  * Gegenereerd tijdens de functionele herstructurering.
  */
 
+// Gedeelde achtergrondkleuren voor roosters en exports.
+var crCommunionBg = "AliceBlue";
+var crRowBg = "White";
+var crAltRowBg = "WhiteSmoke";
+
 function crMaakOfLeegWerkblad(argSheetName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var retSheet = ss.getSheetByName(argSheetName);
