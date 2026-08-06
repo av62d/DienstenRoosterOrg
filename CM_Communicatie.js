@@ -413,14 +413,33 @@ function cmVerzendMededelingen() {
 function cmVerzendMededelingenVolgendeWeek() {
   cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), true);
 }
+
+/** Leest hoofdtekst, kop- en voettekst van een Google Document in één tekst. */
+function cmLeesDocumenttekst(document) {
+  return [document.getBody(), document.getHeader(), document.getFooter()].filter(function (section) {
+    return Boolean(section);
+  }).map(function (section) {
+    return section.getText();
+  }).join("\n");
+}
+
+/** Bepaalt datumafhankelijke namen voor één mededelingenmail en bijlage. */
+function cmMaakMededelingenMetadata(selection) {
+  var serviceDate = new Date(selection.datums[0]);
+  var dateText = crFormatteerDatum(serviceDate, crDateFormat.DATUM_LANG);
+  return {
+    serviceDate: serviceDate,
+    dateText: dateText,
+    subject: "Mededelingen voor " + dateText,
+    fileName: crFormatteerDatum(serviceDate, crDateFormat.SORTEERDATUM) + " - mededelingen " + dateText + ".docx"
+  };
+}
+
 /**
- * Bouwt de kerkmededelingen uit twee templates met één gedeelde dataset.
- * De mailtemplate levert alleen de mail-HTML; de documenttemplate wordt eerst
- * gekopieerd, ingevuld en daarna als DOCX geëxporteerd. Het grootste gevraagde
- * `@gegevens <n>@` uit beide templates bepaalt hoeveel diensten worden gelezen.
+ * Leest beide templates en selecteert één keer alle diensten die een van beide
+ * templates via `@gegevens <n>@` nodig heeft.
  */
-function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
-  if (!emailTo) return;
+function cmBereidMededelingenVoor(nextWeek) {
   var startDate = crZetOpBeginVanDag(new Date());
   if (nextWeek) startDate = crTelDagenBijDatumOp(startDate, 7);
   var mailTemplateId = crLeesConfiguratie("Template-ID - Mededelingen mail");
@@ -429,23 +448,21 @@ function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
     throw new Error("Vul zowel 'Template-ID - Mededelingen mail' als 'Template-ID - Mededelingen document' in op Configuratie.");
   }
   var documentTemplate = DocumentApp.openById(documentTemplateId);
-  var documentTemplateText = [documentTemplate.getBody(), documentTemplate.getHeader(), documentTemplate.getFooter()].filter(function (section) {
-    return Boolean(section);
-  }).map(function (section) {
-    return section.getText();
-  }).join("\n");
-  var mailTemplateHtml = cmExporteerDocumentNaarHtml(mailTemplateId);
-  var serviceCount = Math.max(cmBepaalAantalDienstenUitTemplate(documentTemplateText), cmBepaalAantalDienstenUitTemplate(mailTemplateHtml));
+  var documentText = cmLeesDocumenttekst(documentTemplate);
+  var mailHtml = cmExporteerDocumentNaarHtml(mailTemplateId);
+  var serviceCount = Math.max(cmBepaalAantalDienstenUitTemplate(documentText), cmBepaalAantalDienstenUitTemplate(mailHtml));
   var selection = cmSelecteerKomendeDiensten(serviceCount, startDate);
-  var serviceDate = new Date(selection.datums[0]);
-  var dateText = crFormatteerDatum(serviceDate, crDateFormat.DATUM_LANG);
-  var subject = "Mededelingen voor " + dateText;
-  var document = cmMaakDocumentkopie(documentTemplateId, subject);
-  var dayStart = crZetOpBeginVanDag(new Date(serviceDate));
-  var dayEnd = crZetTijdOpEindeVanDag(new Date(serviceDate));
-  var liturgy = cmLeesLiturgieUitAgenda(crLeesConfiguratie("Agenda - KerkTV"), dayStart, dayEnd);
-  var editUrl = "https://docs.google.com/document/d/" + document.getId() + "/edit?usp=sharing";
-  var vars = cmMaakTemplateVariabelen(selection, 0, {
+  return {
+    documentTemplateId: documentTemplateId,
+    mailHtml: mailHtml,
+    selection: selection,
+    metadata: cmMaakMededelingenMetadata(selection)
+  };
+}
+
+/** Maakt de gedeelde placeholderwaarden voor mail en documentbijlage. */
+function cmMaakMededelingenVariabelen(selection, subject, liturgy, editUrl) {
+  return cmMaakTemplateVariabelen(selection, 0, {
     onderwerp: subject,
     organist: "Rolf Zandbergen",
     bloemen: "- INVULLEN -",
@@ -455,15 +472,40 @@ function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
     "url edit": editUrl,
     url_edit: editUrl
   });
-  cmVervangDocumentTemplate(document, vars, selection);
+}
+
+/** Vult de documenttemplate en exporteert de opgeslagen kopie als DOCX. */
+function cmMaakMededelingenBijlage(prepared) {
+  var meta = prepared.metadata;
+  var document = cmMaakDocumentkopie(prepared.documentTemplateId, meta.subject);
+  var dayStart = crZetOpBeginVanDag(new Date(meta.serviceDate));
+  var dayEnd = crZetTijdOpEindeVanDag(new Date(meta.serviceDate));
+  var liturgy = cmLeesLiturgieUitAgenda(crLeesConfiguratie("Agenda - KerkTV"), dayStart, dayEnd);
   var documentId = document.getId();
+  var editUrl = "https://docs.google.com/document/d/" + documentId + "/edit?usp=sharing";
+  var vars = cmMaakMededelingenVariabelen(prepared.selection, meta.subject, liturgy, editUrl);
+  cmVervangDocumentTemplate(document, vars, prepared.selection);
   document.saveAndClose();
-  var fileName = crFormatteerDatum(serviceDate, crDateFormat.SORTEERDATUM) + " - mededelingen " + dateText + ".docx";
-  var docx = cmExporteerDocumentNaarDocx(documentId, fileName);
-  var html = cmVervangHtmlTemplate(mailTemplateHtml, vars, selection);
-  MailApp.sendEmail(emailTo, subject, "Zie HTML gedeelte", {
+  return {
+    vars: vars,
+    docx: cmExporteerDocumentNaarDocx(documentId, meta.fileName)
+  };
+}
+
+/**
+ * Bouwt de kerkmededelingen uit twee templates met één gedeelde dataset.
+ * De mailtemplate levert alleen de mail-HTML; de documenttemplate wordt eerst
+ * gekopieerd, ingevuld en daarna als DOCX geëxporteerd. Het grootste gevraagde
+ * `@gegevens <n>@` uit beide templates bepaalt hoeveel diensten worden gelezen.
+ */
+function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
+  if (!emailTo) return;
+  var prepared = cmBereidMededelingenVoor(nextWeek);
+  var attachment = cmMaakMededelingenBijlage(prepared);
+  var html = cmVervangHtmlTemplate(prepared.mailHtml, attachment.vars, prepared.selection);
+  MailApp.sendEmail(emailTo, prepared.metadata.subject, "Zie HTML gedeelte", {
     htmlBody: html,
-    attachments: [docx]
+    attachments: [attachment.docx]
   });
 }
 function cmZoekEersteDienstIndex(selection) {
