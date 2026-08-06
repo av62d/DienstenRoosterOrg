@@ -8,111 +8,93 @@
  * Start deze functie handmatig vanuit Apps Script na een deployment.
  */
 
-
 function bhControleerProjectConfiguratie() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var bekendeFuncties = new Set([
-    "mnBijOpenen",
-    "kaZetGebeurtenissenInAgenda",
-    "tsTestVerzendRooster",
-    "cmVerzendRooster",
-    "opStelAchtergrondkleurenIn",
-    "cmVerzendTemplate",
-    "tsTestVerzendTemplate",
-    "ytVerzendLaatsteVideos",
-    "tsTestVerzendMjMededelingen",
-    "cmVerzendMjMededelingen",
-    "tsTestVerzendMededelingen",
-    "cmVerzendMededelingen",
-    "cmVerzendMededelingenVolgendeWeek",
-    "cmVerzendLijstKerkdiensten",
-    "rsVerwijderAlleRoosters",
-    "rsMaakHalfjaarrooster1",
-    "rsMaakHalfjaarrooster2",
-    "rsVerzendJaarrooster",
-    "exMaakJaarroosterXlsx",
-    "exVerzendJaarroosterXlsx",
-    "tsTestVerzendLiemersActiviteiten",
-    "cmVerzendLiemersActiviteiten",
-    "tsTestVerzendLectorrooster",
-    "cmVerzendLectorrooster"
-  ]);
-
+  var knownFunctions = new Set(["mnBijOpenen", "kaZetGebeurtenissenInAgenda", "tsTestVerzendRooster", "cmVerzendRooster", "opStelAchtergrondkleurenIn", "cmVerzendTemplate", "tsTestVerzendTemplate", "ytVerzendLaatsteVideos", "tsTestVerzendMjMededelingen", "cmVerzendMjMededelingen", "tsTestVerzendMededelingen", "cmVerzendMededelingen", "cmVerzendMededelingenVolgendeWeek", "cmVerzendLijstKerkdiensten", "rsVerwijderAlleRoosters", "rsMaakHalfjaarrooster1", "rsMaakHalfjaarrooster2", "rsVerzendJaarrooster", "exMaakJaarroosterXlsx", "exVerzendJaarroosterXlsx", "tsTestVerzendLiemersActiviteiten", "cmVerzendLiemersActiviteiten", "tsTestVerzendLectorrooster", "cmVerzendLectorrooster"]);
   var triggers = ScriptApp.getProjectTriggers().map(function (trigger) {
     var handler = trigger.getHandlerFunction();
     return {
       functie: handler,
       gebeurtenis: String(trigger.getEventType()),
       bron: String(trigger.getTriggerSource()),
-      bekend: bekendeFuncties.has(handler)
+      bekend: knownFunctions.has(handler)
     };
   });
-
-  var benoemdeBereiken = ss.getNamedRanges().map(function (namedRange) {
+  var namedRanges = ss.getNamedRanges().map(function (namedRange) {
     return {
       naam: namedRange.getName(),
       bereik: namedRange.getRange().getA1Notation(),
       werkblad: namedRange.getRange().getSheet().getName()
     };
   });
-
-  var rapport = {
+  var report = {
     spreadsheet: ss.getName(),
     tijdzoneScript: Session.getScriptTimeZone(),
     tijdzoneSpreadsheet: ss.getSpreadsheetTimeZone(),
     triggers: triggers,
-    benoemdeBereiken: benoemdeBereiken,
-    bloemen2024ontvangerAanwezig: benoemdeBereiken.some(function (item) {
+    benoemdeBereiken: namedRanges,
+    bloemen2024ontvangerAanwezig: namedRanges.some(function (item) {
       return item.naam === "Bloemen2024ontvanger";
     })
   };
-
-  console.log(JSON.stringify(rapport, null, 2));
-  return rapport;
+  console.log(JSON.stringify(report, null, 2));
+  return report;
 }
 
 /** Centrale, declaratieve beschrijving van de vaste spreadsheetstructuur. */
 function bhSpreadsheetSpecificatie() {
   return {
-    werkbladen: [
-      "Voorpagina",
-      "Overzicht",
-      "NaamKleuren",
-      "Bloemen 2026",
-      "Lijst Collectes",
-      "Lijst Voorgangers",
-      "Lijst Ambtsdragers",
-      "Lijst Lectoren",
-      "Lijst Kosters",
-      "Lijst Koffiezetters",
-      "Lijst Ontvangst",
-      "Lijst Klokkenluiders",
-      "Lijst KerkTV",
-      "Configuratie",
-      "LectorMaillijst",
-      "Maillijst",
-      "Adressen",
-      "TestMaillijst",
-      "KerkTVMaillijst"
-    ],
-    benoemdeBereiken: [
-      { naam: "LijstKosters", werkblad: "Lijst Kosters", bereik: "A3:A19" },
-      { naam: "LijstAmbtsdragers", werkblad: "Lijst Ambtsdragers", bereik: "A3:A20" },
-      { naam: "LijstOntvangst", werkblad: "Lijst Ontvangst", bereik: "A3:A12" },
-      { naam: "LijstDiakenen", werkblad: "Lijst Ambtsdragers", bereik: "D4:D9" },
-      { naam: "LijstKlokkenluiders", werkblad: "Lijst Klokkenluiders", bereik: "A3:A11" },
-      { naam: "LijstKerkTV", werkblad: "Lijst KerkTV", bereik: "A3:A16" },
-      { naam: "LijstVoorgangers", werkblad: "Lijst Voorgangers", bereik: "A3:A52" },
-      { naam: "LijstLectoren", werkblad: "Lijst Lectoren", bereik: "A2:A10" },
-      { naam: "LijstCollectes", werkblad: "Lijst Collectes", bereik: "A3:A67" },
-      { naam: "LijstKoffiezetters", werkblad: "Lijst Koffiezetters", bereik: "A3:A12" },
-      { naam: "LijstExtra", werkblad: "Lijst Ambtsdragers", bereik: "E4:E22" }
-    ]
+    werkbladen: ["Voorpagina", "Overzicht", "NaamKleuren", "Bloemen 2026", "Lijst Collectes", "Lijst Voorgangers", "Lijst Ambtsdragers", "Lijst Lectoren", "Lijst Kosters", "Lijst Koffiezetters", "Lijst Ontvangst", "Lijst Klokkenluiders", "Lijst KerkTV", "Configuratie", "LectorMaillijst", "Maillijst", "Adressen", "TestMaillijst", "KerkTVMaillijst"],
+    benoemdeBereiken: [{
+      naam: "LijstKosters",
+      werkblad: "Lijst Kosters",
+      bereik: "A3:A19"
+    }, {
+      naam: "LijstAmbtsdragers",
+      werkblad: "Lijst Ambtsdragers",
+      bereik: "A3:A20"
+    }, {
+      naam: "LijstOntvangst",
+      werkblad: "Lijst Ontvangst",
+      bereik: "A3:A12"
+    }, {
+      naam: "LijstDiakenen",
+      werkblad: "Lijst Ambtsdragers",
+      bereik: "D4:D9"
+    }, {
+      naam: "LijstKlokkenluiders",
+      werkblad: "Lijst Klokkenluiders",
+      bereik: "A3:A11"
+    }, {
+      naam: "LijstKerkTV",
+      werkblad: "Lijst KerkTV",
+      bereik: "A3:A16"
+    }, {
+      naam: "LijstVoorgangers",
+      werkblad: "Lijst Voorgangers",
+      bereik: "A3:A52"
+    }, {
+      naam: "LijstLectoren",
+      werkblad: "Lijst Lectoren",
+      bereik: "A2:A10"
+    }, {
+      naam: "LijstCollectes",
+      werkblad: "Lijst Collectes",
+      bereik: "A3:A67"
+    }, {
+      naam: "LijstKoffiezetters",
+      werkblad: "Lijst Koffiezetters",
+      bereik: "A3:A12"
+    }, {
+      naam: "LijstExtra",
+      werkblad: "Lijst Ambtsdragers",
+      bereik: "E4:E22"
+    }]
   };
 }
 
 /** Vaste technische namen waarmee de Voorpagina-kolommen in code worden aangesproken. */
-var bhVoorpaginaKolom = Object.freeze({
+var bhFrontCol = Object.freeze({
   DATUM: "Datum",
   VOORGANGER: "Voorganger",
   BIJZONDERHEDEN: "Bijzonderheden",
@@ -139,76 +121,180 @@ var bhVoorpaginaKolom = Object.freeze({
   YOUTUBE_TITEL: "YouTubeTitel",
   BROADCAST_ID: "BroadcastId"
 });
-var bhVoorpaginaKolomschemaCache = null;
+var bhFrontColSchemaCache = null;
 
 /**
  * Enige bron voor technische namen, zichtbare titels, volgorde en gedrag van
  * alle Voorpagina-kolommen.
  */
 function bhVoorpaginaKolomspecificatie() {
-  if (bhVoorpaginaKolomschemaCache) return bhVoorpaginaKolomschemaCache;
-  bhVoorpaginaKolomschemaCache = [
-    { naam: bhVoorpaginaKolom.DATUM, titel: "Datum", type: "datumtijd", aliases: [] },
-    { naam: bhVoorpaginaKolom.VOORGANGER, titel: "Voorganger", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.BIJZONDERHEDEN, titel: "Bijzonderheden", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.COLLECTE, titel: "Collecte", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.LECTOR, titel: "Lector", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.OUDERLING, titel: "Ouderling", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.EXTRA, titel: "Extra", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.KOSTER, titel: "Koster", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.KOFFIE, titel: "Koffie", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.ONTVANGST, titel: "Ontvangst", type: "tekst", aliases: ["Comm. van ontvangst"] },
-    { naam: bhVoorpaginaKolom.KLOKKENLUIDER, titel: "Klokkenluider", type: "tekst", aliases: ["Klokken- luider"] },
-    { naam: bhVoorpaginaKolom.KERKTV, titel: "KerkTV", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.KLEUR, titel: "Kleur", type: "keuze", aliases: [] },
-    { naam: bhVoorpaginaKolom.HEILIG_AVONDMAAL, titel: "Heilig Avondmaal", type: "selectievakje", aliases: ["HA"] },
-    { naam: bhVoorpaginaKolom.AVONDMAALSVORM, titel: "Vorm Heilig Avondmaal", type: "tekst", aliases: ["HAvorm"] },
-    { naam: bhVoorpaginaKolom.NAAM_ZONDAG, titel: "Naam van de zondag", type: "tekst", aliases: ["ZondagNaam", "Naam van Zondag"] },
-    { naam: bhVoorpaginaKolom.COLLECTECATEGORIE, titel: "Collectecategorie", type: "afgeleid", bron: bhVoorpaginaKolom.COLLECTE, aliases: ["CollecteCategorie", "Collecte (Categorie)"] },
-    { naam: bhVoorpaginaKolom.UITGANGSCOLLECTE, titel: "Uitgangscollecte", type: "tekst", aliases: [] },
-    { naam: bhVoorpaginaKolom.KWARTAAL, titel: "Kwartaal", type: "afgeleid", bron: bhVoorpaginaKolom.DATUM, aliases: [] },
-    { naam: bhVoorpaginaKolom.MAAND, titel: "Maand", type: "afgeleid", bron: bhVoorpaginaKolom.DATUM, aliases: [] },
-    { naam: bhVoorpaginaKolom.KOFFIEDIENST, titel: "Koffiedienst", type: "jaNeeKeuze", aliases: ["KoffieDienst", "Koffie Dienst"] },
-    { naam: bhVoorpaginaKolom.DIDAMDIENST, titel: "Dienst in Didam", type: "jaNeeKeuze", aliases: ["DidamDienst", "Didam Dienst"] },
-    { naam: bhVoorpaginaKolom.YOUTUBE_LINK, titel: "YouTube-link", type: "url", aliases: ["YouTubeLink"] },
-    { naam: bhVoorpaginaKolom.YOUTUBE_TITEL, titel: "YouTube-titel", type: "tekst", aliases: ["YouTubeTitel", "Titel"] },
-    { naam: bhVoorpaginaKolom.BROADCAST_ID, titel: "Broadcast-ID", type: "tekst", aliases: ["BroadcastId"] }
-  ].map(function (kolom) { return Object.freeze(kolom); });
-  return Object.freeze(bhVoorpaginaKolomschemaCache);
+  if (bhFrontColSchemaCache) return bhFrontColSchemaCache;
+  bhFrontColSchemaCache = [{
+    naam: bhFrontCol.DATUM,
+    titel: "Datum",
+    type: "datumtijd",
+    aliases: []
+  }, {
+    naam: bhFrontCol.VOORGANGER,
+    titel: "Voorganger",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.BIJZONDERHEDEN,
+    titel: "Bijzonderheden",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.COLLECTE,
+    titel: "Collecte",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.LECTOR,
+    titel: "Lector",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.OUDERLING,
+    titel: "Ouderling",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.EXTRA,
+    titel: "Extra",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.KOSTER,
+    titel: "Koster",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.KOFFIE,
+    titel: "Koffie",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.ONTVANGST,
+    titel: "Ontvangst",
+    type: "tekst",
+    aliases: ["Comm. van ontvangst"]
+  }, {
+    naam: bhFrontCol.KLOKKENLUIDER,
+    titel: "Klokkenluider",
+    type: "tekst",
+    aliases: ["Klokken- luider"]
+  }, {
+    naam: bhFrontCol.KERKTV,
+    titel: "KerkTV",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.KLEUR,
+    titel: "Kleur",
+    type: "keuze",
+    aliases: []
+  }, {
+    naam: bhFrontCol.HEILIG_AVONDMAAL,
+    titel: "Heilig Avondmaal",
+    type: "selectievakje",
+    aliases: ["HA"]
+  }, {
+    naam: bhFrontCol.AVONDMAALSVORM,
+    titel: "Vorm Heilig Avondmaal",
+    type: "tekst",
+    aliases: ["HAvorm"]
+  }, {
+    naam: bhFrontCol.NAAM_ZONDAG,
+    titel: "Naam van de zondag",
+    type: "tekst",
+    aliases: ["ZondagNaam", "Naam van Zondag"]
+  }, {
+    naam: bhFrontCol.COLLECTECATEGORIE,
+    titel: "Collectecategorie",
+    type: "afgeleid",
+    bron: bhFrontCol.COLLECTE,
+    aliases: ["CollecteCategorie", "Collecte (Categorie)"]
+  }, {
+    naam: bhFrontCol.UITGANGSCOLLECTE,
+    titel: "Uitgangscollecte",
+    type: "tekst",
+    aliases: []
+  }, {
+    naam: bhFrontCol.KWARTAAL,
+    titel: "Kwartaal",
+    type: "afgeleid",
+    bron: bhFrontCol.DATUM,
+    aliases: []
+  }, {
+    naam: bhFrontCol.MAAND,
+    titel: "Maand",
+    type: "afgeleid",
+    bron: bhFrontCol.DATUM,
+    aliases: []
+  }, {
+    naam: bhFrontCol.KOFFIEDIENST,
+    titel: "Koffiedienst",
+    type: "jaNeeKeuze",
+    aliases: ["KoffieDienst", "Koffie Dienst"]
+  }, {
+    naam: bhFrontCol.DIDAMDIENST,
+    titel: "Dienst in Didam",
+    type: "jaNeeKeuze",
+    aliases: ["DidamDienst", "Didam Dienst"]
+  }, {
+    naam: bhFrontCol.YOUTUBE_LINK,
+    titel: "YouTube-link",
+    type: "url",
+    aliases: ["YouTubeLink"]
+  }, {
+    naam: bhFrontCol.YOUTUBE_TITEL,
+    titel: "YouTube-titel",
+    type: "tekst",
+    aliases: ["YouTubeTitel", "Titel"]
+  }, {
+    naam: bhFrontCol.BROADCAST_ID,
+    titel: "Broadcast-ID",
+    type: "tekst",
+    aliases: ["BroadcastId"]
+  }].map(function (col) {
+    return Object.freeze(col);
+  });
+  return Object.freeze(bhFrontColSchemaCache);
 }
 
 /** Koppelt de zichtbare kopteksten van Voorpagina aan de vaste technische namen. */
-function bhMaakVoorpaginaKolomindex(blad) {
-  var aanwezigeKolommen = crMaakKolomindex(blad);
-  var resultaat = {};
-  bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
-    var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
-    for (var i = 0; i < kandidaten.length; i++) {
-      var index = crZoekKolom(aanwezigeKolommen, kandidaten[i], false);
+function bhMaakVoorpaginaKolomindex(sheet) {
+  var presentCols = crMaakKolomindex(sheet);
+  var result = {};
+  bhVoorpaginaKolomspecificatie().forEach(function (col) {
+    var candidates = [col.titel, col.naam].concat(col.aliases || []);
+    for (var i = 0; i < candidates.length; i++) {
+      var index = crZoekKolom(presentCols, candidates[i], false);
       if (index !== undefined) {
-        resultaat[kolom.naam] = index;
+        result[col.naam] = index;
         return;
       }
     }
-    throw new Error("Verplichte Voorpagina-kolom ontbreekt: " + kolom.titel + " (" + kolom.naam + ")");
+    throw new Error("Verplichte Voorpagina-kolom ontbreekt: " + col.titel + " (" + col.naam + ")");
   });
-  return resultaat;
+  return result;
 }
 
 /** Geeft de nulgebaseerde positie van een vaste Voorpagina-kolom. */
-function bhZoekVoorpaginaKolom(kolommen, naam) {
-  var index = kolommen[naam];
-  if (index === undefined) throw new Error("Onbekende Voorpagina-kolom: " + naam);
+function bhZoekVoorpaginaKolom(cols, name) {
+  var index = cols[name];
+  if (index === undefined) throw new Error("Onbekende Voorpagina-kolom: " + name);
   return index;
 }
 
 /** Zet één fysieke Voorpagina-rij om in een object met vaste veldnamen. */
-function bhMaakDienstVanRij(rij, kolommen) {
-  var dienst = {};
-  bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
-    dienst[kolom.naam] = rij[bhZoekVoorpaginaKolom(kolommen, kolom.naam)];
+function bhMaakDienstVanRij(row, cols) {
+  var service = {};
+  bhVoorpaginaKolomspecificatie().forEach(function (col) {
+    service[col.naam] = row[bhZoekVoorpaginaKolom(cols, col.naam)];
   });
-  return dienst;
+  return service;
 }
 
 /**
@@ -217,370 +303,437 @@ function bhMaakDienstVanRij(rij, kolommen) {
  */
 function bhMigreerVoorpagina() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var blad = ss.getSheetByName("Voorpagina");
-  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-
-  var specificatie = bhVoorpaginaKolomspecificatie();
-  var oudeKoppen = blad.getRange(1, 1, 1, blad.getLastColumn()).getValues()[0];
-  var oudeIndex = {};
-  oudeKoppen.forEach(function (kop, index) {
-    var sleutel = crNormaliseerKolomnaam(kop);
-    if (sleutel) oudeIndex[sleutel] = index;
+  var sheet = ss.getSheetByName("Voorpagina");
+  if (!sheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var spec = bhVoorpaginaKolomspecificatie();
+  var oldHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var oldIndex = {};
+  oldHeaders.forEach(function (kop, index) {
+    var key = crNormaliseerKolomnaam(kop);
+    if (key) oldIndex[key] = index;
   });
-
-  var bronnen = specificatie.map(function (kolom) {
-    var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
-    for (var i = 0; i < kandidaten.length; i++) {
-      var index = oudeIndex[crNormaliseerKolomnaam(kandidaten[i])];
+  var sources = spec.map(function (col) {
+    var candidates = [col.titel, col.naam].concat(col.aliases || []);
+    for (var i = 0; i < candidates.length; i++) {
+      var index = oldIndex[crNormaliseerKolomnaam(candidates[i])];
       if (index !== undefined) return index;
     }
-    throw new Error("Migratie gestopt; bronkolom ontbreekt voor: " + kolom.titel + " (" + kolom.naam + ")");
+    throw new Error("Migratie gestopt; bronkolom ontbreekt voor: " + col.titel + " (" + col.naam + ")");
   });
-
-  var alGereed = oudeKoppen.length === specificatie.length && specificatie.every(function (kolom, index) {
-    return crNormaliseerKolomnaam(oudeKoppen[index]) === crNormaliseerKolomnaam(kolom.titel);
+  var alreadyDone = oldHeaders.length === spec.length && spec.every(function (col, index) {
+    return crNormaliseerKolomnaam(oldHeaders[index]) === crNormaliseerKolomnaam(col.titel);
   });
-  var antwoord = SpreadsheetApp.getUi().alert(
-    alGereed ? "Voorpagina herstellen" : "Voorpagina migreren",
-    "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de " + specificatie.length + " afgesproken kolommen " +
-      (alGereed ? "opnieuw opgebouwd en gevalideerd." : "in de nieuwe volgorde opgebouwd.") + " Doorgaan?",
-    SpreadsheetApp.getUi().ButtonSet.YES_NO
-  );
-  if (antwoord !== SpreadsheetApp.getUi().Button.YES) return { gewijzigd: false, reden: "geannuleerd" };
-
-  var backupnaam = "Voorpagina backup " + crFormatteerDatum(new Date(), crDatumFormaat.BACKUPTIJDSTEMPEL);
-  var backup = blad.copyTo(ss).setName(backupnaam);
-  var aantalRijen = Math.max(backup.getMaxRows(), backup.getLastRow(), 2);
-  var gewenstAantal = specificatie.length;
-
-  if (blad.getMaxColumns() < gewenstAantal) {
-    blad.insertColumnsAfter(blad.getMaxColumns(), gewenstAantal - blad.getMaxColumns());
+  var answer = SpreadsheetApp.getUi().alert(alreadyDone ? "Voorpagina herstellen" : "Voorpagina migreren", "Er wordt eerst een backupwerkblad gemaakt. Daarna worden de " + spec.length + " afgesproken kolommen " + (alreadyDone ? "opnieuw opgebouwd en gevalideerd." : "in de nieuwe volgorde opgebouwd.") + " Doorgaan?", SpreadsheetApp.getUi().ButtonSet.YES_NO);
+  if (answer !== SpreadsheetApp.getUi().Button.YES) return {
+    gewijzigd: false,
+    reden: "geannuleerd"
+  };
+  var backupName = "Voorpagina backup " + crFormatteerDatum(new Date(), crDateFormat.BACKUPTIJDSTEMPEL);
+  var backup = sheet.copyTo(ss).setName(backupName);
+  var rowCount = Math.max(backup.getMaxRows(), backup.getLastRow(), 2);
+  var wantedCount = spec.length;
+  if (sheet.getMaxColumns() < wantedCount) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), wantedCount - sheet.getMaxColumns());
   }
-  blad.getRange(1, 1, blad.getMaxRows(), blad.getMaxColumns()).clearDataValidations();
-  blad.clear();
-
-  specificatie.forEach(function (kolom, doelIndex) {
-    var bronIndex = bronnen[doelIndex];
-    backup.getRange(1, bronIndex + 1, aantalRijen, 1).copyTo(
-      blad.getRange(1, doelIndex + 1, aantalRijen, 1),
-      SpreadsheetApp.CopyPasteType.PASTE_NORMAL,
-      false
-    );
-    blad.setColumnWidth(doelIndex + 1, backup.getColumnWidth(bronIndex + 1));
+  sheet.getRange(1, 1, sheet.getMaxRows(), sheet.getMaxColumns()).clearDataValidations();
+  sheet.clear();
+  spec.forEach(function (col, doelIndex) {
+    var sourceIndex = sources[doelIndex];
+    backup.getRange(1, sourceIndex + 1, rowCount, 1).copyTo(sheet.getRange(1, doelIndex + 1, rowCount, 1), SpreadsheetApp.CopyPasteType.PASTE_NORMAL, false);
+    sheet.setColumnWidth(doelIndex + 1, backup.getColumnWidth(sourceIndex + 1));
   });
-  blad.getRange(1, 1, 1, gewenstAantal).setValues([specificatie.map(function (kolom) { return kolom.titel; })]);
-
-  if (blad.getMaxColumns() > gewenstAantal) {
-    blad.deleteColumns(gewenstAantal + 1, blad.getMaxColumns() - gewenstAantal);
+  sheet.getRange(1, 1, 1, wantedCount).setValues([spec.map(function (col) {
+    return col.titel;
+  })]);
+  if (sheet.getMaxColumns() > wantedCount) {
+    sheet.deleteColumns(wantedCount + 1, sheet.getMaxColumns() - wantedCount);
   }
-
-  var laatsteRij = blad.getLastRow();
-  if (laatsteRij > 1) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
     bhHerberekenVoorpagina(false);
-
     bhStelVoorpaginaValidatiesIn(false);
   }
-
-  blad.setFrozenRows(backup.getFrozenRows());
-  blad.setFrozenColumns(Math.min(backup.getFrozenColumns(), gewenstAantal));
-  ss.setNamedRange("VolledigRooster", blad.getRange(1, 1, Math.max(blad.getLastRow(), 1), gewenstAantal));
-  ss.setNamedRange("BenoemdBereik1", blad.getRange(1, 1, blad.getMaxRows(), gewenstAantal));
-  if (ss.getNamedRanges().some(function (bereik) { return bereik.getName() === "RoosterTypes"; })) {
+  sheet.setFrozenRows(backup.getFrozenRows());
+  sheet.setFrozenColumns(Math.min(backup.getFrozenColumns(), wantedCount));
+  ss.setNamedRange("VolledigRooster", sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), wantedCount));
+  ss.setNamedRange("BenoemdBereik1", sheet.getRange(1, 1, sheet.getMaxRows(), wantedCount));
+  if (ss.getNamedRanges().some(function (range) {
+    return range.getName() === "RoosterTypes";
+  })) {
     ss.removeNamedRange("RoosterTypes");
   }
-
-  var resultaat = {
+  var result = {
     gewijzigd: true,
-    backup: backupnaam,
-    kolommen: specificatie.map(function (kolom) { return { naam: kolom.naam, titel: kolom.titel }; })
+    backup: backupName,
+    kolommen: spec.map(function (col) {
+      return {
+        naam: col.naam,
+        titel: col.titel
+      };
+    })
   };
-  console.log(JSON.stringify(resultaat, null, 2));
-  SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupnaam);
-  return resultaat;
+  console.log(JSON.stringify(result, null, 2));
+  SpreadsheetApp.getUi().alert("Voorpagina is gemigreerd. Backup: " + backupName);
+  return result;
 }
 
 /**
  * Bouwt draaitabellen met een verkeerde of onleesbare bron opnieuw op dezelfde
  * ankercel op. Groepen, waarden, filters, sortering en totalen blijven behouden.
  */
-function bhHerstelDraaitabelbronnen(toonMelding) {
+function bhHerstelDraaitabelbronnen(showMessage) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var voorpagina = ss.getSheetByName("Voorpagina");
-  if (!voorpagina) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  var bronBereik = voorpagina.getRange(
-    1,
-    1,
-    Math.max(voorpagina.getLastRow(), 2),
-    bhVoorpaginaKolomspecificatie().length
-  );
-
-  function bhLeesGroep(groep) {
-    var datumregel = groep.getDateTimeGroupingRule();
-    var groepslimiet = groep.getGroupLimit();
+  var frontSheet = ss.getSheetByName("Voorpagina");
+  if (!frontSheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var sourceRange = frontSheet.getRange(1, 1, Math.max(frontSheet.getLastRow(), 2), bhVoorpaginaKolomspecificatie().length);
+  function bhLeesGroep(group) {
+    var dateRule = group.getDateTimeGroupingRule();
+    var groupLimit = group.getGroupLimit();
     return {
-      bronkolom: groep.getSourceDataColumn(),
-      datumgroepering: datumregel ? datumregel.getRuleType() : null,
-      groepslimiet: groepslimiet ? groepslimiet.getCountLimit() : null
+      bronkolom: group.getSourceDataColumn(),
+      datumgroepering: dateRule ? dateRule.getRuleType() : null,
+      groepslimiet: groupLimit ? groupLimit.getCountLimit() : null
     };
   }
-
-  function bhVoegGroepToe(draaitabel, groep, isRijgroep) {
-    var nieuw = isRijgroep
-      ? draaitabel.addRowGroup(groep.bronkolom)
-      : draaitabel.addColumnGroup(groep.bronkolom);
-    if (groep.datumgroepering) nieuw.setDateTimeGroupingRule(groep.datumgroepering);
-    if (groep.groepslimiet) nieuw.setGroupLimit(groep.groepslimiet);
+  function bhVoegGroepToe(pivot, group, isRowGroup) {
+    var updated = isRowGroup ? pivot.addRowGroup(group.bronkolom) : pivot.addColumnGroup(group.bronkolom);
+    if (group.datumgroepering) updated.setDateTimeGroupingRule(group.datumgroepering);
+    if (group.groepslimiet) updated.setGroupLimit(group.groepslimiet);
   }
-
-  var aangepast = [];
-  var reedsCorrect = [];
+  var changed = [];
+  var alreadyCorrect = [];
   var backups = [];
-  var backupPerBlad = {};
-  var tijdstempel = crFormatteerDatum(new Date(), crDatumFormaat.BACKUPTIJDSTEMPEL);
-  ss.getSheets().forEach(function (blad) {
-    blad.getPivotTables().forEach(function (draaitabel) {
-      var ankercel = draaitabel.getAnchorCell();
-      var locatie = blad.getName() + "!" + ankercel.getA1Notation();
-      var oudeBron = "onleesbare bron";
+  var backupBySheet = {};
+  var timestamp = crFormatteerDatum(new Date(), crDateFormat.BACKUPTIJDSTEMPEL);
+  ss.getSheets().forEach(function (sheet) {
+    sheet.getPivotTables().forEach(function (pivot) {
+      var anchorCell = pivot.getAnchorCell();
+      var location = sheet.getName() + "!" + anchorCell.getA1Notation();
+      var oldSource = "onleesbare bron";
       try {
-        oudeBron = draaitabel.getSourceDataRange().getSheet().getName();
-        if (oudeBron === "Voorpagina") {
-          reedsCorrect.push(locatie);
+        oldSource = pivot.getSourceDataRange().getSheet().getName();
+        if (oldSource === "Voorpagina") {
+          alreadyCorrect.push(location);
           return;
         }
       } catch (fout) {
-        console.log("Bron van " + locatie + " kon niet worden gelezen: " + fout.message);
+        console.log("Bron van " + location + " kon niet worden gelezen: " + fout.message);
       }
-
-      var rijgroepen = draaitabel.getRowGroups().map(bhLeesGroep);
-      var kolomgroepen = draaitabel.getColumnGroups().map(bhLeesGroep);
-      var waardenorientatie = draaitabel.getValuesDisplayOrientation();
-      var waarden = draaitabel.getPivotValues().map(function (waarde) {
+      var rowGroups = pivot.getRowGroups().map(bhLeesGroep);
+      var colGroups = pivot.getColumnGroups().map(bhLeesGroep);
+      var valueOrientation = pivot.getValuesDisplayOrientation();
+      var values = pivot.getPivotValues().map(function (value) {
         return {
-          bronkolom: waarde.getSourceDataColumn(),
-          formule: waarde.getFormula(),
-          samenvatting: waarde.getSummarizedBy(),
-          weergave: waarde.getDisplayType()
+          bronkolom: value.getSourceDataColumn(),
+          formule: value.getFormula(),
+          samenvatting: value.getSummarizedBy(),
+          weergave: value.getDisplayType()
         };
       });
-      if (waarden.some(function (waarde) { return Boolean(waarde.formule); })) {
-        throw new Error(
-          "Draaitabel " + locatie + " bevat een berekende waarde en kan niet veilig automatisch worden herbouwd."
-        );
+      if (values.some(function (value) {
+        return Boolean(value.formule);
+      })) {
+        throw new Error("Draaitabel " + location + " bevat een berekende waarde en kan niet veilig automatisch worden herbouwd.");
       }
-      var filters = draaitabel.getFilters().map(function (filter) {
+      var filters = pivot.getFilters().map(function (filter) {
         return {
           bronkolom: filter.getSourceDataColumn(),
           criterium: filter.getFilterCriteria()
         };
       });
-
-      if (!backupPerBlad[blad.getSheetId()]) {
-        var achtervoegsel = "-" + blad.getSheetId();
-        var basisnaam = "Draaitabelbackup " + tijdstempel + " - " + blad.getName();
-        var backupnaam = basisnaam.slice(0, 100 - achtervoegsel.length) + achtervoegsel;
-        blad.copyTo(ss).setName(backupnaam);
-        backupPerBlad[blad.getSheetId()] = backupnaam;
-        backups.push(backupnaam);
+      if (!backupBySheet[sheet.getSheetId()]) {
+        var suffix = "-" + sheet.getSheetId();
+        var baseName = "Draaitabelbackup " + timestamp + " - " + sheet.getName();
+        var backupName = baseName.slice(0, 100 - suffix.length) + suffix;
+        sheet.copyTo(ss).setName(backupName);
+        backupBySheet[sheet.getSheetId()] = backupName;
+        backups.push(backupName);
       }
-
-      draaitabel.remove();
-      var nieuweDraaitabel = ankercel.createPivotTable(bronBereik);
-      if (waardenorientatie) nieuweDraaitabel.setValuesDisplayOrientation(waardenorientatie);
-      rijgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, true); });
-      kolomgroepen.forEach(function (groep) { bhVoegGroepToe(nieuweDraaitabel, groep, false); });
-      waarden.forEach(function (waarde) {
-        var nieuw = nieuweDraaitabel.addPivotValue(waarde.bronkolom, waarde.samenvatting);
-        if (waarde.weergave) nieuw.showAs(waarde.weergave);
+      pivot.remove();
+      var newPivot = anchorCell.createPivotTable(sourceRange);
+      if (valueOrientation) newPivot.setValuesDisplayOrientation(valueOrientation);
+      rowGroups.forEach(function (group) {
+        bhVoegGroepToe(newPivot, group, true);
+      });
+      colGroups.forEach(function (group) {
+        bhVoegGroepToe(newPivot, group, false);
+      });
+      values.forEach(function (value) {
+        var updated = newPivot.addPivotValue(value.bronkolom, value.samenvatting);
+        if (value.weergave) updated.showAs(value.weergave);
       });
       filters.forEach(function (filter) {
-        nieuweDraaitabel.addFilter(filter.bronkolom, filter.criterium);
+        newPivot.addFilter(filter.bronkolom, filter.criterium);
       });
-      aangepast.push({ draaitabel: locatie, oudeBron: oudeBron, nieuweBron: "Voorpagina" });
+      changed.push({
+        draaitabel: location,
+        oudeBron: oldSource,
+        nieuweBron: "Voorpagina"
+      });
     });
   });
-
-  var resultaat = {
-    aangepast: aangepast,
-    reedsCorrect: reedsCorrect,
+  var result = {
+    aangepast: changed,
+    reedsCorrect: alreadyCorrect,
     backups: backups,
-    aantalAangepast: aangepast.length,
-    aantalReedsCorrect: reedsCorrect.length
+    aantalAangepast: changed.length,
+    aantalReedsCorrect: alreadyCorrect.length
   };
-  console.log(JSON.stringify(resultaat, null, 2));
-  if (toonMelding !== false) {
-    SpreadsheetApp.getUi().alert(
-      aangepast.length + " draaitabelbron(nen) gewijzigd naar Voorpagina; " +
-      reedsCorrect.length + " waren al correct. Backupwerkbladen: " + backups.length + "."
-    );
+  console.log(JSON.stringify(result, null, 2));
+  if (showMessage !== false) {
+    SpreadsheetApp.getUi().alert(changed.length + " draaitabelbron(nen) gewijzigd naar Voorpagina; " + alreadyCorrect.length + " waren al correct. Backupwerkbladen: " + backups.length + ".");
   }
-  return resultaat;
+  return result;
 }
 
 /** Stelt de afgesproken selectievakjes en ja/nee-keuzelijsten opnieuw in. */
-function bhStelVoorpaginaValidatiesIn(toonMelding) {
-  var blad = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Voorpagina");
-  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  var laatsteRij = blad.getLastRow();
-  if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
-
-  var kolommen = bhMaakVoorpaginaKolomindex(blad);
+function bhStelVoorpaginaValidatiesIn(showMessage) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Voorpagina");
+  if (!sheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return {
+    bijgewerkteRijen: 0
+  };
+  var cols = bhMaakVoorpaginaKolomindex(sheet);
   var schema = bhVoorpaginaKolomspecificatie();
-  var selectievakjes = schema.filter(function (kolom) { return kolom.type === "selectievakje"; });
-  var jaNeeKolommen = schema.filter(function (kolom) { return kolom.type === "jaNeeKeuze"; });
-
-  selectievakjes.forEach(function (kolom) {
-    var haBereik = blad.getRange(2, bhZoekVoorpaginaKolom(kolommen, kolom.naam) + 1, laatsteRij - 1, 1);
-  var haWaarden = haBereik.getValues().map(function (rij) {
-    var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
-    return [rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "ha" || waarde === "true" || waarde === "1"];
+  var checkboxes = schema.filter(function (col) {
+    return col.type === "selectievakje";
   });
-  haBereik.clearDataValidations().insertCheckboxes().setValues(haWaarden);
+  var yesNoCols = schema.filter(function (col) {
+    return col.type === "jaNeeKeuze";
   });
-
-  var janeeRegel = SpreadsheetApp.newDataValidation()
-    .requireValueInList(["ja", "nee"], true)
-    .setAllowInvalid(false)
-    .build();
-  jaNeeKolommen.forEach(function (kolom) {
-    var bereik = blad.getRange(2, bhZoekVoorpaginaKolom(kolommen, kolom.naam) + 1, laatsteRij - 1, 1);
-    var waarden = bereik.getValues().map(function (rij) {
-      var waarde = String(rij[0] === null || rij[0] === undefined ? "" : rij[0]).trim().toLowerCase();
-      if (rij[0] === true || waarde === "ja" || waarde === "x" || waarde === "true" || waarde === "1") return ["ja"];
-      if (rij[0] === false || waarde === "nee" || waarde === "false" || waarde === "0") return ["nee"];
+  checkboxes.forEach(function (col) {
+    var communionRange = sheet.getRange(2, bhZoekVoorpaginaKolom(cols, col.naam) + 1, lastRow - 1, 1);
+    var communionValues = communionRange.getValues().map(function (row) {
+      var value = String(row[0] === null || row[0] === undefined ? "" : row[0]).trim().toLowerCase();
+      return [row[0] === true || value === "ja" || value === "x" || value === "ha" || value === "true" || value === "1"];
+    });
+    communionRange.clearDataValidations().insertCheckboxes().setValues(communionValues);
+  });
+  var yesNoRule = SpreadsheetApp.newDataValidation().requireValueInList(["ja", "nee"], true).setAllowInvalid(false).build();
+  yesNoCols.forEach(function (col) {
+    var range = sheet.getRange(2, bhZoekVoorpaginaKolom(cols, col.naam) + 1, lastRow - 1, 1);
+    var values = range.getValues().map(function (row) {
+      var value = String(row[0] === null || row[0] === undefined ? "" : row[0]).trim().toLowerCase();
+      if (row[0] === true || value === "ja" || value === "x" || value === "true" || value === "1") return ["ja"];
+      if (row[0] === false || value === "nee" || value === "false" || value === "0") return ["nee"];
       return [""];
     });
-    bereik.clearDataValidations().setDataValidation(janeeRegel).setValues(waarden);
+    range.clearDataValidations().setDataValidation(yesNoRule).setValues(values);
   });
-
-  var resultaat = { bijgewerkteRijen: laatsteRij - 1 };
-  if (toonMelding !== false) {
+  var result = {
+    bijgewerkteRijen: lastRow - 1
+  };
+  if (showMessage !== false) {
     SpreadsheetApp.getUi().alert("Heilig Avondmaal is een selectievakje; Koffiedienst en Dienst in Didam zijn ja/nee-keuzes.");
   }
-  return resultaat;
+  return result;
 }
 
 /** Herbouwt uitsluitend de drie afgeleide kolommen op Voorpagina. */
-function bhHerberekenVoorpagina(toonMelding, eersteRij, aantalRijen, berekenDatum, berekenCollecte) {
-  var startMeting = crStartMeting();
+function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcCollection) {
+  var startTime = crStartMeting();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var blad = ss.getSheetByName("Voorpagina");
-  if (!blad) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-
-  var kolommen = bhMaakVoorpaginaKolomindex(blad);
-  var datumKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.DATUM) + 1;
-  var collecteKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTE) + 1;
-  var collectecategorieKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTECATEGORIE) + 1;
-  var kwartaalKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.KWARTAAL) + 1;
-  var maandKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.MAAND) + 1;
-
-  var categoriePerDoel = {};
-  if (berekenCollecte !== false) {
-    var collecteblad = ss.getSheetByName("Lijst Collectes");
-    if (!collecteblad || collecteblad.getLastRow() < 3) {
+  var sheet = ss.getSheetByName("Voorpagina");
+  if (!sheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
+  var cols = bhMaakVoorpaginaKolomindex(sheet);
+  var dateCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.DATUM) + 1;
+  var collectionCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.COLLECTE) + 1;
+  var categoryCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.COLLECTECATEGORIE) + 1;
+  var quarterCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.KWARTAAL) + 1;
+  var monthCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.MAAND) + 1;
+  var categoryByTarget = {};
+  if (calcCollection !== false) {
+    var collectionSheet = ss.getSheetByName("Lijst Collectes");
+    if (!collectionSheet || collectionSheet.getLastRow() < 3) {
       throw new Error("Werkblad 'Lijst Collectes' ontbreekt of bevat geen collectes.");
     }
-    var collectekolommen = crMaakKolomindex(collecteblad, 2);
-    var doelKolom = crZoekKolom(collectekolommen, "Doel") + 1;
-    var categorieKolom = crZoekKolom(collectekolommen, "Categorie") + 1;
-    var aantalCollectes = collecteblad.getLastRow() - 2;
-    var collectegegevens = collecteblad.getRange(3, 1, aantalCollectes, collecteblad.getLastColumn()).getValues();
-    collectegegevens.forEach(function (rij) {
-      var doel = String(rij[doelKolom - 1] || "").trim();
-      if (doel) categoriePerDoel[doel] = rij[categorieKolom - 1] || "";
+    var collectionCols = crMaakKolomindex(collectionSheet, 2);
+    var targetCol = crZoekKolom(collectionCols, "Doel") + 1;
+    var catCol = crZoekKolom(collectionCols, "Categorie") + 1;
+    var collectionCount = collectionSheet.getLastRow() - 2;
+    var collectionData = collectionSheet.getRange(3, 1, collectionCount, collectionSheet.getLastColumn()).getValues();
+    collectionData.forEach(function (row) {
+      var target = String(row[targetCol - 1] || "").trim();
+      if (target) categoryByTarget[target] = row[catCol - 1] || "";
     });
   }
-
-  var laatsteRij = blad.getLastRow();
-  if (laatsteRij < 2) return { bijgewerkteRijen: 0 };
-  var startRij = Math.max(2, eersteRij || 2);
-  var eindeRij = Math.min(laatsteRij, aantalRijen ? startRij + aantalRijen - 1 : laatsteRij);
-  if (eindeRij < startRij) return { bijgewerkteRijen: 0 };
-  var werkelijkAantalRijen = eindeRij - startRij + 1;
-  var gegevens = blad.getRange(startRij, 1, werkelijkAantalRijen, blad.getLastColumn()).getValues();
-  var kwartalen = [];
-  var maanden = [];
-  var categorieen = [];
-  gegevens.forEach(function (rij) {
-    var datum = rij[datumKolom - 1];
-    var geldigeDatum = datum instanceof Date && !isNaN(datum.getTime());
-    var maand = geldigeDatum ? datum.getMonth() + 1 : "";
-    maanden.push([maand]);
-    kwartalen.push([maand ? Math.ceil(maand / 3) : ""]);
-
-    var collecte = String(rij[collecteKolom - 1] || "").trim();
-    categorieen.push([collecte && categoriePerDoel.hasOwnProperty(collecte) ? categoriePerDoel[collecte] : ""]);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return {
+    bijgewerkteRijen: 0
+  };
+  var startRow = Math.max(2, firstRow || 2);
+  var endRow = Math.min(lastRow, rowCount ? startRow + rowCount - 1 : lastRow);
+  if (endRow < startRow) return {
+    bijgewerkteRijen: 0
+  };
+  var actualRowCount = endRow - startRow + 1;
+  var data = sheet.getRange(startRow, 1, actualRowCount, sheet.getLastColumn()).getValues();
+  var quarters = [];
+  var months = [];
+  var categories = [];
+  data.forEach(function (row) {
+    var date = row[dateCol - 1];
+    var validDate = date instanceof Date && !isNaN(date.getTime());
+    var month = validDate ? date.getMonth() + 1 : "";
+    months.push([month]);
+    quarters.push([month ? Math.ceil(month / 3) : ""]);
+    var collection = String(row[collectionCol - 1] || "").trim();
+    categories.push([collection && categoryByTarget.hasOwnProperty(collection) ? categoryByTarget[collection] : ""]);
   });
-
-  if (berekenDatum !== false) {
-    blad.getRange(startRij, kwartaalKolom, kwartalen.length, 1).setValues(kwartalen);
-    blad.getRange(startRij, maandKolom, maanden.length, 1).setValues(maanden);
+  if (calcDate !== false) {
+    sheet.getRange(startRow, quarterCol, quarters.length, 1).setValues(quarters);
+    sheet.getRange(startRow, monthCol, months.length, 1).setValues(months);
   }
-  if (berekenCollecte !== false) {
-    blad.getRange(startRij, collectecategorieKolom, categorieen.length, 1).setValues(categorieen);
+  if (calcCollection !== false) {
+    sheet.getRange(startRow, categoryCol, categories.length, 1).setValues(categories);
   }
-
-  var resultaat = { bijgewerkteRijen: werkelijkAantalRijen };
-  resultaat.milliseconden = crEindMeting("bhHerberekenVoorpagina", startMeting, resultaat);
-  console.log(JSON.stringify(resultaat, null, 2));
-  if (toonMelding !== false) {
+  var result = {
+    bijgewerkteRijen: actualRowCount
+  };
+  result.milliseconden = crEindMeting("bhHerberekenVoorpagina", startTime, result);
+  console.log(JSON.stringify(result, null, 2));
+  if (showMessage !== false) {
     SpreadsheetApp.getUi().alert("Kwartaal, Maand en CollecteCategorie zijn opnieuw berekend.");
   }
-  return resultaat;
+  return result;
 }
 
 /** Werkt afgeleide waarden bij na wijziging van Datum of Collecte. */
 function bhBijWijzigingVoorpagina(e) {
   if (!e || !e.range) return;
-  var blad = e.range.getSheet();
-  if (blad.getName() !== "Voorpagina" || e.range.getRow() === 1) return;
-
-  var kolommen = bhMaakVoorpaginaKolomindex(blad);
-  var gewijzigdeEersteKolom = e.range.getColumn() - 1;
-  var gewijzigdeLaatsteKolom = gewijzigdeEersteKolom + e.range.getNumColumns() - 1;
-  var datumKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.DATUM);
-  var collecteKolom = bhZoekVoorpaginaKolom(kolommen, bhVoorpaginaKolom.COLLECTE);
-  if ((datumKolom < gewijzigdeEersteKolom || datumKolom > gewijzigdeLaatsteKolom) &&
-      (collecteKolom < gewijzigdeEersteKolom || collecteKolom > gewijzigdeLaatsteKolom)) return;
-
-  var eersteRij = Math.max(2, e.range.getRow());
-  var laatsteGewijzigdeRij = e.range.getRow() + e.range.getNumRows() - 1;
-  var aantalRijen = Math.max(0, laatsteGewijzigdeRij - eersteRij + 1);
-  if (!aantalRijen) return;
-  var datumGewijzigd = datumKolom >= gewijzigdeEersteKolom && datumKolom <= gewijzigdeLaatsteKolom;
-  var collecteGewijzigd = collecteKolom >= gewijzigdeEersteKolom && collecteKolom <= gewijzigdeLaatsteKolom;
-  bhHerberekenVoorpagina(false, eersteRij, aantalRijen, datumGewijzigd, collecteGewijzigd);
+  var sheet = e.range.getSheet();
+  if (sheet.getName() !== "Voorpagina" || e.range.getRow() === 1) return;
+  var cols = bhMaakVoorpaginaKolomindex(sheet);
+  var firstChangedCol = e.range.getColumn() - 1;
+  var lastChangedCol = firstChangedCol + e.range.getNumColumns() - 1;
+  var dateCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.DATUM);
+  var collectionCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.COLLECTE);
+  if ((dateCol < firstChangedCol || dateCol > lastChangedCol) && (collectionCol < firstChangedCol || collectionCol > lastChangedCol)) return;
+  var firstRow = Math.max(2, e.range.getRow());
+  var lastChangedRow = e.range.getRow() + e.range.getNumRows() - 1;
+  var rowCount = Math.max(0, lastChangedRow - firstRow + 1);
+  if (!rowCount) return;
+  var dateChanged = dateCol >= firstChangedCol && dateCol <= lastChangedCol;
+  var collectionChanged = collectionCol >= firstChangedCol && collectionCol <= lastChangedCol;
+  bhHerberekenVoorpagina(false, firstRow, rowCount, dateChanged, collectionChanged);
 }
 
 /** Enige bron voor de toegestane configuratieregels en hun presentatievolgorde. */
 function bhConfiguratieSpecificatie() {
-  return [
-    { categorie: "Agenda's", sleutel: "Agenda - Kerkdiensten", aliases: ["Kalender Kerkdiensten"], toelichting: "Naam van de agenda met kerkdiensten." },
-    { categorie: "Agenda's", sleutel: "Agenda - Activiteiten", aliases: ["Kalender Activiteiten"], toelichting: "Naam van de algemene activiteitenagenda." },
-    { categorie: "Agenda's", sleutel: "Agenda - KerkTV", aliases: ["Kalender KerkTV"], toelichting: "Naam van de agenda die voor KerkTV wordt gebruikt." },
-    { categorie: "Agenda's", sleutel: "Agenda - Liemersactiviteiten", aliases: ["Kalender Liemers Activiteiten"], toelichting: "Naam van de agenda met Liemersactiviteiten." },
-
-    { categorie: "Templates", sleutel: "Template-ID - KerkTV-liturgie", aliases: ["KerkTV MailTemplate Doc", "KerkTV MailTemplate Doc ID"], toelichting: "Google Document-ID van de KerkTV-liturgietemplate.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - Mededelingen mail", aliases: ["Mededelingen Mail", "Mededelingen Mail Template", "Mededelingen Mail Template ID"], toelichting: "Google Document-ID van de template voor de tekst en opmaak van de mededelingenmail.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - Mededelingen document", aliases: ["Mededelingen Template", "Mededelingen Template ID", "Template-ID - Mededelingen"], toelichting: "Google Document-ID van de mededelingentemplate die als DOCX-bijlage wordt meegestuurd.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - MJ-mededelingen", aliases: ["MJ Mededeling Template Doc", "MJ Mededeling Template Doc ID"], toelichting: "Google Document-ID van de Montferland Journaal-template.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - Liemersactiviteiten", aliases: ["Liemers Activiteiten Template Doc", "Liemers Activiteiten Template Doc ID"], toelichting: "Google Document-ID van de template voor Liemersactiviteiten.", documentId: true },
-    { categorie: "Templates", sleutel: "Template-ID - Testmail", aliases: ["Testmail Template", "Testmail Template ID"], toelichting: "Google Document-ID van de template waarmee alle mailvariabelen worden getest.", documentId: true },
-
-    { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Rooster", aliases: ["Rooster Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van het rooster." },
-    { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - KerkTV", aliases: ["KerkTV Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van KerkTV-berichten." },
-    { categorie: "Mailinglijstwerkbladen", sleutel: "Mailinglijstwerkblad - Lectoren", aliases: ["Lector Mailinglist Sheet"], toelichting: "Werkblad met ontvangers van het lectorrooster." },
-
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Jaarrooster", aliases: ["Mailinglist JaarRooster"], toelichting: "Ontvangers van het jaarrooster." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Mededelingen", aliases: ["Mailinglist Mededelingen"], toelichting: "Ontvangers van de kerkmededelingen." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Kerkdiensten", aliases: ["Mailinglist lijst kerkdiensten"], toelichting: "Ontvangers van de lijst met kerkdiensten." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - MJ", aliases: ["MJ Maillist"], toelichting: "Ontvangers van Montferland Journaal-berichten." },
-    { categorie: "Mailinglijsten", sleutel: "Mailinglijst - Liemersactiviteiten", aliases: ["Liemers Activiteiten Maillist"], toelichting: "Ontvangers van Liemersactiviteiten." },
-    { categorie: "Mailinglijsten", sleutel: "Testmail", aliases: ["Testmailadressen"], toelichting: "Kommagescheiden ontvangers voor alle testmails.", standaardwaarde: "avandervliet@gmail.com, avandervliet@xs4all.nl" },
-
-    { categorie: "Berichtteksten", sleutel: "Berichttekst - Rooster", aliases: ["Rooster Mededeling"], toelichting: "Standaardtekst voor roosterberichten." },
-    { categorie: "Berichtteksten", sleutel: "Berichttekst - KerkTV", aliases: ["KerkTV Mededeling", "KerkTV Mededeling "], toelichting: "Standaardtekst voor KerkTV-berichten." }
-  ];
+  return [{
+    categorie: "Agenda's",
+    sleutel: "Agenda - Kerkdiensten",
+    aliases: ["Kalender Kerkdiensten"],
+    toelichting: "Naam van de agenda met kerkdiensten."
+  }, {
+    categorie: "Agenda's",
+    sleutel: "Agenda - Activiteiten",
+    aliases: ["Kalender Activiteiten"],
+    toelichting: "Naam van de algemene activiteitenagenda."
+  }, {
+    categorie: "Agenda's",
+    sleutel: "Agenda - KerkTV",
+    aliases: ["Kalender KerkTV"],
+    toelichting: "Naam van de agenda die voor KerkTV wordt gebruikt."
+  }, {
+    categorie: "Agenda's",
+    sleutel: "Agenda - Liemersactiviteiten",
+    aliases: ["Kalender Liemers Activiteiten"],
+    toelichting: "Naam van de agenda met Liemersactiviteiten."
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - KerkTV-liturgie",
+    aliases: ["KerkTV MailTemplate Doc", "KerkTV MailTemplate Doc ID"],
+    toelichting: "Google Document-ID van de KerkTV-liturgietemplate.",
+    documentId: true
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - Mededelingen mail",
+    aliases: ["Mededelingen Mail", "Mededelingen Mail Template", "Mededelingen Mail Template ID"],
+    toelichting: "Google Document-ID van de template voor de tekst en opmaak van de mededelingenmail.",
+    documentId: true
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - Mededelingen document",
+    aliases: ["Mededelingen Template", "Mededelingen Template ID", "Template-ID - Mededelingen"],
+    toelichting: "Google Document-ID van de mededelingentemplate die als DOCX-bijlage wordt meegestuurd.",
+    documentId: true
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - MJ-mededelingen",
+    aliases: ["MJ Mededeling Template Doc", "MJ Mededeling Template Doc ID"],
+    toelichting: "Google Document-ID van de Montferland Journaal-template.",
+    documentId: true
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - Liemersactiviteiten",
+    aliases: ["Liemers Activiteiten Template Doc", "Liemers Activiteiten Template Doc ID"],
+    toelichting: "Google Document-ID van de template voor Liemersactiviteiten.",
+    documentId: true
+  }, {
+    categorie: "Templates",
+    sleutel: "Template-ID - Testmail",
+    aliases: ["Testmail Template", "Testmail Template ID"],
+    toelichting: "Google Document-ID van de template waarmee alle mailvariabelen worden getest.",
+    documentId: true
+  }, {
+    categorie: "Mailinglijstwerkbladen",
+    sleutel: "Mailinglijstwerkblad - Rooster",
+    aliases: ["Rooster Mailinglist Sheet"],
+    toelichting: "Werkblad met ontvangers van het rooster."
+  }, {
+    categorie: "Mailinglijstwerkbladen",
+    sleutel: "Mailinglijstwerkblad - KerkTV",
+    aliases: ["KerkTV Mailinglist Sheet"],
+    toelichting: "Werkblad met ontvangers van KerkTV-berichten."
+  }, {
+    categorie: "Mailinglijstwerkbladen",
+    sleutel: "Mailinglijstwerkblad - Lectoren",
+    aliases: ["Lector Mailinglist Sheet"],
+    toelichting: "Werkblad met ontvangers van het lectorrooster."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Mailinglijst - Jaarrooster",
+    aliases: ["Mailinglist JaarRooster"],
+    toelichting: "Ontvangers van het jaarrooster."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Mailinglijst - Mededelingen",
+    aliases: ["Mailinglist Mededelingen"],
+    toelichting: "Ontvangers van de kerkmededelingen."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Mailinglijst - Kerkdiensten",
+    aliases: ["Mailinglist lijst kerkdiensten"],
+    toelichting: "Ontvangers van de lijst met kerkdiensten."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Mailinglijst - MJ",
+    aliases: ["MJ Maillist"],
+    toelichting: "Ontvangers van Montferland Journaal-berichten."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Mailinglijst - Liemersactiviteiten",
+    aliases: ["Liemers Activiteiten Maillist"],
+    toelichting: "Ontvangers van Liemersactiviteiten."
+  }, {
+    categorie: "Mailinglijsten",
+    sleutel: "Testmail",
+    aliases: ["Testmailadressen"],
+    toelichting: "Kommagescheiden ontvangers voor alle testmails.",
+    standaardwaarde: "avandervliet@gmail.com, avandervliet@xs4all.nl"
+  }, {
+    categorie: "Berichtteksten",
+    sleutel: "Berichttekst - Rooster",
+    aliases: ["Rooster Mededeling"],
+    toelichting: "Standaardtekst voor roosterberichten."
+  }, {
+    categorie: "Berichtteksten",
+    sleutel: "Berichttekst - KerkTV",
+    aliases: ["KerkTV Mededeling", "KerkTV Mededeling "],
+    toelichting: "Standaardtekst voor KerkTV-berichten."
+  }];
 }
 
 /**
@@ -590,140 +743,141 @@ function bhConfiguratieSpecificatie() {
 function bhSchoonConfiguratieOp() {
   bhMigreerConfiguratie(false);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var blad = ss.getSheetByName("Configuratie");
-  var specificatie = bhConfiguratieSpecificatie();
-  var laatsteRij = blad.getLastRow();
-  var laatsteKolom = Math.max(blad.getLastColumn(), 4);
-  var oud = laatsteRij ? blad.getRange(1, 1, laatsteRij, laatsteKolom).getValues() : [];
-  var waarden = {};
-  var bekendeNamen = new Set();
-
-  specificatie.forEach(function (item) {
-    bekendeNamen.add(item.sleutel);
-    item.aliases.forEach(function (alias) { bekendeNamen.add(alias); });
+  var sheet = ss.getSheetByName("Configuratie");
+  var spec = bhConfiguratieSpecificatie();
+  var lastRow = sheet.getLastRow();
+  var lastCol = Math.max(sheet.getLastColumn(), 4);
+  var old = lastRow ? sheet.getRange(1, 1, lastRow, lastCol).getValues() : [];
+  var values = {};
+  var knownNames = new Set();
+  spec.forEach(function (item) {
+    knownNames.add(item.sleutel);
+    item.aliases.forEach(function (alias) {
+      knownNames.add(alias);
+    });
   });
-
-  oud.forEach(function (rij) {
-    var nieuweSleutel = String(rij[1] || "").trim();
-    var oudeSleutel = String(rij[0] || "").trim();
-    if (bekendeNamen.has(nieuweSleutel)) {
-      waarden[nieuweSleutel] = rij[2];
-    } else if (bekendeNamen.has(oudeSleutel)) {
-      waarden[oudeSleutel] = rij[1];
+  old.forEach(function (row) {
+    var newKey = String(row[1] || "").trim();
+    var oldKey = String(row[0] || "").trim();
+    if (knownNames.has(newKey)) {
+      values[newKey] = row[2];
+    } else if (knownNames.has(oldKey)) {
+      values[oldKey] = row[1];
     }
   });
-
-  var uitvoer = specificatie.map(function (item) {
-    var waarde = waarden[item.sleutel];
-    if (waarde === undefined || waarde === "") {
+  var output = spec.map(function (item) {
+    var value = values[item.sleutel];
+    if (value === undefined || value === "") {
       for (var i = 0; i < item.aliases.length; i++) {
-        if (waarden[item.aliases[i]] !== undefined && waarden[item.aliases[i]] !== "") {
-          waarde = waarden[item.aliases[i]];
+        if (values[item.aliases[i]] !== undefined && values[item.aliases[i]] !== "") {
+          value = values[item.aliases[i]];
           break;
         }
       }
     }
-    waarde = waarde === undefined || waarde === "" ? (item.standaardwaarde || "") : waarde;
-    if (item.documentId && String(waarde).trim()) {
-      waarde = bhBepaalDocumentId(String(waarde).trim());
+    value = value === undefined || value === "" ? item.standaardwaarde || "" : value;
+    if (item.documentId && String(value).trim()) {
+      value = bhBepaalDocumentId(String(value).trim());
     }
-    return [item.categorie, item.sleutel, waarde, item.toelichting];
+    return [item.categorie, item.sleutel, value, item.toelichting];
   });
-
-  blad.clear();
-  blad.getRange("A1:D1").merge().setValue("Configuratie Dienstenrooster");
-  blad.getRange("A2:D2").setValues([["Categorie", "Instelling", "Waarde", "Toelichting"]]);
-  if (uitvoer.length) {
-    blad.getRange(3, 1, uitvoer.length, 4).setValues(uitvoer);
+  sheet.clear();
+  sheet.getRange("A1:D1").merge().setValue("Configuratie Dienstenrooster");
+  sheet.getRange("A2:D2").setValues([["Categorie", "Instelling", "Waarde", "Toelichting"]]);
+  if (output.length) {
+    sheet.getRange(3, 1, output.length, 4).setValues(output);
   }
-
-  blad.setFrozenRows(2);
-  blad.setHiddenGridlines(true);
-  blad.getRange("A1:D1").setBackground("#1F4E78").setFontColor("#FFFFFF")
-    .setFontWeight("bold").setFontSize(14).setHorizontalAlignment("left");
-  blad.getRange("A2:D2").setBackground("#D9EAF7").setFontWeight("bold");
-  blad.getRange(3, 1, uitvoer.length, 4).setVerticalAlignment("top");
-  blad.getRange(3, 3, uitvoer.length, 1).setNumberFormat("@");
-  blad.getRange(3, 4, uitvoer.length, 1).setWrap(true).setFontColor("#555555");
-  blad.setColumnWidth(1, 170);
-  blad.setColumnWidth(2, 290);
-  blad.setColumnWidth(3, 360);
-  blad.setColumnWidth(4, 390);
-
-  var categoriekleuren = {
+  sheet.setFrozenRows(2);
+  sheet.setHiddenGridlines(true);
+  sheet.getRange("A1:D1").setBackground("#1F4E78").setFontColor("#FFFFFF").setFontWeight("bold").setFontSize(14).setHorizontalAlignment("left");
+  sheet.getRange("A2:D2").setBackground("#D9EAF7").setFontWeight("bold");
+  sheet.getRange(3, 1, output.length, 4).setVerticalAlignment("top");
+  sheet.getRange(3, 3, output.length, 1).setNumberFormat("@");
+  sheet.getRange(3, 4, output.length, 1).setWrap(true).setFontColor("#555555");
+  sheet.setColumnWidth(1, 170);
+  sheet.setColumnWidth(2, 290);
+  sheet.setColumnWidth(3, 360);
+  sheet.setColumnWidth(4, 390);
+  var categoryColors = {
     "Agenda's": "#EAF2F8",
     "Templates": "#FDF2E9",
     "Mailinglijstwerkbladen": "#E8F8F5",
     "Mailinglijsten": "#F4ECF7",
     "Berichtteksten": "#FEF9E7"
   };
-  var achtergronden = uitvoer.map(function (rij) {
-    return [categoriekleuren[rij[0]] || "#FFFFFF"];
+  var backgrounds = output.map(function (row) {
+    return [categoryColors[row[0]] || "#FFFFFF"];
   });
-  blad.getRange(3, 1, uitvoer.length, 1).setBackgrounds(achtergronden).setFontWeight("bold");
-  var legeWaardenRegel = SpreadsheetApp.newConditionalFormatRule()
-    .whenCellEmpty().setBackground("#FCE8E6")
-    .setRanges([blad.getRange(3, 3, uitvoer.length, 1)]).build();
-  blad.setConditionalFormatRules([legeWaardenRegel]);
-
-  var resultaat = {
-    behoudenInstellingen: uitvoer.length,
-    verwijderdeRegels: Math.max(0, oud.length - uitvoer.length),
-    ontbrekendeWaarden: uitvoer.filter(function (rij) { return rij[2] === ""; })
-      .map(function (rij) { return rij[1]; })
+  sheet.getRange(3, 1, output.length, 1).setBackgrounds(backgrounds).setFontWeight("bold");
+  var emptyValueRule = SpreadsheetApp.newConditionalFormatRule().whenCellEmpty().setBackground("#FCE8E6").setRanges([sheet.getRange(3, 3, output.length, 1)]).build();
+  sheet.setConditionalFormatRules([emptyValueRule]);
+  var result = {
+    behoudenInstellingen: output.length,
+    verwijderdeRegels: Math.max(0, old.length - output.length),
+    ontbrekendeWaarden: output.filter(function (row) {
+      return row[2] === "";
+    }).map(function (row) {
+      return row[1];
+    })
   };
   crWisConfiguratieCache();
-  console.log(JSON.stringify(resultaat, null, 2));
-  SpreadsheetApp.getUi().alert(
-    "Configuratie opgeschoond. Behouden instellingen: " + uitvoer.length +
-    ". Ontbrekende waarden: " + resultaat.ontbrekendeWaarden.length + "."
-  );
-  return resultaat;
+  console.log(JSON.stringify(result, null, 2));
+  SpreadsheetApp.getUi().alert("Configuratie opgeschoond. Behouden instellingen: " + output.length + ". Ontbrekende waarden: " + result.ontbrekendeWaarden.length + ".");
+  return result;
 }
 
 /**
  * Hernoemt het bestaande instellingenblad en zet templatebestandsnamen eenmalig
  * om naar stabiele Google Document-ID's.
  */
-function bhMigreerConfiguratie(toonMelding) {
+function bhMigreerConfiguratie(showMessage) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var oudBlad = ss.getSheetByName("Instellingen");
-  var configuratieblad = ss.getSheetByName("Configuratie");
-
-  if (oudBlad && configuratieblad && oudBlad.getSheetId() !== configuratieblad.getSheetId()) {
+  var oldSheet = ss.getSheetByName("Instellingen");
+  var configSheet = ss.getSheetByName("Configuratie");
+  if (oldSheet && configSheet && oldSheet.getSheetId() !== configSheet.getSheetId()) {
     throw new Error("Zowel 'Instellingen' als 'Configuratie' bestaat. Voeg deze eerst handmatig samen.");
   }
-  if (!configuratieblad && oudBlad) {
-    oudBlad.setName("Configuratie");
-    configuratieblad = oudBlad;
+  if (!configSheet && oldSheet) {
+    oldSheet.setName("Configuratie");
+    configSheet = oldSheet;
   }
-  if (!configuratieblad) {
-    configuratieblad = ss.insertSheet("Configuratie");
+  if (!configSheet) {
+    configSheet = ss.insertSheet("Configuratie");
   }
-
-  var sleutelMigraties = [
-    { oud: "KerkTV MailTemplate Doc", nieuw: "Template-ID - KerkTV-liturgie" },
-    { oud: "Mededelingen Mail", nieuw: "Template-ID - Mededelingen mail" },
-    { oud: "Mededelingen Template", nieuw: "Template-ID - Mededelingen document" },
-    { oud: "Template-ID - Mededelingen", nieuw: "Template-ID - Mededelingen document" },
-    { oud: "MJ Mededeling Template Doc", nieuw: "Template-ID - MJ-mededelingen" },
-    { oud: "Liemers Activiteiten Template Doc", nieuw: "Template-ID - Liemersactiviteiten" },
-    { oud: "Testmail Template", nieuw: "Template-ID - Testmail" }
-  ];
-  var laatsteRij = configuratieblad.getLastRow();
-  var gegevens = laatsteRij ? configuratieblad.getRange(1, 1, laatsteRij, 2).getValues() : [];
-  var wijzigingen = [];
-
-  sleutelMigraties.forEach(function (migratie) {
-    for (var rij = 0; rij < gegevens.length; rij++) {
-      var sleutel = String(gegevens[rij][0]).trim();
-      if (sleutel === migratie.oud || sleutel === migratie.nieuw) {
-        var oudeWaarde = String(gegevens[rij][1] || "").trim();
-        var documentId = bhBepaalDocumentId(oudeWaarde);
-        configuratieblad.getRange(rij + 1, 1, 1, 2)
-          .setValues([[migratie.nieuw, documentId]]);
-        wijzigingen.push({
-          rij: rij + 1,
+  var keyMigrations = [{
+    oud: "KerkTV MailTemplate Doc",
+    nieuw: "Template-ID - KerkTV-liturgie"
+  }, {
+    oud: "Mededelingen Mail",
+    nieuw: "Template-ID - Mededelingen mail"
+  }, {
+    oud: "Mededelingen Template",
+    nieuw: "Template-ID - Mededelingen document"
+  }, {
+    oud: "Template-ID - Mededelingen",
+    nieuw: "Template-ID - Mededelingen document"
+  }, {
+    oud: "MJ Mededeling Template Doc",
+    nieuw: "Template-ID - MJ-mededelingen"
+  }, {
+    oud: "Liemers Activiteiten Template Doc",
+    nieuw: "Template-ID - Liemersactiviteiten"
+  }, {
+    oud: "Testmail Template",
+    nieuw: "Template-ID - Testmail"
+  }];
+  var lastRow = configSheet.getLastRow();
+  var data = lastRow ? configSheet.getRange(1, 1, lastRow, 2).getValues() : [];
+  var changes = [];
+  keyMigrations.forEach(function (migratie) {
+    for (var row = 0; row < data.length; row++) {
+      var key = String(data[row][0]).trim();
+      if (key === migratie.oud || key === migratie.nieuw) {
+        var oldValue = String(data[row][1] || "").trim();
+        var documentId = bhBepaalDocumentId(oldValue);
+        configSheet.getRange(row + 1, 1, 1, 2).setValues([[migratie.nieuw, documentId]]);
+        changes.push({
+          rij: row + 1,
           sleutel: migratie.nieuw,
           documentId: documentId
         });
@@ -731,40 +885,36 @@ function bhMigreerConfiguratie(toonMelding) {
       }
     }
   });
-
-  var resultaat = {
-    werkblad: configuratieblad.getName(),
-    templateMigraties: wijzigingen
+  var result = {
+    werkblad: configSheet.getName(),
+    templateMigraties: changes
   };
   crWisConfiguratieCache();
-  console.log(JSON.stringify(resultaat, null, 2));
-  if (toonMelding !== false) {
-    SpreadsheetApp.getUi().alert(
-      "Configuratiemigratie voltooid. Template-ID's bijgewerkt: " + wijzigingen.length + "."
-    );
+  console.log(JSON.stringify(result, null, 2));
+  if (showMessage !== false) {
+    SpreadsheetApp.getUi().alert("Configuratiemigratie voltooid. Template-ID's bijgewerkt: " + changes.length + ".");
   }
-  return resultaat;
+  return result;
 }
 
 /** Accepteert een bestaand ID, een document-URL of een oude bestandsnaam. */
-function bhBepaalDocumentId(waarde) {
-  if (!waarde) {
+function bhBepaalDocumentId(value) {
+  if (!value) {
     throw new Error("Een mailtemplate heeft geen document-ID of bestandsnaam.");
   }
-
-  var urlTreffer = waarde.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  var kandidaat = urlTreffer ? urlTreffer[1] : waarde;
+  var urlMatch = value.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  var candidate = urlMatch ? urlMatch[1] : value;
   try {
-    DriveApp.getFileById(kandidaat).getName();
-    return kandidaat;
+    DriveApp.getFileById(candidate).getName();
+    return candidate;
   } catch (fout) {
-    var bestanden = DriveApp.getFilesByName(waarde);
-    if (!bestanden.hasNext()) {
-      throw new Error("Mailtemplate niet gevonden: " + waarde);
+    var files = DriveApp.getFilesByName(value);
+    if (!files.hasNext()) {
+      throw new Error("Mailtemplate niet gevonden: " + value);
     }
-    var documentId = bestanden.next().getId();
-    if (bestanden.hasNext()) {
-      throw new Error("Meerdere mailtemplates met dezelfde naam gevonden: " + waarde);
+    var documentId = files.next().getId();
+    if (files.hasNext()) {
+      throw new Error("Meerdere mailtemplates met dezelfde naam gevonden: " + value);
     }
     return documentId;
   }
@@ -773,84 +923,85 @@ function bhBepaalDocumentId(waarde) {
 /** Alleen-lezen controle van werkbladen, benoemde bereiken en tijdzones. */
 function bhControleerSpreadsheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var specificatie = bhSpreadsheetSpecificatie();
-  var bestaandeWerkbladen = new Set(ss.getSheets().map(function (sheet) {
+  var spec = bhSpreadsheetSpecificatie();
+  var existingSheets = new Set(ss.getSheets().map(function (sheet) {
     return sheet.getName();
   }));
-  var bestaandeBereiken = {};
-
+  var existingRanges = {};
   ss.getNamedRanges().forEach(function (namedRange) {
-    bestaandeBereiken[namedRange.getName()] = {
+    existingRanges[namedRange.getName()] = {
       werkblad: namedRange.getRange().getSheet().getName(),
       bereik: namedRange.getRange().getA1Notation()
     };
   });
-
-  var ontbrekendeWerkbladen = specificatie.werkbladen.filter(function (naam) {
-    return !bestaandeWerkbladen.has(naam);
+  var missingSheets = spec.werkbladen.filter(function (name) {
+    return !existingSheets.has(name);
   });
-  var ontbrekendeBereiken = [];
-  var afwijkendeBereiken = [];
-
-  specificatie.benoemdeBereiken.forEach(function (verwacht) {
-    var huidig = bestaandeBereiken[verwacht.naam];
-    if (!huidig) {
-      ontbrekendeBereiken.push(verwacht);
-    } else if (huidig.werkblad !== verwacht.werkblad || huidig.bereik !== verwacht.bereik) {
-      afwijkendeBereiken.push({ verwacht: verwacht, huidig: huidig });
+  var missingRanges = [];
+  var invalidRanges = [];
+  spec.benoemdeBereiken.forEach(function (verwacht) {
+    var current = existingRanges[verwacht.naam];
+    if (!current) {
+      missingRanges.push(verwacht);
+    } else if (current.werkblad !== verwacht.werkblad || current.bereik !== verwacht.bereik) {
+      invalidRanges.push({
+        verwacht: verwacht,
+        huidig: current
+      });
     }
   });
-
-  var ontbrekendeVoorpaginaKolommen = [];
-  var afwijkendeVoorpaginaTitels = [];
-  var voorpagina = ss.getSheetByName("Voorpagina");
-  if (voorpagina && voorpagina.getLastColumn() > 0) {
-    var voorpaginaKoppen = voorpagina.getRange(1, 1, 1, voorpagina.getLastColumn()).getValues()[0];
-    var aanwezigeKolommen = crMaakKolomindex(voorpagina);
-    bhVoorpaginaKolomspecificatie().forEach(function (kolom) {
-      var kandidaten = [kolom.titel, kolom.naam].concat(kolom.aliases || []);
-      var gevondenIndex;
-      var gevondenTitel;
-      for (var i = 0; i < kandidaten.length; i++) {
-        gevondenIndex = crZoekKolom(aanwezigeKolommen, kandidaten[i], false);
-        if (gevondenIndex !== undefined) {
-          gevondenTitel = voorpaginaKoppen[gevondenIndex];
+  var missingFrontCols = [];
+  var invalidFrontTitles = [];
+  var frontSheet = ss.getSheetByName("Voorpagina");
+  if (frontSheet && frontSheet.getLastColumn() > 0) {
+    var frontHeaders = frontSheet.getRange(1, 1, 1, frontSheet.getLastColumn()).getValues()[0];
+    var presentCols = crMaakKolomindex(frontSheet);
+    bhVoorpaginaKolomspecificatie().forEach(function (col) {
+      var candidates = [col.titel, col.naam].concat(col.aliases || []);
+      var foundIndex;
+      var foundTitle;
+      for (var i = 0; i < candidates.length; i++) {
+        foundIndex = crZoekKolom(presentCols, candidates[i], false);
+        if (foundIndex !== undefined) {
+          foundTitle = frontHeaders[foundIndex];
           break;
         }
       }
-      if (gevondenIndex === undefined) {
-        ontbrekendeVoorpaginaKolommen.push({ naam: kolom.naam, titel: kolom.titel });
-      } else if (crNormaliseerKolomnaam(gevondenTitel) !== crNormaliseerKolomnaam(kolom.titel)) {
-        afwijkendeVoorpaginaTitels.push({ naam: kolom.naam, verwacht: kolom.titel, huidig: gevondenTitel });
+      if (foundIndex === undefined) {
+        missingFrontCols.push({
+          naam: col.naam,
+          titel: col.titel
+        });
+      } else if (crNormaliseerKolomnaam(foundTitle) !== crNormaliseerKolomnaam(col.titel)) {
+        invalidFrontTitles.push({
+          naam: col.naam,
+          verwacht: col.titel,
+          huidig: foundTitle
+        });
       }
     });
-  } else if (voorpagina) {
-    ontbrekendeVoorpaginaKolommen = bhVoorpaginaKolomspecificatie().map(function (kolom) {
-      return { naam: kolom.naam, titel: kolom.titel };
+  } else if (frontSheet) {
+    missingFrontCols = bhVoorpaginaKolomspecificatie().map(function (col) {
+      return {
+        naam: col.naam,
+        titel: col.titel
+      };
     });
   }
-
-  var rapport = {
-    geldig: ontbrekendeWerkbladen.length === 0 &&
-      ontbrekendeBereiken.length === 0 && afwijkendeBereiken.length === 0 &&
-      ontbrekendeVoorpaginaKolommen.length === 0 && afwijkendeVoorpaginaTitels.length === 0,
+  var report = {
+    geldig: missingSheets.length === 0 && missingRanges.length === 0 && invalidRanges.length === 0 && missingFrontCols.length === 0 && invalidFrontTitles.length === 0,
     spreadsheet: ss.getName(),
     tijdzoneScript: Session.getScriptTimeZone(),
     tijdzoneSpreadsheet: ss.getSpreadsheetTimeZone(),
-    ontbrekendeWerkbladen: ontbrekendeWerkbladen,
-    ontbrekendeBereiken: ontbrekendeBereiken,
-    afwijkendeBereiken: afwijkendeBereiken,
-    ontbrekendeVoorpaginaKolommen: ontbrekendeVoorpaginaKolommen,
-    afwijkendeVoorpaginaTitels: afwijkendeVoorpaginaTitels
+    ontbrekendeWerkbladen: missingSheets,
+    ontbrekendeBereiken: missingRanges,
+    afwijkendeBereiken: invalidRanges,
+    ontbrekendeVoorpaginaKolommen: missingFrontCols,
+    afwijkendeVoorpaginaTitels: invalidFrontTitles
   };
-
-  console.log(JSON.stringify(rapport, null, 2));
-  SpreadsheetApp.getUi().alert(
-    rapport.geldig
-      ? "De vaste spreadsheetstructuur is in orde."
-      : "Er zijn afwijkingen gevonden. Bekijk het uitvoeringslogboek."
-  );
-  return rapport;
+  console.log(JSON.stringify(report, null, 2));
+  SpreadsheetApp.getUi().alert(report.geldig ? "De vaste spreadsheetstructuur is in orde." : "Er zijn afwijkingen gevonden. Bekijk het uitvoeringslogboek.");
+  return report;
 }
 
 /**
@@ -862,47 +1013,40 @@ function bhInitialiseerSpreadsheet() {
   if (ss.getSheetByName("Instellingen") && !ss.getSheetByName("Configuratie")) {
     bhMigreerConfiguratie(false);
   }
-  var specificatie = bhSpreadsheetSpecificatie();
-  var aangemaakteWerkbladen = [];
-  var aangemaakteBereiken = [];
-
-  specificatie.werkbladen.forEach(function (naam) {
-    if (!ss.getSheetByName(naam)) {
-      ss.insertSheet(naam);
-      aangemaakteWerkbladen.push(naam);
+  var spec = bhSpreadsheetSpecificatie();
+  var createdSheets = [];
+  var createdRanges = [];
+  spec.werkbladen.forEach(function (name) {
+    if (!ss.getSheetByName(name)) {
+      ss.insertSheet(name);
+      createdSheets.push(name);
     }
   });
-
-  var voorpagina = ss.getSheetByName("Voorpagina");
-  if (voorpagina.getLastRow() === 0 || voorpagina.getLastColumn() === 0) {
-    var voorpaginaSchema = bhVoorpaginaKolomspecificatie();
-    if (voorpagina.getMaxColumns() < voorpaginaSchema.length) {
-      voorpagina.insertColumnsAfter(voorpagina.getMaxColumns(), voorpaginaSchema.length - voorpagina.getMaxColumns());
+  var frontSheet = ss.getSheetByName("Voorpagina");
+  if (frontSheet.getLastRow() === 0 || frontSheet.getLastColumn() === 0) {
+    var frontSchema = bhVoorpaginaKolomspecificatie();
+    if (frontSheet.getMaxColumns() < frontSchema.length) {
+      frontSheet.insertColumnsAfter(frontSheet.getMaxColumns(), frontSchema.length - frontSheet.getMaxColumns());
     }
-    voorpagina.getRange(1, 1, 1, voorpaginaSchema.length).setValues([
-      voorpaginaSchema.map(function (kolom) { return kolom.titel; })
-    ]);
-    voorpagina.setFrozenRows(1);
+    frontSheet.getRange(1, 1, 1, frontSchema.length).setValues([frontSchema.map(function (col) {
+      return col.titel;
+    })]);
+    frontSheet.setFrozenRows(1);
   }
-
-  var bestaandeNamen = new Set(ss.getNamedRanges().map(function (namedRange) {
+  var existingNames = new Set(ss.getNamedRanges().map(function (namedRange) {
     return namedRange.getName();
   }));
-  specificatie.benoemdeBereiken.forEach(function (item) {
-    if (!bestaandeNamen.has(item.naam)) {
+  spec.benoemdeBereiken.forEach(function (item) {
+    if (!existingNames.has(item.naam)) {
       ss.setNamedRange(item.naam, ss.getSheetByName(item.werkblad).getRange(item.bereik));
-      aangemaakteBereiken.push(item.naam);
+      createdRanges.push(item.naam);
     }
   });
-
-  var resultaat = {
-    aangemaakteWerkbladen: aangemaakteWerkbladen,
-    aangemaakteBereiken: aangemaakteBereiken
+  var result = {
+    aangemaakteWerkbladen: createdSheets,
+    aangemaakteBereiken: createdRanges
   };
-  console.log(JSON.stringify(resultaat, null, 2));
-  SpreadsheetApp.getUi().alert(
-    "Initialisatie voltooid. Nieuwe werkbladen: " + aangemaakteWerkbladen.length +
-    "; nieuwe benoemde bereiken: " + aangemaakteBereiken.length + "."
-  );
-  return resultaat;
+  console.log(JSON.stringify(result, null, 2));
+  SpreadsheetApp.getUi().alert("Initialisatie voltooid. Nieuwe werkbladen: " + createdSheets.length + "; nieuwe benoemde bereiken: " + createdRanges.length + ".");
+  return result;
 }

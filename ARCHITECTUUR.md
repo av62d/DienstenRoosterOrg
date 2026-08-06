@@ -113,3 +113,15 @@ de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
   onleesbare bron opnieuw op dezelfde ankercel op, met behoud van uitleesbare
   groepen, waarden, filters en weergave-instellingen en met `Voorpagina` als
   bron. Bij berekende draaitabelwaarden stopt de functie vóór wijziging.
+
+## Naamgeving en commentaar
+
+- Functienamen zijn Nederlands en beginnen, behalve verplichte Apps
+  Script-entrypoints, met de tweeletterige moduleprefix.
+- Namen van argumenten, lokale variabelen en modulevariabelen zijn kort,
+  betekenisvol, Engels en geschreven in `camelCase`.
+- Werkbladnamen, kolomtitels, configuratiesleutels en templateplaceholders zijn
+  domeingegevens en worden daarom niet als variabelenaam vertaald.
+- Uitgeschakelde code blijft niet als commentaar staan; versiegeschiedenis hoort
+  in Git. Commentaar beschrijft bedoeling, randvoorwaarden en niet-obvious
+  stappen, vooral bij migraties en functies met meerdere gegevensbronnen.
