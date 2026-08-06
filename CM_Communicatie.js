@@ -153,29 +153,47 @@ function cmEscapeHtml(waarde) {
     .replace(/\r?\n/g, "<br>");
 }
 
-/** Geeft de velden van één geselecteerde dienst in een vaste presentatievolgorde. */
+function cmIsJaWaarde(waarde) {
+  return waarde === true || ["ja", "true", "1", "x"].indexOf(String(waarde || "").trim().toLowerCase()) >= 0;
+}
+
+function cmIsNeeWaarde(waarde) {
+  return waarde === false || ["nee", "false", "0"].indexOf(String(waarde || "").trim().toLowerCase()) >= 0;
+}
+
+/** Geeft de zichtbare velden van één dienst in de afgesproken presentatievolgorde. */
 function cmMaakDienstvelden(selectie, index) {
-  return [
-    ["Voorganger", selectie.voorgangers[index]],
-    ["Bijzonderheden", selectie.bijzonderheden[index]],
+  var bijzonderheden = [];
+  if (selectie.bijzonderheden[index]) bijzonderheden.push(String(selectie.bijzonderheden[index]));
+  if (cmIsJaWaarde(selectie.avondmaal[index])) bijzonderheden.push("Heilig Avondmaal");
+
+  var voorganger = String(selectie.voorgangers[index] || "");
+  if (voorganger && bijzonderheden.length) voorganger += ", " + bijzonderheden.join(", ");
+  var koffie = cmIsNeeWaarde(selectie.koffieDiensten[index])
+    ? "geen koffie"
+    : selectie.koffie[index];
+
+  var velden = [];
+  if (voorganger) {
+    velden.push(["Voorganger", voorganger]);
+  } else if (bijzonderheden.length) {
+    // Bij een dienst buiten Didam is Bijzonderheden vaak het enige gevulde veld.
+    velden.push(["Bijzonderheden", bijzonderheden.join(", ")]);
+  }
+  velden = velden.concat([
     ["Collecte", selectie.collectes[index]],
-    ["Collectecategorie", selectie.collectecategorieen[index]],
     ["Uitgangscollecte", selectie.uitgangscollectes[index]],
     ["Lector", selectie.lectoren[index]],
     ["Ambtsdragers", selectie.ambtsdragers[index]],
     ["Koster", selectie.kosters[index]],
-    ["Koffie", selectie.koffie[index]],
+    ["Koffie", koffie],
     ["Ontvangst", selectie.ontvangst[index]],
     ["Klokkenluider", selectie.klokkenluiders[index]],
     ["KerkTV", selectie.kerktv[index]],
     ["Kleur", selectie.kleuren[index]],
-    ["Heilig Avondmaal", selectie.avondmaal[index] ? "ja" : "nee"],
-    ["Vorm Heilig Avondmaal", selectie.havormen[index]],
-    ["Naam van de zondag", selectie.zondagnamen[index]],
-    ["Kwartaal", selectie.kwartalen[index]],
-    ["Koffiedienst", selectie.koffieDiensten[index]],
-    ["Dienst in Didam", selectie.didamDiensten[index]]
-  ];
+    ["Naam van de zondag", selectie.zondagnamen[index]]
+  ]);
+  return velden;
 }
 
 /** Maakt een verticaal HTML-overzicht van de eerste `aantal` diensten. */
@@ -207,11 +225,18 @@ function cmMaakHtmlDienstenrapport(selectie, aantal) {
 function cmMaakTekstDienstenrapport(selectie, aantal) {
   var limiet = Math.min(Math.max(Number(aantal) || 1, 1), selectie.datums.length);
   var blokken = [];
+  var vorigeWeek = null;
   for (var index = 0; index < limiet; index++) {
-    var regels = [crFormatteerDatum(selectie.datums[index], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR)];
+    var week = crBepaalWeeknummer(selectie.datums[index]);
+    var regels = [];
+    if (week !== vorigeWeek) {
+      regels.push("Week " + week);
+      vorigeWeek = week;
+    }
+    regels.push(crFormatteerDatum(selectie.datums[index], crDatumFormaat.DATUM_TIJD_ZONDER_JAAR));
     cmMaakDienstvelden(selectie, index).forEach(function (veld) {
       if (veld[1] === "" || veld[1] === null || veld[1] === undefined) return;
-      regels.push(veld[0] + ": " + veld[1]);
+      regels.push("•\t" + veld[0] + ": " + veld[1]);
     });
     blokken.push(regels.join("\n"));
   }
@@ -279,7 +304,7 @@ function cmMaakTemplateVariabelen(selectie, index, aanvullingen) {
 /** Bepaalt het hoogste gevraagde aantal uit `@gegevens@` of `@gegevens <n>@`. */
 function cmBepaalAantalDienstenUitTemplate(tekst) {
   var aantal = 1;
-  var patroon = /@gegevens(?:\s+(\d+))?@/gi;
+  var patroon = /@gegevens(?:\s+(\d+))?\s*@/gi;
   var gevonden;
   while ((gevonden = patroon.exec(String(tekst || ""))) !== null) {
     aantal = Math.max(aantal, Number(gevonden[1]) || 1);

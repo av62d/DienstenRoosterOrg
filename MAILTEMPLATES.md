@@ -42,9 +42,19 @@ ondersteund.
 
 `@gegevens@` maakt een verticaal overzicht van de eerstvolgende dienst.
 
-`@gegevens 3@` maakt hetzelfde overzicht voor de eerstvolgende drie diensten.
+`@gegevens 3@` of `@gegevens 3 @` maakt hetzelfde overzicht voor de
+eerstvolgende drie diensten.
 Het getal mag naar behoefte worden aangepast. Lege velden worden in dit
 overzicht overgeslagen.
+
+Het dienstenoverzicht heeft een vaste veldvolgorde. Bijzonderheden worden met
+een komma achter de voorganger geplaatst. De ja/nee-velden worden niet als
+afzonderlijke regels weergegeven:
+
+- bij `Koffiedienst = nee` wordt `Koffie: geen koffie` weergegeven;
+- bij `Dienst in Didam = nee` blijven alleen werkelijk gevulde velden staan;
+- bij `Heilig Avondmaal = ja` wordt `Heilig Avondmaal` aan de bijzonderheden
+  toegevoegd.
 
 ## Aanvullende placeholders
 
