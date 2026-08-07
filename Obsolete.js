@@ -507,14 +507,16 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
 }
 
 function rsVoegTabelrijMetEenKolomToe(tag, val) {
-  return rsMaakHtmlElement("tr", rsMaakHtmlElementMetOptie(tag, "colspan=\"" + colcount + "\"   style=\"text-align:center;\" ", val));
+  var columnCount = typeof colcount === "undefined" ? 1 : colcount;
+  var cell = cmMaakHtmlTekstelement(tag, val, { colspan: columnCount, style: "text-align:center;" });
+  return cmMaakHtmlElement("tr", cell);
 }
 
 // Oorspronkelijk uit YT_YouTube.js
 
 function ytVerzendLaatsteVideos() {
   var videoCount = 16;
-  var email = "<h4>Vorige " + videoCount + " diensten</h4>" + ytMaakUploadLijst(videoCount);
+  var email = cmMaakHtmlTekstelement("h4", "Vorige " + videoCount + " diensten") + ytMaakUploadLijst(videoCount);
   cmVerzendEmail("avandervliet@pg-didam.nl", "Lijst met kerkdiensten", {
     textBody: email,
     mode: "together"

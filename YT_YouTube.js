@@ -5,24 +5,16 @@
 
 function ytMaakUploadLijst(n = 4) {
   var uploadData = ytHaalMijnUploadsOp();
-  function ytMaakHtmlElement(tg, str) {
-    return "<" + tg + ">" + str + "</" + tg + ">";
-  }
-  function ytMaakHtmlLink(link, text) {
-    return '<a href="' + link + '">' + text + '</a>';
-  }
-  var msg = "<ul>";
+  var items = [];
   for (var i in uploadData) {
     var s = uploadData[i];
     var title = s.title;
     var videoId = s.resourceId.videoId;
-    var publishedAt = s.publishedAt;
     if (s.position < n) {
-      msg += ytMaakHtmlElement("li", ytMaakHtmlLink("https://youtube.com/watch?v=" + videoId, title)) + "\n";
+      items.push(cmMaakHtmlLink(title, "https://youtube.com/watch?v=" + videoId));
     }
   }
-  msg += "</ul>";
-  return msg;
+  return cmMaakHtmlLijst(items);
 }
 
 function ytHaalMijnUploadsOp(rptSheet) {

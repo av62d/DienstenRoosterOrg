@@ -377,29 +377,12 @@ function rsVerzendJaarrooster(curYear = 2026) {
     to: myself
   });
 }
-var colcount = 1;
-function rsStelTabelkolommenIn(tableRow) {
-  colcount = tableRow.length;
-}
-
-function rsMaakHtmlElementen(tag, tableRow) {
-  var msg = "";
-  for (i in tableRow) {
-    msg += rsMaakHtmlElement(tag, tableRow[i]);
-  }
-  return msg;
-}
-
-function rsMaakHtmlElement(tag, val) {
-  return "<" + tag + ">" + val + "</" + tag + ">";
-}
-
-function rsMaakHtmlElementMetOptie(tag, opt, val) {
-  return "<" + tag + " " + opt + ">" + val + "</" + tag + ">";
-}
 
 function rsVoegTabelrijToe(tag, hdrRow) {
-  return rsMaakHtmlElement("tr", rsMaakHtmlElementen(tag, hdrRow));
+  var cells = hdrRow.map(function (value) {
+    return cmMaakHtmlTekstelement(tag, value);
+  });
+  return cmMaakHtmlElement("tr", cells.join(""));
 }
 
 // Maak volledig rooster : Naam van sheet; Titel ; startdatum ; aantal maanden
@@ -412,7 +395,6 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
 
   var curInTable = false; // dit geeft aan of we momenteel in een tabel zitten
 
-  rsStelTabelkolommenIn(hdrRow);
   var {
     koppen: headers,
     datums: rowDates,
@@ -441,10 +423,10 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
     var monthName = crFormatteerDatum(rowDates[i], crDateFormat.MAAND);
     if (monthName !== rptMonth) {
       if (curInTable) {
-        htmlFullResult += rsMaakHtmlElement("table border=\"1\"", htmlTable); // beeindig de vorige tabel en voeg toe aan eindresultaat
+        htmlFullResult += cmMaakHtmlElement("table", htmlTable, { border: "1" }); // beeindig de vorige tabel en voeg toe aan eindresultaat
         htmlTable = ""; // wis tabel
       }
-      htmlFullResult += rsMaakHtmlElement("h2", monthName); // voeg titel met maandnaam toe
+      htmlFullResult += cmMaakHtmlTekstelement("h2", monthName); // voeg titel met maandnaam toe
 
       htmlTable = rsVoegTabelrijToe("th", hdrRow); // voeg kolomhoofden toe aan de tabel
       rptMonth = monthName;
@@ -464,7 +446,7 @@ function rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), rptNumMonths = 3
     htmlTable += rsVoegTabelrijToe("td", rowArray);
   }
   if (curInTable) {
-    htmlFullResult += rsMaakHtmlElement("table border=\"1\"", htmlTable); // beeindig de vorige tabel en voeg toe aan eindresultaat
+    htmlFullResult += cmMaakHtmlElement("table", htmlTable, { border: "1" }); // beeindig de vorige tabel en voeg toe aan eindresultaat
   }
   return htmlFullResult;
 }

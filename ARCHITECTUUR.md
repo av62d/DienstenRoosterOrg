@@ -48,6 +48,13 @@ uitvoer; placeholders zijn hoofdletterongevoelig en worden overal vervangen.
 diensten toe. Onbekende placeholders blokkeren verzending. De beschikbare
 variabelen en template-afspraken staan in `MAILTEMPLATES.md`.
 
+Dynamische HTML-fragmenten worden uitsluitend opgebouwd met de centrale
+`cmMaakHtml...`-functies in `CM_Communicatie.js`. Gewone tekst loopt daarbij via
+`cmEscapeHtml` of `cmMaakHtmlTekstelement`; samengestelde, reeds veilige
+fragmenten worden met `cmMaakHtmlElement`, `cmMaakHtmlLijst` en
+`cmMaakHtmlLink` gecombineerd. Hierdoor gebruiken communicatie, roosters en
+YouTube-lijsten dezelfde escaping, attribuutverwerking en tagopbouw.
+
 ## Datumformattering
 
 Alle zichtbare datumuitvoer loopt via `crFormatteerDatum` en een benoemde waarde

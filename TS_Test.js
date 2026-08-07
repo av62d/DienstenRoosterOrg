@@ -73,6 +73,20 @@ function tsTestMaakHtmlWeekrapport() {
   var msg = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
 }
 
+/** Controleert escaping, attributen, links en lijsten van de centrale HTML-builder. */
+function tsTestHtmlBuilder() {
+  var link = cmMaakHtmlLink("A&B", "https://example.invalid/?a=1&b=2");
+  var html = cmMaakHtmlElement("div", cmMaakHtmlLijst([link, cmEscapeHtml("<tekst>")]), {
+    class: "voorbeeld",
+    "data-test": "A&B"
+  });
+  var expected = '<div class="voorbeeld" data-test="A&amp;B"><ul>'
+    + '<li><a href="https://example.invalid/?a=1&amp;b=2">A&amp;B</a></li>\n'
+    + '<li>&lt;tekst&gt;</li></ul></div>';
+  if (html !== expected) throw new Error("HTML-buildertest mislukt:\n" + html);
+  console.log("HTML-buildertest geslaagd.");
+}
+
 function tsTestVerzendTemplate() {
   cmVerzendTemplateNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres(), true);
 }
