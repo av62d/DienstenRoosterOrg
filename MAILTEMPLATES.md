@@ -40,12 +40,21 @@ ondersteund.
 
 ## Meerdere diensten
 
-`@gegevens@` maakt een verticaal overzicht van de eerstvolgende dienst.
+`@gegevens@` maakt normaal een verticaal overzicht van de eerstvolgende dienst.
 
 `@gegevens 3@` of `@gegevens 3 @` maakt hetzelfde overzicht voor de
 eerstvolgende drie diensten.
 Het getal mag naar behoefte worden aangepast. Lege velden worden in dit
 overzicht overgeslagen.
+
+Voor kerkmededelingen gelden aanvullende datumregels:
+
+- losse placeholders, zoals `@voorganger@`, horen bij de eerstvolgende zondag;
+- zijn er diensten van donderdag tot en met zondag in dezelfde week, dan toont
+  een kaal `@gegevens@` alle diensten in die periode;
+- valt Eerste Kerstdag vóór die zondag en staat die dienst op de Voorpagina,
+  dan worden de losse placeholders en `@gegevens@` op Eerste Kerstdag gebaseerd;
+- een expliciet aantal, bijvoorbeeld `@gegevens 2@`, blijft dat aantal gebruiken.
 
 Het dienstenoverzicht heeft een vaste veldvolgorde. Bijzonderheden worden met
 een komma achter de voorganger geplaatst. De ja/nee-velden worden niet als
@@ -98,7 +107,8 @@ Kerkmededelingen gebruiken twee afzonderlijke Google Document-templates:
 - `Template-ID - Mededelingen document` bepaalt de mededelingenbijlage die als
   `.docx` wordt meegestuurd.
 
-Beide templates gebruiken dezelfde placeholders en dezelfde geselecteerde
-dienstgegevens. Het oude `Template-ID - Mededelingen` wordt bij migratie als
+Beide templates gebruiken dezelfde placeholders. Losse variabelen gebruiken de
+hoofddienst; het `@gegevens@`-blok kan volgens de bovenstaande regels meerdere
+diensten bevatten. Het oude `Template-ID - Mededelingen` wordt bij migratie als
 documenttemplate behouden. Het ID van **Mededelingen Mail** moet afzonderlijk
 worden ingevuld.

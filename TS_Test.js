@@ -78,6 +78,41 @@ function tsVerzendTesttemplate() {
 function tsTestVerzendMededelingen() {
   cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Testmail"), false);
 }
+
+/** Test normale week, Paasweek, Hemelvaart en Eerste Kerstdag zonder te mailen. */
+function tsTestSelectieMededelingen() {
+  var makeSelection = function (dates) {
+    return {
+      datums: dates,
+      voorgangers: dates.map(function (_, index) { return "Dienst " + (index + 1); })
+    };
+  };
+  var check = function (name, startDate, dates, primaryCount, reportCount, primaryDay) {
+    var result = cmBepaalMededelingenselecties(makeSelection(dates), startDate);
+    var actualDay = new Date(result.primarySelection.datums[0]).getDate();
+    if (result.primarySelection.datums.length !== primaryCount
+        || result.reportSelection.datums.length !== reportCount
+        || actualDay !== primaryDay) {
+      throw new Error(name + " mislukt: hoofd=" + result.primarySelection.datums.length
+        + ", gegevens=" + result.reportSelection.datums.length + ", dag=" + actualDay);
+    }
+    console.log(name + " geslaagd.");
+  };
+
+  check("Normale week", new Date(2026, 7, 3), [
+    new Date(2026, 7, 9, 10), new Date(2026, 7, 16, 10)
+  ], 1, 1, 9);
+  check("Paasweek", new Date(2026, 2, 30), [
+    new Date(2026, 3, 2, 19), new Date(2026, 3, 3, 19),
+    new Date(2026, 3, 5, 10), new Date(2026, 3, 12, 10)
+  ], 1, 3, 5);
+  check("Hemelvaart", new Date(2026, 4, 11), [
+    new Date(2026, 4, 14, 10), new Date(2026, 4, 17, 10)
+  ], 1, 2, 17);
+  check("Eerste Kerstdag", new Date(2026, 11, 21), [
+    new Date(2026, 11, 25, 10), new Date(2026, 11, 27, 10)
+  ], 1, 1, 25);
+}
 function tsTestVerzendMjMededelingen() {
   cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Testmail"));
 }

@@ -264,6 +264,85 @@ function cmSelecteerKomendeDiensten(count, startDate) {
   return selection;
 }
 
+/** Geeft een selectie terug met uitsluitend de opgegeven dienstindexen. */
+function cmFilterDienstenSelectie(selection, indexes) {
+  var serviceCount = selection.datums.length;
+  var result = {};
+  Object.keys(selection).forEach(function (name) {
+    var value = selection[name];
+    result[name] = Array.isArray(value) && value.length === serviceCount
+      ? indexes.map(function (index) { return value[index]; })
+      : value;
+  });
+  result.defaultCount = indexes.length;
+  return result;
+}
+
+/** Controleert of twee datumwaarden op dezelfde kalenderdag vallen. */
+function cmZijnZelfdeDatum(left, right) {
+  var first = new Date(left);
+  var second = new Date(right);
+  return first.getFullYear() === second.getFullYear()
+    && first.getMonth() === second.getMonth()
+    && first.getDate() === second.getDate();
+}
+
+/**
+ * Bepaalt voor kerkmededelingen apart de hoofddienst en het gegevensblok.
+ * De hoofddienst is de eerstvolgende zondag. Valt Eerste Kerstdag daarvoor,
+ * dan wordt die feestdag gebruikt. Bij diensten van donderdag t/m zaterdag
+ * bevat het gegevensblok alle diensten van donderdag tot en met zondag.
+ */
+function cmSelecteerMededelingendiensten(startDate) {
+  var begin = crZetOpBeginVanDag(startDate || new Date());
+  var all = cmSelecteerKomendeDiensten(1, begin);
+  return cmBepaalMededelingenselecties(all, begin);
+}
+
+/** Past de mededelingenregels toe op een reeds ingelezen dienstenverzameling. */
+function cmBepaalMededelingenselecties(all, startDate) {
+  var begin = crZetOpBeginVanDag(startDate || new Date());
+  var sundayIndex = all.datums.findIndex(function (value) {
+    return new Date(value).getDay() === 0;
+  });
+  if (sundayIndex < 0) throw new Error("Geen eerstvolgende zondag gevonden voor de mededelingen.");
+
+  var sunday = crZetOpBeginVanDag(new Date(all.datums[sundayIndex]));
+  var sundayEnd = crZetTijdOpEindeVanDag(new Date(sunday));
+  var christmasIndexes = [];
+  all.datums.forEach(function (value, index) {
+    var date = new Date(value);
+    if (date >= begin && date <= sundayEnd && date.getMonth() === 11 && date.getDate() === 25) {
+      christmasIndexes.push(index);
+    }
+  });
+  if (christmasIndexes.length) {
+    var christmas = cmFilterDienstenSelectie(all, christmasIndexes);
+    return { primarySelection: christmas, reportSelection: christmas };
+  }
+
+  var sundayIndexes = [];
+  var weekIndexes = [];
+  var thursday = crZetOpBeginVanDag(crTelDagenBijDatumOp(new Date(sunday), -3));
+  all.datums.forEach(function (value, index) {
+    var date = new Date(value);
+    if (cmZijnZelfdeDatum(date, sunday)) sundayIndexes.push(index);
+    if (date >= thursday && date <= sundayEnd) weekIndexes.push(index);
+  });
+  var hasWeekdayService = weekIndexes.some(function (index) {
+    return new Date(all.datums[index]).getDay() !== 0;
+  });
+  return {
+    primarySelection: cmFilterDienstenSelectie(all, sundayIndexes),
+    reportSelection: cmFilterDienstenSelectie(all, hasWeekdayService ? weekIndexes : sundayIndexes)
+  };
+}
+
+/** Bepaalt het aantal diensten voor een `@gegevens@`-placeholder. */
+function cmBepaalAantalVoorGegevens(data, selection) {
+  return data[1] ? Number(data[1]) : Number(selection.defaultCount) || 1;
+}
+
 /** Maakt voorbeeldwaarden voor alle aanvullende placeholders van de mailtypen. */
 function cmMaakTesttemplateVariabelen(selection) {
   var htmlLijst = "<ul><li>Voorbeeldregel 1</li><li>Voorbeeldregel 2</li></ul>";
@@ -316,7 +395,7 @@ function cmVervangHtmlTemplate(html, vars, selection) {
   var result = String(html || "").replace(/@([A-Za-z][A-Za-z0-9 _-]*)@/g, function (volledig, name) {
     var key = cmNormaliseerPlaceholder(name);
     var data = /^gegevens(?:\s+(\d+))?$/.exec(key);
-    if (data) return cmMaakHtmlDienstenrapport(selection, Number(data[1]) || 1);
+    if (data) return cmMaakHtmlDienstenrapport(selection, cmBepaalAantalVoorGegevens(data, selection));
     if (vars[key]) return vars[key].html;
     unknown[key] = true;
     return volledig;
@@ -344,7 +423,7 @@ function cmVervangDocumentTemplate(document, vars, selection) {
       var data = /^gegevens(?:\s+(\d+))?$/.exec(key);
       var replacement;
       if (data) {
-        replacement = cmMaakTekstDienstenrapport(selection, Number(data[1]) || 1);
+        replacement = cmMaakTekstDienstenrapport(selection, cmBepaalAantalVoorGegevens(data, selection));
       } else if (vars[key]) {
         replacement = vars[key].tekst;
       } else {
@@ -451,8 +530,8 @@ function cmMaakMededelingenMetadata(selection) {
 }
 
 /**
- * Leest beide templates en selecteert één keer alle diensten die een van beide
- * templates via `@gegevens <n>@` nodig heeft.
+ * Leest beide templates en bepaalt apart de hoofddienst voor losse variabelen
+ * en de dienstenreeks die een kaal `@gegevens@`-blok moet tonen.
  */
 function cmBereidMededelingenVoor(nextWeek) {
   var startDate = crZetOpBeginVanDag(new Date());
@@ -462,16 +541,14 @@ function cmBereidMededelingenVoor(nextWeek) {
   if (!mailTemplateId || !documentTemplateId) {
     throw new Error("Vul zowel 'Template-ID - Mededelingen mail' als 'Template-ID - Mededelingen document' in op Configuratie.");
   }
-  var documentTemplate = DocumentApp.openById(documentTemplateId);
-  var documentText = cmLeesDocumenttekst(documentTemplate);
   var mailHtml = cmExporteerDocumentNaarHtml(mailTemplateId);
-  var serviceCount = Math.max(cmBepaalAantalDienstenUitTemplate(documentText), cmBepaalAantalDienstenUitTemplate(mailHtml));
-  var selection = cmSelecteerKomendeDiensten(serviceCount, startDate);
+  var selections = cmSelecteerMededelingendiensten(startDate);
   return {
     documentTemplateId: documentTemplateId,
     mailHtml: mailHtml,
-    selection: selection,
-    metadata: cmMaakMededelingenMetadata(selection)
+    primarySelection: selections.primarySelection,
+    reportSelection: selections.reportSelection,
+    metadata: cmMaakMededelingenMetadata(selections.primarySelection)
   };
 }
 
@@ -498,8 +575,8 @@ function cmMaakMededelingenBijlage(prepared) {
   var liturgy = cmLeesLiturgieUitAgenda(crLeesConfiguratie("Agenda - KerkTV"), dayStart, dayEnd);
   var documentId = document.getId();
   var editUrl = "https://docs.google.com/document/d/" + documentId + "/edit?usp=sharing";
-  var vars = cmMaakMededelingenVariabelen(prepared.selection, meta.subject, liturgy, editUrl);
-  cmVervangDocumentTemplate(document, vars, prepared.selection);
+  var vars = cmMaakMededelingenVariabelen(prepared.primarySelection, meta.subject, liturgy, editUrl);
+  cmVervangDocumentTemplate(document, vars, prepared.reportSelection);
   document.saveAndClose();
   return {
     vars: vars,
@@ -510,14 +587,14 @@ function cmMaakMededelingenBijlage(prepared) {
 /**
  * Bouwt de kerkmededelingen uit twee templates met één gedeelde dataset.
  * De mailtemplate levert alleen de mail-HTML; de documenttemplate wordt eerst
- * gekopieerd, ingevuld en daarna als DOCX geëxporteerd. Het grootste gevraagde
- * `@gegevens <n>@` uit beide templates bepaalt hoeveel diensten worden gelezen.
+ * gekopieerd, ingevuld en daarna als DOCX geëxporteerd. Losse variabelen horen
+ * bij de hoofddienst; `@gegevens@` kan meerdere diensten in de week bevatten.
  */
 function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
   if (!emailTo) return;
   var prepared = cmBereidMededelingenVoor(nextWeek);
   var attachment = cmMaakMededelingenBijlage(prepared);
-  var html = cmVervangHtmlTemplate(prepared.mailHtml, attachment.vars, prepared.selection);
+  var html = cmVervangHtmlTemplate(prepared.mailHtml, attachment.vars, prepared.reportSelection);
   cmVerzendEmail(emailTo, prepared.metadata.subject, {
     htmlBody: html,
     attachments: [attachment.docx],
