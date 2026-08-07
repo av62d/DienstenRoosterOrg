@@ -100,7 +100,7 @@ var bhFrontCol = Object.freeze({
   BIJZONDERHEDEN: "Bijzonderheden",
   COLLECTE: "Collecte",
   LECTOR: "Lector",
-  OUDERLING: "Ouderling",
+  AMBTSDRAGER: "Ambtsdrager",
   EXTRA: "Extra",
   KOSTER: "Koster",
   KOFFIE: "Koffie",
@@ -155,10 +155,10 @@ function bhVoorpaginaKolomspecificatie() {
     type: "tekst",
     aliases: []
   }, {
-    naam: bhFrontCol.OUDERLING,
-    titel: "Ouderling",
+    naam: bhFrontCol.AMBTSDRAGER,
+    titel: "Ambtsdrager",
     type: "tekst",
-    aliases: []
+    aliases: ["Ouderling"]
   }, {
     naam: bhFrontCol.EXTRA,
     titel: "Extra",

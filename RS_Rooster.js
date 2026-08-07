@@ -73,7 +73,7 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     greeters.push(String(service.Ontvangst || "").replace(/\n/g, ", "));
     communions.push(service.HeiligAvondmaal);
     readers.push(service.Lector);
-    var officerText = service.Ouderling || "";
+    var officerText = service.Ambtsdrager || "";
     if (service.Extra) officerText += (officerText ? ", " : "") + service.Extra;
     officers.push(officerText);
     bellRingers.push(service.Klokkenluider);

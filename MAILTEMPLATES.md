@@ -21,7 +21,7 @@ tekstopmaak; maak bijvoorbeeld niet de helft vet en de andere helft normaal.
 | `@collectecategorie@` | Collectecategorie |
 | `@uitgangscollecte@` | Uitgangscollecte |
 | `@lector@` | Lector |
-| `@ambtsdragers@` | Ouderling en eventuele extra ambtsdrager |
+| `@ambtsdragers@` | Ambtsdrager en eventuele extra ambtsdrager |
 | `@koster@` | Koster |
 | `@koffie@` | Koffiezetters |
 | `@ontvangst@` | Ontvangst |
