@@ -83,6 +83,7 @@ function opPasKleurenToeOpWaarde(sourceSheet, destinationSheet, startCol = 0, en
   destRange.setBackgrounds(destBackgrounds);
   destRange.setFontColors(destFontColors);
 }
+
 function opGenereerOnderscheidendeKleurenVerticaal(count, sheetName) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(sheetName);
@@ -173,6 +174,7 @@ function opConverteerHslNaarHex(hue, s, l) {
   b = Math.round((b + m) * 255);
   return opConverteerRgbNaarHex(r, g, b);
 }
+
 function opConverteerRgbNaarHex(r, g, b) {
   return "#" + r.toString(16).padStart(2, "0") + g.toString(16).padStart(2, "0") + b.toString(16).padStart(2, "0");
 }
@@ -205,6 +207,7 @@ function opBepaalContrasterendeTekstkleur(hexColor, hue) {
 
   // Or the opposite of the hue
 }
+
 function opStelAchtergrondkleurenIn() {
   var startTime = crStartMeting();
   var srcSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Voorpagina');

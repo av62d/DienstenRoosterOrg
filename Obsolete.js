@@ -23,9 +23,11 @@ function cmVerzendRoosterbericht() {
   }
   x = 1;
 }
+
 function cmMaakUrlLink(url, text) {
   return "<a href=\"" + url + "\">" + text + "</a>";
 }
+
 function cmVerzendDienstenlijst() {
   var n = 4;
   var email = "<h4>Vorige " + n + " diensten</h4>" + ytMaakUploadLijst(n);
@@ -34,6 +36,7 @@ function cmVerzendDienstenlijst() {
     mode: "together"
   });
 }
+
 function cmMaakRoosterbericht() {
   var curDate = new Date();
   var rptWeekStartDate = crTelWekenBijDatumOp(crBepaalBeginVanWeek(curDate), 1);
@@ -43,6 +46,7 @@ function cmMaakRoosterbericht() {
   var msg = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
   return msg;
 }
+
 function cmVerzendLectorBericht() {
   var done = false;
   while (!done) {
@@ -59,6 +63,7 @@ function cmVerzendLectorBericht() {
   }
   x = 1;
 }
+
 function cmMaakLectorrooster(rptWeekStartDate, rptWeekEndDate, rptSheetName = "Lectorrooster", rptTitle = "Lectorrooster") {
   if (!rptSheetName || !rptTitle || !rptWeekStartDate || !rptWeekEndDate) return;
   var sizeNameCol = 105;
@@ -237,6 +242,7 @@ function exConverteerDocumentNaarPdf(documentId) {
   });
   return response.getBlob();
 }
+
 function exConverteerDocumentNaarDocx(documentId) {
   var file = Drive.Files.get(documentId);
   var url = file.exportLinks['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -248,6 +254,7 @@ function exConverteerDocumentNaarDocx(documentId) {
   });
   return response.getBlob();
 }
+
 function exConverteerDocumentNaarXlsx(documentId) {
   var file = Drive.Files.get(documentId);
   var url = file.exportLinks['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
@@ -259,6 +266,7 @@ function exConverteerDocumentNaarXlsx(documentId) {
   });
   return response.getBlob();
 }
+
 function exMaakHalfjaarroosterXlsx() {
   curYear = 2026;
   exMaakRoosterXlsx("Rooster-" + curYear + "-6maand-xlsx", "Rooster - " + curYear + "xlsx", crBepaalBeginVanMaand(), 6);
@@ -296,6 +304,7 @@ function rsSelecteerCriteria() {
   result = rsSelecteerGegevens(beginDate, crTelMaandenBijDatumOp(beginDate, 3));
   var a = 1;
 }
+
 function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTitle = "") {
   rptStartDate = crBepaalBeginVanMaand(argDate);
   var rptEndDate = crBepaalEindeVanMaand(argDate);
@@ -496,6 +505,7 @@ function rsMaakMaandRooster(argDate = new Date(), argSheetName = "", argSheetTit
 
   return reportSheet;
 }
+
 function rsVoegTabelrijMetEenKolomToe(tag, val) {
   return rsMaakHtmlElement("tr", rsMaakHtmlElementMetOptie(tag, "colspan=\"" + colcount + "\"   style=\"text-align:center;\" ", val));
 }
@@ -511,6 +521,7 @@ function ytVerzendLaatsteVideos() {
   });
   var x = 2;
 }
+
 function ytMaakUploadWerkblad(rptSheet) {
   var uploadData = ytHaalMijnUploadsOp();
   for (var i in uploadData) {
@@ -529,6 +540,7 @@ function ytMaakUploadWerkblad(rptSheet) {
   }
   var x = 1;
 }
+
 function ytWerkVideoBij() {
   // 1. Fetch all the channels owned by active user
   var myChannels = YouTube.Channels.list('contentDetails', {

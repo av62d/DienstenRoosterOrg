@@ -57,6 +57,7 @@ function kaZetGebeurtenissenInAgenda() {
     return;
   }
 }
+
 function kaLeesAgenda(reportSheet) {
   var calendars = new Array();
   var allEntries = new Array();

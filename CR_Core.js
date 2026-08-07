@@ -78,9 +78,11 @@ function crLeesAlleConfiguratie() {
   crConfigCache = result;
   return result;
 }
+
 function crWisConfiguratieCache() {
   crConfigCache = null;
 }
+
 function crLeesConfiguratie(key, defaultValue) {
   var config = crLeesAlleConfiguratie();
   if (config.hasOwnProperty(key)) return config[key];
@@ -105,6 +107,7 @@ function crEindMeting(name, startTime, details) {
   }));
   return milliseconds;
 }
+
 function crLeesWerkbladInhoud(argSheetName, argA1Position) {
   var retData;
   if (argSheetName) {
@@ -212,9 +215,11 @@ function crFormatteerDatum(date, formaat) {
     return token.charAt(0) === "'" ? token.slice(1, -1) : parts[token];
   });
 }
+
 function crVoegTekstToeIndienGevuld(pfx, str) {
   if (str) return pfx + str;else return "";
 }
+
 function crVoegTekstToe(data, start, count) {
   var msg = "";
   var del = "\n";
@@ -231,6 +236,7 @@ function crVoegTekstToe(data, start, count) {
   var singleLineMessage = msg.replace("\n", del);
   if (singleLineMessage.length > 0) return singleLineMessage;else return "";
 }
+
 function crBepaalDatumVanWeeknummer(wantWeekDay, wantWeekNumber) {
   var refDate = new Date();
   var nowWeekYear = crBepaalWeeknummer(refDate);
@@ -242,10 +248,12 @@ function crBepaalDatumVanWeeknummer(wantWeekDay, wantWeekNumber) {
   refDate.setDate(nowDateNum + dayOffset + weekOffset * 7);
   return refDate;
 }
+
 function crLogFoutopsporing(arg) {
   Logger.log(arg);
   var x = 1;
 }
+
 function crBepaalBeginVanMaand(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
@@ -256,6 +264,7 @@ function crBepaalBeginVanMaand(argDate) {
   retDate.setMilliseconds(0);
   return retDate;
 }
+
 function crZetOpBeginVanDag(argDate) {
   if (!argDate) argDate = new Date();
   argDate.setHours(0);
@@ -264,6 +273,7 @@ function crZetOpBeginVanDag(argDate) {
   argDate.setMilliseconds(0);
   return argDate;
 }
+
 function crMaakBegindatumVanMaand(month, curYear = 2026) {
   var retDate = new Date();
   retDate.setYear(curYear);
@@ -275,6 +285,7 @@ function crMaakBegindatumVanMaand(month, curYear = 2026) {
   retDate.setMilliseconds(0);
   return retDate;
 }
+
 function crBepaalEindeVanMaand(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
@@ -286,6 +297,7 @@ function crBepaalEindeVanMaand(argDate) {
   retDate.setMilliseconds(999);
   return retDate;
 }
+
 function crBepaalBeginVanJaar(curYear = 2026) {
   var retDate = new Date();
   retDate.setYear(curYear);
@@ -297,6 +309,7 @@ function crBepaalBeginVanJaar(curYear = 2026) {
   retDate.setMilliseconds(0);
   return retDate;
 }
+
 function crBepaalEindeVanJaar() {
   var retDate = new Date();
   retDate.setMonth(12); // Set end of year
@@ -307,15 +320,18 @@ function crBepaalEindeVanJaar() {
   retDate.setMilliseconds(999);
   return retDate;
 }
+
 function crBepaalWeeknummer(argDate) {
   if (!argDate) argDate = new Date();
   return Number(Utilities.formatDate(argDate, "CET", "w"));
 }
+
 function crBepaalBegindatumVanWeeknummer(argWeekNum) {
   var curDate = new Date();
   var curWeekNum = crBepaalWeeknummer(curDate);
   return crBepaalBeginVanWeek(crTelWekenBijDatumOp(curDate, argWeekNum - curWeekNum));
 }
+
 function crBepaalBeginVanWeek(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
@@ -326,6 +342,7 @@ function crBepaalBeginVanWeek(argDate) {
   retDate.setMilliseconds(0);
   return retDate;
 }
+
 function crBepaalEindeVanWeek(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new crBepaalBeginVanWeek(argDate); // get begindate of this week
@@ -336,6 +353,7 @@ function crBepaalEindeVanWeek(argDate) {
   retDate.setMilliseconds(999);
   return retDate;
 }
+
 function crTelDagenBijDatumOp(argDate, daysOffset) {
   if (!argDate) argDate = new Date();
   if (!daysOffset) daysOffset = 0;
@@ -343,6 +361,7 @@ function crTelDagenBijDatumOp(argDate, daysOffset) {
   retDate.setDate(argDate.getDate() + daysOffset);
   return retDate;
 }
+
 function crTelWekenBijDatumOp(argDate, weeksOffset) {
   if (!argDate) argDate = new Date();
   if (!weeksOffset) daysOffset = 0;
@@ -350,6 +369,7 @@ function crTelWekenBijDatumOp(argDate, weeksOffset) {
   retDate.setDate(argDate.getDate() + 7 * weeksOffset);
   return retDate;
 }
+
 function crTelMaandenBijDatumOp(argDate, monthsOffset, maxMonth = 12) {
   if (!argDate) argDate = new Date();
   if (!monthsOffset) monthsOffset = 0;
@@ -365,6 +385,7 @@ function crTelMaandenBijDatumOp(argDate, monthsOffset, maxMonth = 12) {
   } else retDate.setMonth(monthToSet);
   return retDate;
 }
+
 function crBepaalVolgendeZondag(argDate) {
   if (!argDate) argDate = new Date();
   var retDate = new Date(argDate);
@@ -375,6 +396,7 @@ function crBepaalVolgendeZondag(argDate) {
   retDate.setMilliseconds(0);
   return retDate;
 }
+
 function crZetTijdOpBeginVanDag(retDate) {
   if (retDate) {
     retDate.setHours(0);
@@ -384,6 +406,7 @@ function crZetTijdOpBeginVanDag(retDate) {
   }
   return retDate;
 }
+
 function crZetTijdOpEindeVanDag(retDate) {
   if (retDate) {
     retDate.setHours(23);

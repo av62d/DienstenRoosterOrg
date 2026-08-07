@@ -24,6 +24,7 @@ function ytMaakUploadLijst(n = 4) {
   msg += "</ul>";
   return msg;
 }
+
 function ytHaalMijnUploadsOp(rptSheet) {
   var uploadData = new Array();
   var results = YouTube.Channels.list('contentDetails', {
@@ -109,6 +110,7 @@ function ytMaakYouTubeUitzending(title, date, time) {
   Logger.log(result);
   return result;
 }
+
 function ytMaakLivestream(title) {
   const url = "https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn,status";
   const body = {
@@ -131,6 +133,7 @@ function ytMaakLivestream(title) {
   };
   return JSON.parse(UrlFetchApp.fetch(url, options).getContentText());
 }
+
 function ytKoppelUitzending(broadcastId, streamId) {
   const url = "https://www.googleapis.com/youtube/v3/liveBroadcasts/bind" + "?id=" + encodeURIComponent(broadcastId) + "&part=id,contentDetails" + "&streamId=" + encodeURIComponent(streamId);
   const options = {

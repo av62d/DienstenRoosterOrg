@@ -8,7 +8,8 @@ var tab = "\t";
 function cmVerzendRooster() {
   cmVerzendRoosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Rooster"), 4, 3); // 2 weeks and 3 months
 }
-function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths = 6, confirmAddress) {
+
+function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths = 6, confirmAddress, isTest) {
   var rptTitle = "Rooster " + reportMonths + " maanden";
   var rptSheetName = "Rooster-" + reportMonths + "-maanden";
   var msg = crLeesConfiguratie("Berichttekst - Rooster");
@@ -41,7 +42,8 @@ function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths
     mode: emailAsBcc ? "bcc" : "individual",
     to: emailConfirmationTo,
     confirmTo: emailConfirmationTo,
-    confirmMessage: emailConfirmationMsg
+    confirmMessage: emailConfirmationMsg,
+    test: isTest
   });
 }
 
@@ -51,6 +53,12 @@ function cmVerzendRoosterNaarLijst(emailListSheet, reportWeeks = 6, reportMonths
  */
 function cmVerzendEmail(source, subject, options) {
   options = options || {};
+  if (options.test) {
+    if (String(subject).indexOf("[TEST]") !== 0) subject = "[TEST] " + subject;
+    options.textBody = "[TEST]\n\n" + String(options.textBody || "Zie HTML gedeelte");
+    options.htmlBody = '<div style="padding:8px;margin-bottom:16px;background:#fff3cd;border:1px solid #ffe69c;"><strong>[TEST]</strong></div>'
+      + String(options.htmlBody || "");
+  }
   var recipients = cmLeesEmailadressen(source).map(function (row) {
     return String(Array.isArray(row) ? row[0] : row).trim();
   }).filter(function (address) {
@@ -84,6 +92,7 @@ function cmVerzendEmail(source, subject, options) {
     var modeText = mode === "bcc" ? "als BCC" : mode === "together" ? "gezamenlijk" : "als aparte mails";
     var confirmation = String(options.confirmMessage || "E-mail verzonden") +
       "\nVerzendwijze: " + modeText + "\nVerzonden naar: " + joined;
+    if (options.test) confirmation = "[TEST]\n\n" + confirmation;
     MailApp.sendEmail(options.confirmTo, subject + " - verzonden " + modeText, confirmation, {
       name: options.name || "Dienstenrooster",
       htmlBody: cmEscapeHtml(confirmation)
@@ -104,9 +113,11 @@ function cmLeesEmailadressen(source) {
     return Boolean(row[0]);
   });
 }
+
 function cmMaakHtmlElement(tag, str) {
   return "<" + tag + ">" + str + "</" + tag + ">\n";
 }
+
 function cmVoegLijstItemToe(pfx, str) {
   if (str) return "<li>" + pfx + str;else return "";
 }
@@ -115,9 +126,11 @@ function cmVoegLijstItemToe(pfx, str) {
 function cmEscapeHtml(value) {
   return String(value === null || value === undefined ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r?\n/g, "<br>");
 }
+
 function cmIsJaWaarde(value) {
   return value === true || ["ja", "true", "1", "x"].indexOf(String(value || "").trim().toLowerCase()) >= 0;
 }
+
 function cmIsNeeWaarde(value) {
   return value === false || ["nee", "false", "0"].indexOf(String(value || "").trim().toLowerCase()) >= 0;
 }
@@ -183,6 +196,7 @@ function cmMaakTekstDienstenrapport(selection, count) {
   }
   return blocks.join("\n\n");
 }
+
 function cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate) {
   var selection = rsSelecteerGegevens(rptWeekStartDate, rptWeekEndDate);
   return cmMaakHtmlDienstenrapport(selection, selection.datums.length);
@@ -381,10 +395,11 @@ function cmVerzendTesttemplate() {
   var vars = cmMaakTesttemplateVariabelen(selection);
   var html = cmVervangHtmlTemplate(templateHtml, vars, selection);
   var recipients = cmLeesEmailadressen(crLeesConfiguratie("Testmail"));
-  var result = cmVerzendEmail(recipients, "[TEST] Mailtemplatevariabelen", {
+  var result = cmVerzendEmail(recipients, "Mailtemplatevariabelen", {
     name: "Test Dienstenrooster",
     htmlBody: html,
-    mode: "individual"
+    mode: "individual",
+    test: true
   });
   SpreadsheetApp.getUi().alert("Testtemplate verzonden naar " + result.sentCount + " testontvanger(s).");
 }
@@ -448,10 +463,12 @@ function cmExporteerDocumentNaarHtml(documentId) {
     muteHttpExceptions: false
   }).getContentText();
 }
+
 function cmVerzendTemplate() {
   cmVerzendTemplateNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - KerkTV"));
 }
-function cmVerzendTemplateNaarLijst(emailListSheetName, confirmAddress) {
+
+function cmVerzendTemplateNaarLijst(emailListSheetName, confirmAddress, isTest) {
   var calendarName = crLeesConfiguratie("Agenda - KerkTV");
   var notice = crLeesConfiguratie("Berichttekst - KerkTV");
   var templateId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
@@ -498,12 +515,15 @@ function cmVerzendTemplateNaarLijst(emailListSheetName, confirmAddress) {
     htmlBody: emailHtml,
     mode: "individual",
     confirmTo: confirmAddress || "avandervliet@gmail.com",
-    confirmMessage: "Liturgie verzonden\nDocument: " + editUrl
+    confirmMessage: "Liturgie verzonden\nDocument: " + editUrl,
+    test: isTest
   });
 }
+
 function cmVerzendMededelingen() {
   cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), false);
 }
+
 function cmVerzendMededelingenVolgendeWeek() {
   cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - Mededelingen"), true);
 }
@@ -590,7 +610,7 @@ function cmMaakMededelingenBijlage(prepared) {
  * gekopieerd, ingevuld en daarna als DOCX geëxporteerd. Losse variabelen horen
  * bij de hoofddienst; `@gegevens@` kan meerdere diensten in de week bevatten.
  */
-function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
+function cmVerzendMededelingenNaarAdres(emailTo, nextWeek, isTest) {
   if (!emailTo) return;
   var prepared = cmBereidMededelingenVoor(nextWeek);
   var attachment = cmMaakMededelingenBijlage(prepared);
@@ -598,16 +618,20 @@ function cmVerzendMededelingenNaarAdres(emailTo, nextWeek) {
   cmVerzendEmail(emailTo, prepared.metadata.subject, {
     htmlBody: html,
     attachments: [attachment.docx],
-    mode: "together"
+    mode: "together",
+    test: isTest
   });
 }
+
 function cmZoekEersteDienstIndex(selection) {
   return selection && selection.datums && selection.datums.length ? 0 : -1;
 }
+
 function cmMaakDocumentkopie(templateId, documentName) {
   var copy = DriveApp.getFileById(templateId).makeCopy(documentName);
   return DocumentApp.openById(copy.getId());
 }
+
 function cmLeesLiturgieUitAgenda(calendarName, startDate, endDate) {
   var calendars = CalendarApp.getCalendarsByName(calendarName);
   if (!calendars.length) throw new Error("Agenda niet gevonden: " + calendarName);
@@ -615,6 +639,7 @@ function cmLeesLiturgieUitAgenda(calendarName, startDate, endDate) {
   if (!events.length) return "";
   return events[0].getDescription().replace(/<br\s*\/?>/gi, "\n").replace(/<\/?b>/gi, "");
 }
+
 function cmExporteerDocumentNaarDocx(documentId, fileName) {
   var url = "https://docs.google.com/document/d/" + documentId + "/export?format=docx";
   return UrlFetchApp.fetch(url, {
@@ -633,15 +658,18 @@ var lineBreakTag = "<br />";
 function cmVerzendMjMededelingen() {
   cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Mailinglijst - MJ"));
 }
+
 function cmMaakMjHtmlElement(tg, str) {
   return "<" + tg + ">" + str + "</" + tg + ">";
 }
+
 function cmHaalGebeurtenissenUitAgenda(calName, startDate, endDate) {
   var cal = CalendarApp.getCalendarsByName(calName);
   if (cal) {
     return cal[0].getEvents(startDate, endDate);
   } else return null;
 }
+
 function cmFormatteerGebeurtenissen(events) {
   var msg = "<ul>";
   for (var i in events) {
@@ -653,12 +681,14 @@ function cmFormatteerGebeurtenissen(events) {
   msg += "</ul>";
   return msg;
 }
+
 function cmFormatteerEersteGebeurtenisVolledig(events) {
   var msg = "<p>";
   msg += "</p>";
   return msg;
 }
-function cmVerzendMjMededelingenNaarAdres(emailTo) {
+
+function cmVerzendMjMededelingenNaarAdres(emailTo, isTest) {
   var serviceCalendar = crLeesConfiguratie("Agenda - KerkTV");
   var activityCalendar = crLeesConfiguratie("Agenda - Activiteiten");
   var templateDocumentId = crLeesConfiguratie("Template-ID - MJ-mededelingen");
@@ -699,22 +729,26 @@ function cmVerzendMjMededelingenNaarAdres(emailTo) {
   cmVerzendEmail(emailTo, emailSubject, {
     textBody: emailText,
     htmlBody: emailHtml,
-    mode: "together"
+    mode: "together",
+    test: isTest
   });
 }
 var lineBreakTag = "<br />";
 function cmVerzendLiemersActiviteiten() {
   cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Mailinglijst - Liemersactiviteiten"));
 }
+
 function cmMaakLiemersHtmlElement(tg, str) {
   return "<" + tg + ">" + str + "</" + tg + ">";
 }
+
 function cmLeesAgenda(calName, startDate, endDate) {
   var cal = CalendarApp.getCalendarsByName(calName);
   if (cal) {
     return cal[0].getEvents(startDate, endDate);
   } else return null;
 }
+
 function cmFormatteerLiemersGebeurtenissen(events) {
   var summary = cmMaakLiemersHtmlElement("h3", "Samenvatting");
   var details = cmMaakLiemersHtmlElement("h3", "Details");
@@ -731,7 +765,8 @@ function cmFormatteerLiemersGebeurtenissen(events) {
   summary += "</ul>";
   return [summary, details];
 }
-function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
+
+function cmVerzendLiemersActiviteitenNaarAdres(emailTo, isTest) {
   var activityCalendar = crLeesConfiguratie("Agenda - Liemersactiviteiten");
   var templateDocumentId = crLeesConfiguratie("Template-ID - Liemersactiviteiten");
   Logger.log(templateDocumentId);
@@ -769,9 +804,11 @@ function cmVerzendLiemersActiviteitenNaarAdres(emailTo) {
   cmVerzendEmail(emailTo, emailSubject, {
     textBody: emailText,
     htmlBody: emailHtml,
-    mode: "together"
+    mode: "together",
+    test: isTest
   });
 }
+
 function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglijst - Kerkdiensten")) {
   var reportWeeks = 12;
   var reportMonths = 6;
@@ -797,6 +834,7 @@ function cmVerzendLijstKerkdiensten(emailTo = crLeesConfiguratie("Mailinglijst -
     to: myself
   });
 }
+
 function cmMaakHtmlLijstrapport(rptWeekStartDate, rptWeekEndDate) {
   var hdr = "Dienstrooster voor week " + rptWeekStartDate + " t/m " + rptWeekEndDate;
   var rptHeader;
@@ -902,7 +940,8 @@ const conv = {
 function cmVerzendLectorrooster() {
   cmVerzendLectorroosterNaarLijst(crLeesConfiguratie("Mailinglijstwerkblad - Lectoren"));
 }
-function cmVerzendLectorroosterNaarLijst(emailListSheet, confirmAddress) {
+
+function cmVerzendLectorroosterNaarLijst(emailListSheet, confirmAddress, isTest) {
   var reportWeeks = 52;
   var curDate = crZetOpBeginVanDag(new Date());
 
@@ -934,9 +973,11 @@ function cmVerzendLectorroosterNaarLijst(emailListSheet, confirmAddress) {
     mode: emailAsBcc ? "bcc" : "individual",
     to: emailConfirmationTo,
     confirmTo: emailConfirmationTo,
-    confirmMessage: emailConfirmationMsg
+    confirmMessage: emailConfirmationMsg,
+    test: isTest
   });
 }
+
 function cmGenereerLectorroosterLijst(rptWeekStartDate, rptWeekEndDate) {
   var rptHeader;
   var {

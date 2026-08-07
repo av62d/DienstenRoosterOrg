@@ -6,6 +6,7 @@
 function exConverteerWerkbladNaarXlsx(sheetName) {
   return exExporteerWerkblad(sheetName, "xlsx");
 }
+
 function exConverteerWerkbladNaarPdf(sheetName) {
   return exExporteerWerkblad(sheetName, "pdf");
 }
@@ -135,6 +136,7 @@ function exMaakRoosterXlsx(argSheetName = "", argSheetTitle = "", rptStartDate =
   });
   return reportSheet;
 }
+
 function exVerzendJaarroosterXlsx(curYear = 2026) {
   var rptSheetName = "Rooster-" + curYear + "-xlsx";
   var ss = SpreadsheetApp.getActive().getSheetByName(rptSheetName);

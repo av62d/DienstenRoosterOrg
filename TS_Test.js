@@ -9,6 +9,7 @@ function tsTestVertaalDatum() {
     Logger.log(name + ": " + crFormatteerDatum(date, crDateFormat[name]));
   });
 }
+
 function tsTestOpmaak() {
   var curDate = new Date();
   crLogFoutopsporing("Today : " + curDate);
@@ -26,6 +27,7 @@ function tsTestOpmaak() {
   crLogFoutopsporing("NextSundayDate " + ns);
   crLogFoutopsporing("NextSundayDate " + crBepaalVolgendeZondag(ns));
 }
+
 function tsTestMaakRooster(curYear = 2026) {
   rptStartDate = crMaakBegindatumVanMaand(6, curYear);
   var sheetPos = "3e kwartaal";
@@ -34,6 +36,7 @@ function tsTestMaakRooster(curYear = 2026) {
   var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDateFormat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 }
+
 function tsTestHtmlRooster() {
   var reportWeeks = 4;
   var reportMonths = 3;
@@ -48,6 +51,7 @@ function tsTestHtmlRooster() {
   msg = rsMaakHtmlRooster(rptStartDate = crZetOpBeginVanDag(), 3);
   Logger.log(msg);
 }
+
 function tsTestVerzendRooster() {
   var ui = SpreadsheetApp.getUi();
   var weekCount = 4;
@@ -57,8 +61,9 @@ function tsTestVerzendRooster() {
   // The user can also close the dialog by clicking the close button in its title
   // bar.
 
-  cmVerzendRoosterNaarLijst(tsLeesTestmailadressen(), weekCount, monthCount, tsEersteTestmailadres());
+  cmVerzendRoosterNaarLijst(tsLeesTestmailadressen(), weekCount, monthCount, tsEersteTestmailadres(), true);
 }
+
 function tsTestMaakHtmlWeekrapport() {
   var curDate = crZetOpBeginVanDag(new Date());
 
@@ -67,16 +72,18 @@ function tsTestMaakHtmlWeekrapport() {
   var rptWeekEndDate = crBepaalEindeVanWeek(crTelWekenBijDatumOp(rptWeekStartDate, 2));
   var msg = cmMaakHtmlWeekrapport(rptWeekStartDate, rptWeekEndDate);
 }
+
 function tsTestVerzendTemplate() {
-  cmVerzendTemplateNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres());
+  cmVerzendTemplateNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres(), true);
 }
 
 /** Verzendt de algemene testtemplate naar de ingestelde testadressen. */
 function tsVerzendTesttemplate() {
   cmVerzendTesttemplate();
 }
+
 function tsTestVerzendMededelingen() {
-  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Testmail"), false);
+  cmVerzendMededelingenNaarAdres(crLeesConfiguratie("Testmail"), false, true);
 }
 
 /** Test normale week, Paasweek, Hemelvaart en Eerste Kerstdag zonder te mailen. */
@@ -113,12 +120,15 @@ function tsTestSelectieMededelingen() {
     new Date(2026, 11, 25, 10), new Date(2026, 11, 27, 10)
   ], 1, 1, 25);
 }
+
 function tsTestVerzendMjMededelingen() {
-  cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Testmail"));
+  cmVerzendMjMededelingenNaarAdres(crLeesConfiguratie("Testmail"), true);
 }
+
 function tsTestVerzendLiemersActiviteiten() {
-  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Testmail"));
+  cmVerzendLiemersActiviteitenNaarAdres(crLeesConfiguratie("Testmail"), true);
 }
+
 function tsTestConversie() {
   var text = "Sample value 123\nSample value 456\nSample value 789";
   console.log(text); // Original text
@@ -128,8 +138,9 @@ function tsTestConversie() {
   console.log(conv.underLine(text)); // Underline
   console.log(conv.strikethrough(text)); // Strikethrough
 }
+
 function tsTestVerzendLectorrooster() {
-  cmVerzendLectorroosterNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres());
+  cmVerzendLectorroosterNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres(), true);
 }
 
 /** Leest de centrale ontvangerslijst voor alle testmails. */
@@ -143,10 +154,12 @@ function tsLeesTestmailadressen() {
 function tsEersteTestmailadres() {
   return tsLeesTestmailadressen()[0][0];
 }
+
 function tsTestAgenda() {
   var arr = kaLeesAgenda(crMaakOfLeegWerkblad('MJ'));
   var x = 1;
 }
+
 function tsTestMaakUitzending() {
   const broadcast = ytMaakYouTubeUitzending("Sunday Worship Service", "2026-07-12", "10:00");
   const stream = ytMaakLivestream("Kerkdienst");
@@ -154,11 +167,13 @@ function tsTestMaakUitzending() {
   Logger.log("Broadcast: " + broadcast.id);
   Logger.log("Stream: " + stream.id);
 }
+
 function tsTestBereikbaarheid() {
   var url = "https://www.pkn-didam.nl";
   var response = UrlFetchApp.fetch(url);
   Logger.log(response.getContentText());
 }
+
 function tsTestOphalen() {
   var uploadData = new Array();
   var myChannels = YouTube.Channels.list('contentDetails', {
@@ -191,11 +206,13 @@ function tsTestOphalen() {
   }
   return uploadData;
 }
+
 function tsTestKleurwerkblad() {
   var src = SpreadsheetApp.getActive().getSheetByName("NaamKleuren");
   var dst = SpreadsheetApp.getActive().getSheetByName("Rooster-3-maanden");
   opPasKleurenToeOpWaarde(src, dst, 4, 11);
 }
+
 function tsTestGenereerKleuren() {
   opGenereerOnderscheidendeKleurenVerticaal(30, "Colors");
 }

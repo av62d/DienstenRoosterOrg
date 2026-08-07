@@ -120,6 +120,7 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     didamDiensten: didamServices
   };
 }
+
 function rsMaakRoosterWerkbladnaam(startDate = new Date(), rptNumMonths = 3) {
   var title = "";
   switch (rptNumMonths) {
@@ -135,6 +136,7 @@ function rsMaakRoosterWerkbladnaam(startDate = new Date(), rptNumMonths = 3) {
   }
   return "Rooster-" + crFormatteerDatum(startDate, crDateFormat.JAAR) + " " + title;
 }
+
 function rsMaakRoosterWerkbladtitel(startDate = new Date(), rptNumMonths = 3) {
   var title = "";
   switch (rptNumMonths) {
@@ -254,10 +256,12 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
   });
   return reportSheet;
 }
+
 function rsMaakMaandroosterWerkbladnaam(startDate = new Date()) {
   var title = "";
   return "Rooster-" + crFormatteerDatum(startDate, crDateFormat.SORTEERMAAND);
 }
+
 function rsMaakMaandroosterWerkbladtitel(startDate = new Date()) {
   var title = "";
   return crFormatteerDatum(startDate, crDateFormat.MAAND_JAAR);
@@ -292,9 +296,11 @@ function rsVerwijderWerkbladenMetVoorvoegsel(prefix) {
   });
   return matchingSheets.length;
 }
+
 function rsMaakJaarrooster(curYear = 2026) {
   rsMaakRoosterWerkblad(rsMaakJaarroosterNaam(curYear), "Rooster - " + curYear, crBepaalBeginVanJaar(curYear), 12);
 }
+
 function rsMaakHalfjaarrooster1(curYear = 2026) {
   rptStartDate = crMaakBegindatumVanMaand(0, curYear);
   var sheetPos = "1e halfjaar";
@@ -315,6 +321,7 @@ function rsMaakHalfjaarrooster1(curYear = 2026) {
   var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDateFormat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 }
+
 function rsMaakHalfjaarrooster2(curYear = 2026) {
   rptStartDate = crMaakBegindatumVanMaand(6, curYear);
   var sheetPos = "2e halfjaar";
@@ -335,9 +342,11 @@ function rsMaakHalfjaarrooster2(curYear = 2026) {
   var sheetTitle = "Rooster " + sheetPos + " vanaf " + crFormatteerDatum(rptStartDate, crDateFormat.MAAND_JAAR);
   rsMaakRoosterWerkblad(sheetName, sheetTitle, rptStartDate, sheetLen);
 }
+
 function rsMaakJaarroosterNaam(curYear = 2026) {
   return "Rooster-" + curYear;
 }
+
 function rsVerzendJaarrooster(curYear = 2026) {
   var rptSheetName = rsMaakJaarroosterNaam(curYear);
   var ss = SpreadsheetApp.getActive().getSheetByName(rptSheetName);
@@ -372,6 +381,7 @@ var colcount = 1;
 function rsStelTabelkolommenIn(tableRow) {
   colcount = tableRow.length;
 }
+
 function rsMaakHtmlElementen(tag, tableRow) {
   var msg = "";
   for (i in tableRow) {
@@ -379,12 +389,15 @@ function rsMaakHtmlElementen(tag, tableRow) {
   }
   return msg;
 }
+
 function rsMaakHtmlElement(tag, val) {
   return "<" + tag + ">" + val + "</" + tag + ">";
 }
+
 function rsMaakHtmlElementMetOptie(tag, opt, val) {
   return "<" + tag + " " + opt + ">" + val + "</" + tag + ">";
 }
+
 function rsVoegTabelrijToe(tag, hdrRow) {
   return rsMaakHtmlElement("tr", rsMaakHtmlElementen(tag, hdrRow));
 }

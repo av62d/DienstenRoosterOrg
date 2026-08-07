@@ -12,6 +12,7 @@ function onOpen(e) {
 function onEdit(e) {
   return bhBijWijzigingVoorpagina(e);
 }
+
 function mnBijOpenen() {
   var ui = SpreadsheetApp.getUi();
   var mainMenu = ui.createMenu("Dienstenrooster");
