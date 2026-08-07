@@ -65,8 +65,8 @@ technische kalendernotatie; dit zijn geen zichtbare rapportformaten.
 
 - `crLeesAlleConfiguratie` leest Configuratie maximaal eenmaal per uitvoering;
   `crLeesConfiguratie` gebruikt daarna de in-memory cache.
-- `bhBijWijzigingVoorpagina` herberekent alleen de gewijzigde rijen en alleen
-  de afgeleide kolommen waarvan de bron is gewijzigd.
+- `bhBijWijzigingVoorpagina` verwerkt alleen de gewijzigde rijen en alleen de
+  afleidingen van Datum, Collecte of Heilig Avondmaal die geraakt zijn.
 - `opStelAchtergrondkleurenIn` leest en schrijft alle achtergrondkleuren in
   één batch.
 - `rsSelecteerGegevens` retourneert een object met benoemde gegevensvelden;
@@ -82,7 +82,7 @@ technische kalendernotatie; dit zijn geen zichtbare rapportformaten.
 Iedere kolom heeft daarin een vaste technische `naam`, een leesbare `titel`, een
 `type`, eventuele oude `aliases` en, voor afgeleide kolommen, een `bron`.
 
-Productiecode gebruikt uitsluitend de vaste namen uit `bhVoorpaginaKolom`.
+Productiecode gebruikt uitsluitend de vaste namen uit `bhFrontCol`.
 `bhMaakVoorpaginaKolomindex` koppelt de zichtbare titels en eventuele oude
 kopteksten aan deze namen. `bhMaakDienstVanRij` zet vervolgens een fysieke rij
 om in een dienstobject met benoemde velden, bijvoorbeeld `dienst.Datum`,
@@ -109,6 +109,9 @@ de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
   migreert oude sleutelnamen en bouwt de vaste, logisch gegroepeerde tabel op.
 - `bhMigreerVoorpagina`: maakt een backup en migreert Voorpagina eenmalig naar
   de nieuwe, naamgestuurde kolomstructuur.
+- `bhControleerEnHerberekenVoorpagina`: herstelt de keuzevalidaties, berekent
+  Maand, Kwartaal en CollecteCategorie opnieuw en synchroniseert de tekst
+  `Heilig Avondmaal` in Bijzonderheden met het bijbehorende selectievakje.
 - `bhHerstelDraaitabelbronnen`: bouwt draaitabellen met een verkeerde of
   onleesbare bron opnieuw op dezelfde ankercel op, met behoud van uitleesbare
   groepen, waarden, filters en weergave-instellingen en met `Voorpagina` als

@@ -350,8 +350,7 @@ function bhMigreerVoorpagina() {
   }
   var lastRow = sheet.getLastRow();
   if (lastRow > 1) {
-    bhHerberekenVoorpagina(false);
-    bhStelVoorpaginaValidatiesIn(false);
+    bhControleerEnHerberekenVoorpagina(false);
   }
   sheet.setFrozenRows(backup.getFrozenRows());
   sheet.setFrozenColumns(Math.min(backup.getFrozenColumns(), wantedCount));
@@ -486,53 +485,42 @@ function bhHerstelDraaitabelbronnen(showMessage) {
   return result;
 }
 
-/** Stelt de afgesproken selectievakjes en ja/nee-keuzelijsten opnieuw in. */
-function bhStelVoorpaginaValidatiesIn(showMessage) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Voorpagina");
-  if (!sheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return {
-    bijgewerkteRijen: 0
-  };
-  var cols = bhMaakVoorpaginaKolomindex(sheet);
-  var schema = bhVoorpaginaKolomspecificatie();
-  var checkboxes = schema.filter(function (col) {
-    return col.type === "selectievakje";
-  });
-  var yesNoCols = schema.filter(function (col) {
-    return col.type === "jaNeeKeuze";
-  });
-  checkboxes.forEach(function (col) {
-    var communionRange = sheet.getRange(2, bhZoekVoorpaginaKolom(cols, col.naam) + 1, lastRow - 1, 1);
-    var communionValues = communionRange.getValues().map(function (row) {
-      var value = String(row[0] === null || row[0] === undefined ? "" : row[0]).trim().toLowerCase();
-      return [row[0] === true || value === "ja" || value === "x" || value === "ha" || value === "true" || value === "1"];
-    });
-    communionRange.clearDataValidations().insertCheckboxes().setValues(communionValues);
-  });
-  var yesNoRule = SpreadsheetApp.newDataValidation().requireValueInList(["ja", "nee"], true).setAllowInvalid(false).build();
-  yesNoCols.forEach(function (col) {
-    var range = sheet.getRange(2, bhZoekVoorpaginaKolom(cols, col.naam) + 1, lastRow - 1, 1);
-    var values = range.getValues().map(function (row) {
-      var value = String(row[0] === null || row[0] === undefined ? "" : row[0]).trim().toLowerCase();
-      if (row[0] === true || value === "ja" || value === "x" || value === "true" || value === "1") return ["ja"];
-      if (row[0] === false || value === "nee" || value === "false" || value === "0") return ["nee"];
-      return [""];
-    });
-    range.clearDataValidations().setDataValidation(yesNoRule).setValues(values);
-  });
-  var result = {
-    bijgewerkteRijen: lastRow - 1
-  };
-  if (showMessage !== false) {
-    SpreadsheetApp.getUi().alert("Heilig Avondmaal is een selectievakje; Koffiedienst en Dienst in Didam zijn ja/nee-keuzes.");
-  }
-  return result;
+/** Herkent de verschillende waarden die in oude roosters als `ja` golden. */
+function bhIsJaWaarde(value) {
+  return value === true || ["ja", "x", "ha", "true", "1"].indexOf(String(value === null || value === undefined ? "" : value).trim().toLowerCase()) >= 0;
 }
 
-/** Herbouwt uitsluitend de drie afgeleide kolommen op Voorpagina. */
-function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcCollection) {
+/** Normaliseert een waarde voor de ja/nee-keuzelijsten. */
+function bhNormaliseerJaNee(value) {
+  var text = String(value === null || value === undefined ? "" : value).trim().toLowerCase();
+  if (bhIsJaWaarde(value)) return "ja";
+  if (value === false || ["nee", "false", "0"].indexOf(text) >= 0) return "nee";
+  return "";
+}
+
+/** Houdt de afgeleide tekst `Heilig Avondmaal` synchroon met het selectievakje. */
+function bhSynchroniseerAvondmaalBijzonderheden(value, hasCommunion) {
+  var parts = String(value === null || value === undefined ? "" : value).split(/\s*,\s*/).map(function (part) {
+    return part.trim();
+  }).filter(function (part) {
+    return part && part.toLowerCase() !== "heilig avondmaal";
+  });
+  if (hasCommunion) parts.push("Heilig Avondmaal");
+  return parts.join(", ");
+}
+
+/**
+ * Controleert keuzes en herberekent alle afgeleide waarden op Voorpagina.
+ * Bij `onEdit` beperken opties de verwerking tot gewijzigde rijen en kolommen;
+ * een handmatige beheeractie controleert standaard alle rijen en afleidingen.
+ */
+function bhControleerEnHerberekenVoorpagina(showMessage, firstRow, rowCount, options) {
   var startTime = crStartMeting();
+  options = options || {};
+  var calcDate = options.calcDate !== false;
+  var calcCollection = options.calcCollection !== false;
+  var syncCommunion = options.syncCommunion !== false;
+  var restoreChoices = options.restoreChoices !== false;
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Voorpagina");
   if (!sheet) throw new Error("Werkblad 'Voorpagina' ontbreekt.");
@@ -542,6 +530,10 @@ function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcC
   var categoryCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.COLLECTECATEGORIE) + 1;
   var quarterCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.KWARTAAL) + 1;
   var monthCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.MAAND) + 1;
+  var communionCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.HEILIG_AVONDMAAL) + 1;
+  var notesCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.BIJZONDERHEDEN) + 1;
+  var coffeeServiceCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.KOFFIEDIENST) + 1;
+  var didamServiceCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.DIDAMDIENST) + 1;
   var categoryByTarget = {};
   if (calcCollection !== false) {
     var collectionSheet = ss.getSheetByName("Lijst Collectes");
@@ -572,6 +564,10 @@ function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcC
   var quarters = [];
   var months = [];
   var categories = [];
+  var communionValues = [];
+  var notesValues = [];
+  var coffeeServiceValues = [];
+  var didamServiceValues = [];
   data.forEach(function (row) {
     var date = row[dateCol - 1];
     var validDate = date instanceof Date && !isNaN(date.getTime());
@@ -580,6 +576,11 @@ function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcC
     quarters.push([month ? Math.ceil(month / 3) : ""]);
     var collection = String(row[collectionCol - 1] || "").trim();
     categories.push([collection && categoryByTarget.hasOwnProperty(collection) ? categoryByTarget[collection] : ""]);
+    var hasCommunion = bhIsJaWaarde(row[communionCol - 1]);
+    communionValues.push([hasCommunion]);
+    notesValues.push([bhSynchroniseerAvondmaalBijzonderheden(row[notesCol - 1], hasCommunion)]);
+    coffeeServiceValues.push([bhNormaliseerJaNee(row[coffeeServiceCol - 1])]);
+    didamServiceValues.push([bhNormaliseerJaNee(row[didamServiceCol - 1])]);
   });
   if (calcDate !== false) {
     sheet.getRange(startRow, quarterCol, quarters.length, 1).setValues(quarters);
@@ -588,18 +589,31 @@ function bhHerberekenVoorpagina(showMessage, firstRow, rowCount, calcDate, calcC
   if (calcCollection !== false) {
     sheet.getRange(startRow, categoryCol, categories.length, 1).setValues(categories);
   }
+  if (syncCommunion) {
+    sheet.getRange(startRow, notesCol, notesValues.length, 1).setValues(notesValues);
+  }
+  if (restoreChoices) {
+    sheet.getRange(startRow, communionCol, communionValues.length, 1).clearDataValidations().insertCheckboxes().setValues(communionValues);
+    var yesNoRule = SpreadsheetApp.newDataValidation().requireValueInList(["ja", "nee"], true).setAllowInvalid(false).build();
+    sheet.getRange(startRow, coffeeServiceCol, coffeeServiceValues.length, 1).clearDataValidations().setDataValidation(yesNoRule).setValues(coffeeServiceValues);
+    sheet.getRange(startRow, didamServiceCol, didamServiceValues.length, 1).clearDataValidations().setDataValidation(yesNoRule).setValues(didamServiceValues);
+  }
   var result = {
-    bijgewerkteRijen: actualRowCount
+    bijgewerkteRijen: actualRowCount,
+    datumHerberekend: calcDate,
+    collecteCategorieHerberekend: calcCollection,
+    avondmaalGesynchroniseerd: syncCommunion,
+    keuzesHersteld: restoreChoices
   };
-  result.milliseconden = crEindMeting("bhHerberekenVoorpagina", startTime, result);
+  result.milliseconden = crEindMeting("bhControleerEnHerberekenVoorpagina", startTime, result);
   console.log(JSON.stringify(result, null, 2));
   if (showMessage !== false) {
-    SpreadsheetApp.getUi().alert("Kwartaal, Maand en CollecteCategorie zijn opnieuw berekend.");
+    SpreadsheetApp.getUi().alert("Voorpagina gecontroleerd: keuzes hersteld en alle afgeleide waarden opnieuw berekend.");
   }
   return result;
 }
 
-/** Werkt afgeleide waarden bij na wijziging van Datum of Collecte. */
+/** Werkt relevante afgeleide waarden bij na wijziging van Datum, Collecte of HA. */
 function bhBijWijzigingVoorpagina(e) {
   if (!e || !e.range) return;
   var sheet = e.range.getSheet();
@@ -609,14 +623,21 @@ function bhBijWijzigingVoorpagina(e) {
   var lastChangedCol = firstChangedCol + e.range.getNumColumns() - 1;
   var dateCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.DATUM);
   var collectionCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.COLLECTE);
-  if ((dateCol < firstChangedCol || dateCol > lastChangedCol) && (collectionCol < firstChangedCol || collectionCol > lastChangedCol)) return;
+  var communionCol = bhZoekVoorpaginaKolom(cols, bhFrontCol.HEILIG_AVONDMAAL);
+  var dateChanged = dateCol >= firstChangedCol && dateCol <= lastChangedCol;
+  var collectionChanged = collectionCol >= firstChangedCol && collectionCol <= lastChangedCol;
+  var communionChanged = communionCol >= firstChangedCol && communionCol <= lastChangedCol;
+  if (!dateChanged && !collectionChanged && !communionChanged) return;
   var firstRow = Math.max(2, e.range.getRow());
   var lastChangedRow = e.range.getRow() + e.range.getNumRows() - 1;
   var rowCount = Math.max(0, lastChangedRow - firstRow + 1);
   if (!rowCount) return;
-  var dateChanged = dateCol >= firstChangedCol && dateCol <= lastChangedCol;
-  var collectionChanged = collectionCol >= firstChangedCol && collectionCol <= lastChangedCol;
-  bhHerberekenVoorpagina(false, firstRow, rowCount, dateChanged, collectionChanged);
+  bhControleerEnHerberekenVoorpagina(false, firstRow, rowCount, {
+    calcDate: dateChanged,
+    calcCollection: collectionChanged,
+    syncCommunion: communionChanged,
+    restoreChoices: false
+  });
 }
 
 /** Enige bron voor de toegestane configuratieregels en hun presentatievolgorde. */
