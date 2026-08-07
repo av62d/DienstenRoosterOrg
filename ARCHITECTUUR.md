@@ -102,6 +102,18 @@ volgorde, vervangt oude koppen door de leesbare titels, maakt `Heilig Avondmaal`
 als selectievakje en `Koffiedienst`/`Dienst in Didam` als ja/nee-keuzelijsten en bouwt
 de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
 
+## Centrale adressentabel
+
+`bhAdressenKolomspecificatie` bepaalt de vaste volgorde van `Naam`,
+`Sorteernaam`, `Email`, `Telefoon` en alle groeps- en taakkolommen. Alle
+groeps- en taakkolommen zijn selectievakjes. `bhWerkAdressenBij` maakt eerst een
+backup, voegt dubbele personen samen, combineert de oude velden `Ouderling` en
+`Diaken` tot `Ambtsdrager`, hernoemt `Koffiezetter` naar `Koffie` en importeert
+de bestaande benoemde taaklijsten. De voorgangerslijst wordt niet geïmporteerd.
+
+`Sorteernaam` wordt met `bhMaakSorteernaam` uit `Naam` berekend. De eenvoudige
+`onEdit`-trigger werkt deze waarde ook bij wanneer een naam later wordt gewijzigd.
+
 ## Beheerfuncties
 
 - `bhControleerSpreadsheet`: controleert de vaste werkbladen, benoemde bereiken
@@ -114,6 +126,8 @@ de berekende kolommen `Kwartaal`, `Maand` en `CollecteCategorie` opnieuw op.
   bestaande templatebestandsnamen om naar document-ID's.
 - `bhSchoonConfiguratieOp`: behoudt alleen werkelijk gebruikte instellingen,
   migreert oude sleutelnamen en bouwt de vaste, logisch gegroepeerde tabel op.
+- `bhWerkAdressenBij`: maakt een backup en migreert Adressen naar het vaste
+  centrale personen- en takenschema.
 - `bhMigreerVoorpagina`: maakt een backup en migreert Voorpagina eenmalig naar
   de nieuwe, naamgestuurde kolomstructuur.
 - `bhControleerEnHerberekenVoorpagina`: herstelt de keuzevalidaties, berekent

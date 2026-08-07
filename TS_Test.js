@@ -87,6 +87,20 @@ function tsTestHtmlBuilder() {
   console.log("HTML-buildertest geslaagd.");
 }
 
+/** Controleert sorteernamen en het samenvoegen van oude Adressen-kolommen. */
+function tsTestAdressenMigratie() {
+  if (bhMaakSorteernaam("Jan de Jongh") !== "Jongh, Jan de") throw new Error("Sorteernaam mislukt.");
+  var collection = bhConsolideerAdresrijen(["Naam", "Email", "Ouderling", "Diaken", "Koffiezetter"], [
+    ["Jan de Jongh", "jan@example.nl", true, false, "ja"],
+    ["JAN DE JONGH", "jan@example.nl", false, true, false]
+  ]);
+  var output = bhMaakAdresuitvoer(collection);
+  if (output.length !== 1 || output[0][1] !== "Jongh, Jan de" || output[0][7] !== true || output[0][11] !== true) {
+    throw new Error("Samenvoegen van Adressen mislukt: " + JSON.stringify(output));
+  }
+  console.log("Adressen-migratietest geslaagd.");
+}
+
 function tsTestVerzendTemplate() {
   cmVerzendTemplateNaarLijst(tsLeesTestmailadressen(), tsEersteTestmailadres(), true);
 }
