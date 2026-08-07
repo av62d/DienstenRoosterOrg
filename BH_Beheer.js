@@ -249,6 +249,38 @@ function bhMaakAdresuitvoer(collection) {
   });
 }
 
+/** Zoekt de kopregel en begin-/eindkolom van de tabel Adressen. */
+function bhVindAdressenTabelpositie(sheet) {
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+  if (!lastRow || !lastCol) return { headerRow: 1, startCol: 1, columnCount: 0 };
+  var values = sheet.getRange(1, 1, lastRow, lastCol).getDisplayValues();
+  var known = [];
+  bhAdressenKolomspecificatie().forEach(function (col) {
+    [col.name].concat(col.aliases || []).forEach(function (name) {
+      known.push(crNormaliseerKolomnaam(name));
+    });
+  });
+  var best = null;
+  values.forEach(function (row, rowIndex) {
+    row.forEach(function (value, colIndex) {
+      if (crNormaliseerKolomnaam(value) !== crNormaliseerKolomnaam(bhAddressCol.NAME)) return;
+      var score = row.slice(colIndex).filter(function (header) {
+        return known.indexOf(crNormaliseerKolomnaam(header)) >= 0;
+      }).length;
+      if (!best || score > best.score) best = { headerRow: rowIndex + 1, startCol: colIndex + 1, score: score };
+    });
+  });
+  if (!best) throw new Error("De bestaande Adressen-tabel bevat gegevens, maar de kolom 'Naam' is nergens gevonden.");
+  var headerValues = values[best.headerRow - 1];
+  var endCol = best.startCol;
+  for (var col = best.startCol; col <= lastCol; col++) {
+    if (!String(headerValues[col - 1] || "").trim()) break;
+    endCol = col;
+  }
+  return { headerRow: best.headerRow, startCol: best.startCol, columnCount: endCol - best.startCol + 1 };
+}
+
 /**
  * Werkt Adressen bij naar het vaste schema en importeert de bestaande taken.
  * Maakt altijd eerst een volledige backup van het werkblad.
@@ -256,10 +288,11 @@ function bhMaakAdresuitvoer(collection) {
 function bhWerkAdressenBij(showMessage) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Adressen") || ss.insertSheet("Adressen");
+  var position = bhVindAdressenTabelpositie(sheet);
   var lastRow = sheet.getLastRow();
-  var lastCol = sheet.getLastColumn();
-  var headers = lastCol ? sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0] : [];
-  var rows = lastRow > 1 && lastCol ? sheet.getRange(2, 1, lastRow - 1, lastCol).getValues() : [];
+  var headers = position.columnCount ? sheet.getRange(position.headerRow, position.startCol, 1, position.columnCount).getDisplayValues()[0] : [];
+  var rows = lastRow > position.headerRow && position.columnCount
+    ? sheet.getRange(position.headerRow + 1, position.startCol, lastRow - position.headerRow, position.columnCount).getValues() : [];
   var knownHeaders = [];
   bhAdressenKolomspecificatie().forEach(function (col) {
     [col.name].concat(col.aliases || []).forEach(function (name) {
@@ -281,22 +314,25 @@ function bhWerkAdressenBij(showMessage) {
   var backupName = "Adressen backup " + crFormatteerDatum(new Date(), crDateFormat.BACKUPTIJDSTEMPEL);
   sheet.copyTo(ss).setName(backupName);
   var columnCount = spec.length;
-  if (sheet.getMaxColumns() < columnCount) sheet.insertColumnsAfter(sheet.getMaxColumns(), columnCount - sheet.getMaxColumns());
-  var clearRows = Math.max(sheet.getLastRow(), output.length + 1, 2);
-  var clearCols = Math.max(sheet.getLastColumn(), columnCount);
-  sheet.getRange(1, 1, clearRows, clearCols).clearContent().clearDataValidations();
-  sheet.getRange(1, 1, 1, columnCount).setValues([spec.map(function (col) { return col.name; })]);
+  var requiredLastCol = position.startCol + columnCount - 1;
+  var requiredLastRow = position.headerRow + Math.max(output.length, 1);
+  if (sheet.getMaxColumns() < requiredLastCol) sheet.insertColumnsAfter(sheet.getMaxColumns(), requiredLastCol - sheet.getMaxColumns());
+  if (sheet.getMaxRows() < requiredLastRow) sheet.insertRowsAfter(sheet.getMaxRows(), requiredLastRow - sheet.getMaxRows());
+  var clearRows = Math.max(sheet.getLastRow() - position.headerRow + 1, output.length + 1, 2);
+  var clearCols = Math.max(position.columnCount, columnCount);
+  sheet.getRange(position.headerRow, position.startCol, clearRows, clearCols).clearContent().clearDataValidations();
+  sheet.getRange(position.headerRow, position.startCol, 1, columnCount).setValues([spec.map(function (col) { return col.name; })]);
   if (output.length) {
-    var checkboxStart = spec.findIndex(function (col) { return col.checkbox; }) + 1;
-    sheet.getRange(2, checkboxStart, output.length, columnCount - checkboxStart + 1).insertCheckboxes();
-    sheet.getRange(2, 1, output.length, columnCount).setValues(output);
-    sheet.getRange(2, 1, output.length, columnCount).sort({ column: 2, ascending: true });
+    var checkboxOffset = spec.findIndex(function (col) { return col.checkbox; });
+    sheet.getRange(position.headerRow + 1, position.startCol + checkboxOffset, output.length, columnCount - checkboxOffset).insertCheckboxes();
+    sheet.getRange(position.headerRow + 1, position.startCol, output.length, columnCount).setValues(output);
+    sheet.getRange(position.headerRow + 1, position.startCol, output.length, columnCount).sort({ column: position.startCol + 1, ascending: true });
   }
-  sheet.setFrozenRows(1);
-  sheet.getRange(1, 1, 1, columnCount).setFontWeight("bold");
-  sheet.getRange(2, 3, Math.max(output.length, 1), 2).setNumberFormat("@");
-  sheet.autoResizeColumns(1, columnCount);
-  var result = { gewijzigd: true, personen: output.length, backup: backupName, kolommen: columnCount, verwijderdeKolommen: unknownHeaders };
+  sheet.setFrozenRows(position.headerRow);
+  sheet.getRange(position.headerRow, position.startCol, 1, columnCount).setFontWeight("bold");
+  sheet.getRange(position.headerRow + 1, position.startCol + 2, Math.max(output.length, 1), 2).setNumberFormat("@");
+  sheet.autoResizeColumns(position.startCol, columnCount);
+  var result = { gewijzigd: true, personen: output.length, backup: backupName, kolommen: columnCount, kopregel: position.headerRow, beginkolom: position.startCol, verwijderdeKolommen: unknownHeaders };
   console.log(JSON.stringify(result, null, 2));
   if (showMessage !== false) SpreadsheetApp.getUi().alert("Adressen bijgewerkt. Personen: " + output.length + ". Backup: " + backupName + ".");
   return result;
@@ -304,10 +340,12 @@ function bhWerkAdressenBij(showMessage) {
 
 /** Werkt Sorteernaam direct bij wanneer een Naam in Adressen wordt gewijzigd. */
 function bhBijWijzigingAdressen(e) {
-  if (!e || !e.range || e.range.getRow() === 1) return;
+  if (!e || !e.range) return;
   var sheet = e.range.getSheet();
   if (sheet.getName() !== "Adressen") return;
-  var cols = crMaakKolomindex(sheet);
+  var position = bhVindAdressenTabelpositie(sheet);
+  if (e.range.getRow() <= position.headerRow) return;
+  var cols = crMaakKolomindex(sheet, position.headerRow);
   var nameCol = crZoekKolom(cols, bhAddressCol.NAME) + 1;
   var sortCol = crZoekKolom(cols, bhAddressCol.SORT_NAME) + 1;
   var firstChangedCol = e.range.getColumn();
