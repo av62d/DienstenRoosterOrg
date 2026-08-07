@@ -511,7 +511,7 @@ function cmVerzendTemplate() {
 }
 
 function cmVerzendTemplateNaarLijst(emailListSheetName, confirmAddress, isTest) {
-  var calendarName = crLeesConfiguratie("Agenda - KerkTV");
+  var calendarName = crLeesConfiguratie("Agenda - Kerkdiensten");
   var notice = crLeesConfiguratie("Berichttekst - KerkTV");
   var templateId = crLeesConfiguratie("Template-ID - KerkTV-liturgie");
   var templateDocument = DocumentApp.openById(templateId);
@@ -641,7 +641,7 @@ function cmMaakMededelingenBijlage(prepared) {
   var document = cmMaakDocumentkopie(prepared.documentTemplateId, meta.subject);
   var dayStart = crZetOpBeginVanDag(new Date(meta.serviceDate));
   var dayEnd = crZetTijdOpEindeVanDag(new Date(meta.serviceDate));
-  var liturgy = cmLeesLiturgieUitAgenda(crLeesConfiguratie("Agenda - KerkTV"), dayStart, dayEnd);
+  var liturgy = cmLeesLiturgieUitAgenda(crLeesConfiguratie("Agenda - Kerkdiensten"), dayStart, dayEnd);
   var documentId = document.getId();
   var editUrl = "https://docs.google.com/document/d/" + documentId + "/edit?usp=sharing";
   var vars = cmMaakMededelingenVariabelen(prepared.primarySelection, meta.subject, liturgy, editUrl);
@@ -726,7 +726,7 @@ function cmFormatteerEersteGebeurtenisVolledig(events) {
 }
 
 function cmVerzendMjMededelingenNaarAdres(emailTo, isTest) {
-  var serviceCalendar = crLeesConfiguratie("Agenda - KerkTV");
+  var serviceCalendar = crLeesConfiguratie("Agenda - Kerkdiensten");
   var activityCalendar = crLeesConfiguratie("Agenda - Activiteiten");
   var templateDocumentId = crLeesConfiguratie("Template-ID - MJ-mededelingen");
   Logger.log(templateDocumentId);

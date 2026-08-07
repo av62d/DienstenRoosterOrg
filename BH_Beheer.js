@@ -645,18 +645,13 @@ function bhConfiguratieSpecificatie() {
   return [{
     categorie: "Agenda's",
     sleutel: "Agenda - Kerkdiensten",
-    aliases: ["Kalender Kerkdiensten"],
-    toelichting: "Naam van de agenda met kerkdiensten."
+    aliases: ["Kalender Kerkdiensten", "Agenda - KerkTV", "Kalender KerkTV"],
+    toelichting: "Naam van de agenda met kerkdiensten en KerkTV-gegevens."
   }, {
     categorie: "Agenda's",
     sleutel: "Agenda - Activiteiten",
     aliases: ["Kalender Activiteiten"],
     toelichting: "Naam van de algemene activiteitenagenda."
-  }, {
-    categorie: "Agenda's",
-    sleutel: "Agenda - KerkTV",
-    aliases: ["Kalender KerkTV"],
-    toelichting: "Naam van de agenda die voor KerkTV wordt gebruikt."
   }, {
     categorie: "Agenda's",
     sleutel: "Agenda - Liemersactiviteiten",
