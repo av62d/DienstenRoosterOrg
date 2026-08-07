@@ -61,13 +61,8 @@ function rsSelecteerGegevens(argStartDate = new Date(), argEndDate = new Date())
     types.push("");
     var fullTitle = service.Voorganger;
     if (service.Bijzonderheden) fullTitle += ", " + service.Bijzonderheden;
-    if (service.HeiligAvondmaal) fullTitle += ", Heilig Avondmaal";
     titles.push(fullTitle);
     var fullNotes = service.Bijzonderheden;
-    if (service.HeiligAvondmaal) {
-      if (fullNotes) fullNotes += ", ";
-      fullNotes += "Heilig Avondmaal";
-    }
     ministers.push(service.Voorganger);
     notes.push(fullNotes);
     sextons.push(service.Koster);
@@ -202,7 +197,7 @@ function rsMaakRoosterWerkblad(argSheetName = "", argSheetTitle = "", rptStartDa
       dataSegments.push(currentSegment);
     }
     alternateColor = alternateColor === crRowBg ? crAltRowBg : crRowBg;
-    var background = roster.avondmaal[i] ? crCommunionBg : alternateColor;
+    var background = alternateColor;
     var colorName = String(roster.kleuren[i] || "").toLowerCase();
     var liturgicalColor = {
       wit: "white",

@@ -126,12 +126,6 @@ function cmIsNeeWaarde(value) {
 function cmMaakDienstvelden(selection, index) {
   var notes = [];
   if (selection.bijzonderheden[index]) notes.push(String(selection.bijzonderheden[index]));
-  var hasCommunionText = notes.some(function (note) {
-    return note.split(/\s*,\s*/).some(function (part) {
-      return part.trim().toLowerCase() === "heilig avondmaal";
-    });
-  });
-  if (cmIsJaWaarde(selection.avondmaal[index]) && !hasCommunionText) notes.push("Heilig Avondmaal");
   var minister = String(selection.voorgangers[index] || "");
   if (minister && notes.length) minister += ", " + notes.join(", ");
   var coffee = cmIsNeeWaarde(selection.koffieDiensten[index]) ? "geen koffie" : selection.koffie[index];
